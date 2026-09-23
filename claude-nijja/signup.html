@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReClaim 회원가입</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/login.css">
+</head>
+<body>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/auth.js"></script>
+
+<div class="login-shell">
+  <aside class="login-visual">
+    <a class="logo" href="index.html"><span class="logo-mark"><svg class="i"><use href="#i-recycle"/></svg></span>ReClaim</a>
+    <div class="visual-copy">
+      <h2>해체 계획을<br><em>더 빠르고 정확하게</em></h2>
+      <p>가입하면 프로젝트를 만들고 팀과 함께 검토·승인할 수 있습니다.</p>
+      <ul>
+        <li><svg class="i"><use href="#i-check"/></svg>현장 사진과 자재 정보로 재사용 가치 평가</li>
+        <li><svg class="i"><use href="#i-check"/></svg>운송비를 줄이는 물류 대안 비교</li>
+        <li><svg class="i"><use href="#i-check"/></svg>역할별 검토·승인과 보고서 내보내기</li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="login-main">
+    <a class="back" href="login.html" id="back"><svg class="i"><use href="#i-chevron-left"/></svg>로그인으로</a>
+    <div class="login-card">
+      <h1>회원가입</h1>
+      <p class="muted">정보를 입력하면 바로 시작할 수 있습니다.</p>
+
+      <form id="signup-form" novalidate>
+        <div class="form-2">
+          <div class="field">
+            <label for="name">이름</label>
+            <input class="input" id="name" name="name" autocomplete="name" placeholder="홍길동" required>
+            <span class="error" id="name-error" role="alert"></span>
+          </div>
+          <div class="field">
+            <label for="org">소속 <span class="hint">(선택)</span></label>
+            <input class="input" id="org" name="org" autocomplete="organization" placeholder="회사·기관명">
+          </div>
+        </div>
+        <div class="field">
+          <label for="email">이메일</label>
+          <input class="input" id="email" name="email" type="email" autocomplete="email" placeholder="name@company.com" required>
+          <span class="error" id="email-error" role="alert"></span>
+        </div>
+        <div class="field">
+          <label for="password">비밀번호</label>
+          <div class="pw-wrap">
+            <input class="input" id="password" name="password" type="password" autocomplete="new-password" placeholder="8자 이상, 영문·숫자 포함" required>
+            <button class="pw-toggle" type="button" data-toggle="password" aria-label="비밀번호 보기" aria-pressed="false">보기</button>
+          </div>
+          <div class="strength" id="strength" data-level="0" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <span class="hint" id="strength-label">영문, 숫자, 특수문자를 섞으면 더 안전합니다.</span>
+          <span class="error" id="password-error" role="alert"></span>
+        </div>
+        <div class="field">
+          <label for="password2">비밀번호 확인</label>
+          <div class="pw-wrap">
+            <input class="input" id="password2" name="password2" type="password" autocomplete="new-password" required>
+            <button class="pw-toggle" type="button" data-toggle="password2" aria-label="비밀번호 확인 보기" aria-pressed="false">보기</button>
+          </div>
+          <span class="error" id="password2-error" role="alert"></span>
+        </div>
+        <div class="field">
+          <label for="role">주로 맡는 역할</label>
+          <select class="select" id="role" name="role">
+            <option>해체계획 담당자</option>
+            <option>해체업체 관리자</option>
+            <option>구조·건설 기술자</option>
+            <option>공공기관 검토자</option>
+            <option>건물 소유자</option>
+            <option>승인권자</option>
+          </select>
+        </div>
+        <fieldset class="terms" style="margin:0">
+          <legend class="visually-hidden">약관 동의</legend>
+          <label class="check all"><input type="checkbox" id="agree-all"> 전체 동의</label>
+          <label class="check"><input type="checkbox" name="terms" data-required> 이용약관 동의<span class="req">필수</span></label>
+          <label class="check"><input type="checkbox" name="privacy" data-required> 개인정보 수집·이용 동의<span class="req">필수</span></label>
+          <label class="check"><input type="checkbox" name="marketing"> 서비스 소식 받기<span class="opt">선택</span></label>
+          <span class="error" id="terms-error" role="alert"></span>
+        </fieldset>
+        <button class="btn btn-primary block" type="submit">가입하고 시작하기</button>
+      </form>
+
+      <p class="alt">이미 계정이 있으신가요? <a class="link" id="to-login" href="login.html">로그인</a></p>
+    </div>
+  </main>
+</div>
+
+<script>
+  const next = new URLSearchParams(location.search).get("next");
+  const target = next && /^[\w.-]+\.html/.test(next) ? next : "app.html";
+  if (next) {
+    const q = "?next=" + encodeURIComponent(target);
+    document.getElementById("to-login").href += q;
+    document.getElementById("back").href += q;
+  }
+
+  const $ = (id) => document.getElementById(id);
+  const form = $("signup-form");
+  const setError = (id, msg) => {
+    $(id + "-error").textContent = msg;
+    const input = $(id);
+    if (input && input.tagName === "INPUT") {
+      input.classList.toggle("invalid", !!msg);
+      input.setAttribute("aria-invalid", msg ? "true" : "false");
+    }
+  };
+
+  // 비밀번호 강도: 길이, 영문, 숫자, 특수문자 조합으로 4단계
+  const LABELS = ["영문, 숫자, 특수문자를 섞으면 더 안전합니다.", "약함", "보통", "좋음", "강함"];
+  function strength(pw) {
+    if (!pw) return 0;
+    let s = 0;
+    if (pw.length >= 8) s++;
+    if (/[a-zA-Z]/.test(pw) && /\d/.test(pw)) s++;
+    if (/[^a-zA-Z0-9]/.test(pw)) s++;
+    if (pw.length >= 12) s++;
+    return Math.max(1, s);
+  }
+  $("password").addEventListener("input", (e) => {
+    const lv = strength(e.target.value);
+    $("strength").dataset.level = lv;
+    $("strength-label").textContent = lv ? `비밀번호 강도: ${LABELS[lv]}` : LABELS[0];
+    setError("password", "");
+  });
+  ["name", "email", "password2"].forEach((id) => $(id).addEventListener("input", () => setError(id, "")));
+
+  document.querySelectorAll("[data-toggle]").forEach((b) => b.addEventListener("click", () => {
+    const input = $(b.dataset.toggle);
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    b.textContent = show ? "숨기기" : "보기";
+    b.setAttribute("aria-pressed", String(show));
+  }));
+
+  const boxes = [...form.querySelectorAll('.terms input[name]')];
+  $("agree-all").addEventListener("change", (e) => { boxes.forEach((b) => (b.checked = e.target.checked)); setError("terms", ""); });
+  boxes.forEach((b) => b.addEventListener("change", () => {
+    $("agree-all").checked = boxes.every((x) => x.checked);
+    setError("terms", "");
+  }));
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("name").value.trim();
+    const email = $("email").value.trim();
+    const pw = $("password").value;
+    const errors = {
+      name: name ? "" : "이름을 입력하세요.",
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? "" : "올바른 이메일 주소를 입력하세요.",
+      password: pw.length < 8 ? "비밀번호는 8자 이상이어야 합니다." : !(/[a-zA-Z]/.test(pw) && /\d/.test(pw)) ? "영문과 숫자를 함께 넣어 주세요." : "",
+      password2: $("password2").value === pw ? "" : "비밀번호가 서로 다릅니다.",
+      terms: boxes.filter((b) => b.hasAttribute("data-required")).every((b) => b.checked) ? "" : "필수 약관에 동의해 주세요.",
+    };
+    Object.entries(errors).forEach(([k, v]) => setError(k, v));
+    const first = Object.keys(errors).find((k) => errors[k]);
+    if (first) { (first === "terms" ? $("agree-all") : $(first)).focus(); return; }
+
+    auth.login({ email, name, org: $("org").value.trim(), role: $("role").value }, true);
+    location.href = target;
+  });
+</script>
+</body>
+</html>

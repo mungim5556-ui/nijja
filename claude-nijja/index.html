@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReClaim — AI 기반 해체·재사용 자재 계획</title>
+  <meta name="description" content="현장 사진과 자재 정보로 재사용 가치를 평가하고, 운송 물류를 최적화하고, 해체 순서를 3D로 검토하는 해체 계획 지원 시스템">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/landing.css">
+</head>
+<body>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/auth.js"></script>
+
+<header class="nav">
+  <div class="container">
+    <a class="logo" href="index.html"><span class="logo-mark"><svg class="i"><use href="#i-recycle"/></svg></span>ReClaim</a>
+    <nav class="nav-links" aria-label="주요 메뉴">
+      <a href="#problem">문제</a>
+      <a href="#flow">사용 흐름</a>
+      <a href="#features">기능</a>
+      <a href="#users">사용자</a>
+    </nav>
+    <a class="btn btn-secondary btn-sm" href="login.html" id="nav-login">로그인</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-watermark" aria-hidden="true">RECLAIM</div>
+
+  <div class="container">
+    <div class="hero-content">
+      <div>
+        <span class="hero-eyebrow"><svg class="i"><use href="#i-hammer"/></svg> AI 기반 해체·재사용 자재 계획</span>
+        <h1>해체는 끝이 아니라,<br><em>자재가 다시 쓰이는</em> 시작입니다</h1>
+        <p class="lead">현장 사진과 자재 정보만으로 콘크리트·강재의 재사용 가치를 평가하고, 운송 경로를 최적화하고, 해체 순서를 3D로 검토하세요.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-pill" href="app.html">해체 계획 시작하기 <span class="arrow"><svg class="i"><use href="#i-arrow-right"/></svg></span></a>
+          <a class="btn btn-outline" href="app.html?demo=1">예시 프로젝트 보기</a>
+        </div>
+      </div>
+      <div class="hero-side">
+        <span>대상 자재</span>
+        <strong style="font-size:15px;color:#fff">콘크리트·골재 · 구조용 강재</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main>
+  <section class="block" id="problem">
+    <div class="container">
+      <div class="stats-band">
+        <div class="stats-list">
+          <div><div class="stat-value">50%</div><div class="stat-label">해체 계획 수립 시간 단축</div></div>
+          <div><div class="stat-value">70%</div><div class="stat-label">분석 결과 전문가 승인율</div></div>
+          <div><div class="stat-value">15%</div><div class="stat-label">물류 최적화 운송비 절감</div></div>
+        </div>
+        <div class="stats-copy">
+          <span class="kicker">왜 필요한가</span>
+          <h2>여러 전문가가 손으로 나눠 하던 해체 계획을, 하나의 흐름으로 묶었습니다.</h2>
+          <p class="note">위 수치는 서비스 목표 지표입니다.</p>
+          <div class="problem-grid">
+            <div class="card">
+              <div class="icon-tile"><svg class="i"><use href="#i-chart"/></svg></div>
+              <h4>가치 판단이 어렵다</h4>
+              <p>콘크리트와 강재의 상태·가치·해체 난이도를 수치로 판단할 기준이 없습니다.</p>
+            </div>
+            <div class="card">
+              <div class="icon-tile"><svg class="i"><use href="#i-truck"/></svg></div>
+              <h4>운송 계획이 따로 논다</h4>
+              <p>차량 종류·적재량·일정·비용을 함께 따진 운송 계획을 만들기 어렵습니다.</p>
+            </div>
+            <div class="card">
+              <div class="icon-tile"><svg class="i"><use href="#i-list"/></svg></div>
+              <h4>순서 검토에 누락이 생긴다</h4>
+              <p>해체 순서와 공법을 수작업으로 검토하면 빠지는 부분과 비효율이 생깁니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="flow" style="padding-top:0">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">사용 흐름</span>
+          <h2>입력부터 보고서까지 6단계</h2>
+        </div>
+        <p>건축 연도, 현장 사진, 자재 정보를 넣으면 평가·물류·해체 계획이 이어서 계산됩니다.</p>
+      </div>
+      <ol class="flow">
+        <li><h4>건물·자재 등록</h4><p>건물 기본정보, 현장 사진, 자재의 재질·규격·위치·상태 입력</p></li>
+        <li><h4>자재 평가</h4><p>재사용 가능성·예상 가치·해체 난이도·처리비를 규칙 기반으로 산정</p></li>
+        <li><h4>운송 물류</h4><p>차량·적재량·거리 조건으로 VRP 경로와 대안 비교</p></li>
+        <li><h4>해체 계획</h4><p>해체 순서·공법·장비 조합을 만들고 직접 수정</p></li>
+        <li><h4>3D 검토</h4><p>부재 단위 블록 모델에서 단계별로 재생하며 확인</p></li>
+        <li><h4>승인·보고서</h4><p>검토 의견과 승인 이력을 남기고 보고서로 내보내기</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block" id="features" style="padding-top:0">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">주요 기능</span>
+          <h2>계획에 필요한 판단을 한곳에서</h2>
+        </div>
+      </div>
+      <div class="features">
+        <article class="card">
+          <div class="icon-tile"><svg class="i"><use href="#i-camera"/></svg></div>
+          <h3>건물·사진·자재 등록</h3>
+          <p>프로젝트별로 건물 정보와 현장 사진, 자재 정보를 등록하고 누락을 미리 점검합니다.</p>
+          <ul><li><svg class="i"><use href="#i-check"/></svg>필수 항목·사진 형식 검사</li><li><svg class="i"><use href="#i-check"/></svg>사진 해상도·밝기 품질 점검</li></ul>
+        </article>
+        <article class="card">
+          <div class="icon-tile"><svg class="i"><use href="#i-recycle"/></svg></div>
+          <h3>재사용 자재 평가</h3>
+          <p>재사용 가능성, 예상 가치, 해체 난이도, 처리비를 규칙 기반 점수로 계산하고 근거를 보여줍니다.</p>
+          <ul><li><svg class="i"><use href="#i-check"/></svg>자재별 판단 근거 표시</li><li><svg class="i"><use href="#i-check"/></svg>신뢰도·추가 검토 표시</li></ul>
+        </article>
+        <article class="card">
+          <div class="icon-tile blue"><svg class="i"><use href="#i-truck"/></svg></div>
+          <h3>경제성·운송 물류</h3>
+          <p>VRP 알고리즘으로 차량별 경로와 적재 계획을 만들고, 기본안과 대안의 비용을 비교합니다.</p>
+          <ul><li><svg class="i"><use href="#i-check"/></svg>우선 회수 순위</li><li><svg class="i"><use href="#i-check"/></svg>계산 가정·가격 기준일 표시</li></ul>
+        </article>
+        <article class="card">
+          <div class="icon-tile"><svg class="i"><use href="#i-list"/></svg></div>
+          <h3>해체 순서·공법·장비</h3>
+          <p>자재 위치와 평가 결과로 단계별 해체 순서를 제안하고, 순서·공법·장비를 직접 고칠 수 있습니다.</p>
+          <ul><li><svg class="i"><use href="#i-check"/></svg>단계별 추천 근거</li><li><svg class="i"><use href="#i-check"/></svg>저신뢰 단계 경고</li></ul>
+        </article>
+        <article class="card">
+          <div class="icon-tile blue"><svg class="i"><use href="#i-box"/></svg></div>
+          <h3>3D 블록 시각화</h3>
+          <p>부재 단위의 간소화된 3D 모델에서 해체 과정을 단계별로 재생하고 자재 정보를 확인합니다.</p>
+          <ul><li><svg class="i"><use href="#i-check"/></svg>재사용·폐기 색상 구분</li><li><svg class="i"><use href="#i-check"/></svg>블록 선택 시 상세 정보</li></ul>
+        </article>
+        <article class="card">
+          <div class="icon-tile"><svg class="i"><use href="#i-shield"/></svg></div>
+          <h3>검토·승인·보고서</h3>
+          <p>초안부터 승인까지 검토 흐름을 관리하고, 승인된 결과를 PDF·표 파일로 내보냅니다.</p>
+          <ul><li><svg class="i"><use href="#i-check"/></svg>의견·승인 이력 기록</li><li><svg class="i"><use href="#i-check"/></svg>PDF 인쇄·CSV 내보내기</li></ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block dark-band" id="users">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="kicker">누구를 위한 도구인가</span>
+          <h2>실무 지식은 있지만, 분석 도구는 따로 쓰기 어려운 사람들</h2>
+        </div>
+        <p>고급 3D 분석이나 물류 최적화 도구 없이도 빠르게 실행 가능한 계획을 만들 수 있게 합니다.</p>
+      </div>
+      <div class="user-grid">
+        <div class="user-card"><span class="role">해체업체</span><h4>해체계획 담당자</h4><p>현장 사진과 자재 정보로 실행 가능한 해체 계획과 견적을 빠르게 작성합니다.</p><span class="tag">계획·견적</span></div>
+        <div class="user-card"><span class="role">건설·구조·해체 분야</span><h4>기술자</h4><p>추천된 해체 순서와 공법을 검토하고 의견을 남깁니다.</p><span class="tag">기술 검토</span></div>
+        <div class="user-card"><span class="role">공공기관</span><h4>철거·자원순환 담당자</h4><p>안전성, 규제 준수, 자원 재사용성과 사업비를 비교합니다.</p><span class="tag">비교·승인</span></div>
+        <div class="user-card"><span class="role">재개발·리모델링</span><h4>건물 소유자</h4><p>회수 가능한 자재 가치와 해체 비용을 미리 확인합니다.</p><span class="tag">비용 확인</span></div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="block">
+    <div class="container">
+      <div class="cta">
+        <div>
+          <h2>예시 프로젝트로 바로 확인해 보세요</h2>
+          <p>5층 철근콘크리트 상가 건물의 자재 평가, 운송 계획, 해체 순서가 미리 입력되어 있습니다.</p>
+        </div>
+        <a class="btn btn-primary btn-pill" href="app.html?demo=1">예시 프로젝트 열기 <span class="arrow"><svg class="i"><use href="#i-arrow-right"/></svg></span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="container">
+    <div class="disclaimer" role="note">
+      <svg class="i"><use href="#i-alert"/></svg>
+      <div>이 시스템의 결과는 전문가 검토를 돕는 <strong>1차 스크리닝 자료</strong>입니다. 법적·기술적 최종 승인이나 정밀 진단을 대신하지 않으며, 실제 착공 전 자격을 갖춘 전문가 검토와 관계기관 승인이 필요합니다.</div>
+    </div>
+    <div>ReClaim · AI 기반 건물 해체 및 재사용 자재 계획 시스템</div>
+  </div>
+</footer>
+<script>
+  // 이미 로그인했다면 로그인 버튼 대신 앱으로 바로 가는 버튼을 보여준다
+  const who = auth.get();
+  if (who) {
+    const b = document.getElementById("nav-login");
+    b.textContent = "내 프로젝트";
+    b.href = "app.html";
+  }
+</script>
+</body>
+</html>

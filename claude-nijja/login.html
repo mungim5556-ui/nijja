@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReClaim 로그인</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/login.css">
+</head>
+<body>
+<script src="assets/js/icons.js"></script>
+<script src="assets/js/auth.js"></script>
+
+<div class="login-shell">
+  <aside class="login-visual">
+    <a class="logo" href="index.html"><span class="logo-mark"><svg class="i"><use href="#i-recycle"/></svg></span>ReClaim</a>
+    <div class="visual-copy">
+      <h2>해체 현장의 자재를<br><em>다시 쓰이는 자원</em>으로</h2>
+      <p>자재 평가, 운송 물류, 해체 순서 검토를 한곳에서 진행하세요.</p>
+      <ul>
+        <li><svg class="i"><use href="#i-check"/></svg>규칙 기반 재사용 자재 평가</li>
+        <li><svg class="i"><use href="#i-check"/></svg>VRP 운송 경로 최적화</li>
+        <li><svg class="i"><use href="#i-check"/></svg>3D 해체 계획 검토와 승인</li>
+      </ul>
+    </div>
+  </aside>
+
+  <main class="login-main">
+    <a class="back" href="index.html"><svg class="i"><use href="#i-chevron-left"/></svg>홈으로</a>
+    <div class="login-card">
+      <h1>로그인</h1>
+      <p class="muted">해체 계획 프로젝트에 접속합니다.</p>
+
+      <form id="login-form" novalidate>
+        <div class="field">
+          <label for="email">이메일</label>
+          <input class="input" id="email" name="email" type="email" autocomplete="username" placeholder="name@company.com" required>
+          <span class="error" id="email-error" role="alert"></span>
+        </div>
+        <div class="field">
+          <label for="password">비밀번호</label>
+          <div class="pw-wrap">
+            <input class="input" id="password" name="password" type="password" autocomplete="current-password" placeholder="8자 이상" required minlength="8">
+            <button class="pw-toggle" type="button" id="pw-toggle" aria-label="비밀번호 보기" aria-pressed="false">보기</button>
+          </div>
+          <span class="error" id="password-error" role="alert"></span>
+        </div>
+        <div class="field">
+          <label for="role">역할</label>
+          <select class="select" id="role" name="role">
+            <option>해체계획 담당자</option>
+            <option>해체업체 관리자</option>
+            <option>구조·건설 기술자</option>
+            <option>공공기관 검토자</option>
+            <option>건물 소유자</option>
+            <option>승인권자</option>
+            <option>시스템 관리자</option>
+          </select>
+        </div>
+        <div class="row">
+          <label class="check"><input type="checkbox" name="remember" checked> 로그인 상태 유지</label>
+          <button type="button" class="link" id="forgot">비밀번호를 잊으셨나요?</button>
+        </div>
+        <button class="btn btn-primary block" type="submit">로그인</button>
+      </form>
+
+      <div class="divider"><span>계정이 없으신가요?</span></div>
+      <a class="btn btn-outline block" id="signup" href="signup.html">회원가입</a>
+      <p class="alt">먼저 살펴보고 싶다면 <button type="button" class="link" id="demo">예시 계정으로 둘러보기</button></p>
+    </div>
+  </main>
+</div>
+
+<script>
+  const next = new URLSearchParams(location.search).get("next");
+  // 같은 사이트 안의 페이지로만 돌아가게 한다
+  const target = next && /^[\w.-]+\.html/.test(next) ? next : "app.html";
+  if (auth.get()) location.replace(target);
+  // 회원가입 뒤에도 원래 가려던 페이지로 돌아가게 한다
+  if (next) document.getElementById("signup").href = "signup.html?next=" + encodeURIComponent(target);
+  const form = document.getElementById("login-form");
+  const email = document.getElementById("email");
+  const pw = document.getElementById("password");
+  const setError = (input, msg) => {
+    document.getElementById(input.id + "-error").textContent = msg;
+    input.classList.toggle("invalid", !!msg);
+    input.setAttribute("aria-invalid", msg ? "true" : "false");
+  };
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const okEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+    const okPw = pw.value.length >= 8;
+    setError(email, okEmail ? "" : "올바른 이메일 주소를 입력하세요.");
+    setError(pw, okPw ? "" : "비밀번호는 8자 이상이어야 합니다.");
+    if (!okEmail) return email.focus();
+    if (!okPw) return pw.focus();
+    const fd = new FormData(form);
+    const mail = email.value.trim();
+    auth.login({ email: mail, name: mail.split("@")[0], role: fd.get("role") }, fd.get("remember") === "on");
+    location.href = target;
+  });
+  email.addEventListener("input", () => setError(email, ""));
+  pw.addEventListener("input", () => setError(pw, ""));
+
+  document.getElementById("pw-toggle").addEventListener("click", (e) => {
+    const show = pw.type === "password";
+    pw.type = show ? "text" : "password";
+    e.currentTarget.textContent = show ? "숨기기" : "보기";
+    e.currentTarget.setAttribute("aria-pressed", String(show));
+    e.currentTarget.setAttribute("aria-label", show ? "비밀번호 숨기기" : "비밀번호 보기");
+  });
+
+  document.getElementById("demo").addEventListener("click", () => {
+    auth.login({ email: "demo@reclaim.local", name: "예시 사용자", role: "해체계획 담당자", demo: true }, false);
+    location.href = target.startsWith("app.html") && !target.includes("demo=1") ? "app.html?demo=1" : target;
+  });
+
+  document.getElementById("forgot").addEventListener("click", () => {
+    alert("비밀번호 찾기는 준비 중입니다. 시스템 관리자에게 문의해 주세요.");
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReClaim 해체 계획</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <script src="assets/js/auth.js"></script>
+  <script>auth.require();</script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body class="app">
+<script src="assets/js/icons.js"></script>
+
+<div class="shell">
+  <aside class="side" id="side">
+    <a class="logo" href="index.html"><span class="logo-mark"><svg class="i"><use href="#i-recycle"/></svg></span>ReClaim</a>
+    <ol class="steps" id="steps"></ol>
+    <div class="side-foot">
+      <button class="btn btn-outline btn-sm" id="load-demo" type="button">예시 프로젝트 불러오기</button>
+      <button class="btn btn-outline btn-sm" id="reset" type="button">새 프로젝트</button>
+      <span>입력 내용은 이 브라우저에 자동 저장됩니다.</span>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menu" type="button" aria-label="메뉴 열기"><svg class="i"><use href="#i-menu"/></svg></button>
+      <span class="title" id="project-title">새 프로젝트</span>
+      <span id="status-badge"></span>
+      <span class="spacer"></span>
+      <label class="role">현재 역할
+        <select class="select" id="role"></select>
+      </label>
+      <button class="icon-btn" id="theme" type="button" aria-label="다크 모드 전환"><svg class="i"><use href="#i-moon"/></svg></button>
+      <div class="user" id="user"></div>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+</div>
+
+<dialog class="modal" id="modal"></dialog>
+
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>
