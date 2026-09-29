@@ -6,6 +6,8 @@ import {
 
 const STORE_KEY = "reclaim.project.v1";
 const THEME_KEY = "reclaim.theme";
+// 공공데이터포털 호출은 인증키를 보관한 프록시를 거친다 (proxy/worker.js)
+const DATA_API = "https://nijja-api.mungim5556.workers.dev";
 const ROLES = ["해체계획 담당자", "해체업체 관리자", "구조·건설 기술자", "공공기관 검토자", "건물 소유자", "승인권자", "시스템 관리자"];
 const REVIEWER_ROLES = ["구조·건설 기술자", "공공기관 검토자", "승인권자"];
 const STEPS = [
@@ -172,7 +174,9 @@ PAGES.building = () => {
       <div class="card-head"><h3>${I("building")} 기본 정보</h3></div>
       <div class="form-grid">
         ${f("name", "프로젝트 이름")}
-        ${f("address", "주소")}
+        <div class="field"><label for="f-address">주소<span class="req">*</span></label>
+          <div style="display:flex;gap:8px"><input class="input" id="f-address" name="address" type="text" value="${esc(p.address)}">
+          <button class="btn btn-outline" type="button" id="find-address" style="white-space:nowrap">주소로 불러오기</button></div></div>
         ${f("use", "용도", "text", true, 'placeholder="예: 근린생활시설"')}
         ${f("structure", "구조 형식", "text", false, 'placeholder="예: 철근콘크리트조"')}
         ${f("floors", "지상 층수", "number", true, 'min="1" max="60"')}
@@ -200,7 +204,64 @@ BIND.building = (el) => {
     renderShell();
     $("#quality", el).innerHTML = qualityCard();
   });
+  $("#find-address", el).addEventListener("click", () => {
+    if (!window.daum?.Postcode) return toast("주소 검색을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.");
+    // 팝업은 차단되기 쉬워 기존 모달 안에 검색창을 넣는다
+    const dlg = $("#modal");
+    dlg.innerHTML = `<form method="dialog"><div class="modal-head"><h3>주소 검색</h3><button class="icon-btn" value="cancel" aria-label="닫기">${I("x")}</button></div></form><div id="postcode" style="height:min(480px,70vh)"></div>`;
+    new daum.Postcode({ oncomplete: (a) => { dlg.close(); loadBuilding(a); }, width: "100%", height: "100%" }).embed($("#postcode", dlg));
+    dlg.showModal();
+  });
 };
+
+// 카카오 우편번호 결과(법정동코드·지번)로 건축물대장 표제부를 조회해 건물 정보를 채운다.
+async function loadBuilding(a) {
+  mutate((s) => { s.project.address = a.roadAddress || a.address; });
+  render();
+  const m = (a.jibunAddress || a.autoJibunAddress || "").match(/(산)?\s*(\d+)(?:-(\d+))?$/);
+  if (!m) return toast("지번을 찾지 못해 건축물대장을 조회하지 못했습니다. 직접 입력해 주세요.");
+  const q = new URLSearchParams({
+    sigunguCd: a.bcode.slice(0, 5), bjdongCd: a.bcode.slice(5),
+    platGbCd: m[1] ? "1" : "0", bun: m[2].padStart(4, "0"), ji: (m[3] || "0").padStart(4, "0"), numOfRows: 100, pageNo: 1, _type: "json",
+  });
+  try {
+    const r = await fetch(`${DATA_API}/1613000/BldRgstHubService/getBrTitleInfo?${q}`);
+    const res = (await r.json()).response;
+    if (res?.header?.resultCode !== "00") throw new Error(res?.header?.resultMsg);
+    const items = [].concat(res.body?.items?.item || []);
+    if (!items.length) return toast("건축물대장에서 건물을 찾지 못했습니다. 직접 입력해 주세요.");
+    // 아파트 단지처럼 한 지번에 동이 여러 개면 동마다 층수가 달라 사용자가 고른다
+    const b = items.length === 1 ? items[0] : await pickDong(items);
+    if (!b) return;
+    mutate((s) => Object.assign(s.project, {
+      name: s.project.name || [...new Set([b.bldNm, b.dongNm].map((x) => x?.trim()).filter(Boolean))].join(" "),
+      use: b.mainPurpsCdNm || s.project.use,
+      structure: b.strctCdNm || s.project.structure,
+      floors: +b.grndFlrCnt || s.project.floors,
+      area: +b.totArea || s.project.area,
+      year: +String(b.useAprDay).slice(0, 4) || s.project.year,
+    }));
+    render();
+    toast("건축물대장에서 불러왔습니다.");
+  } catch {
+    toast("건축물대장 조회에 실패했습니다. 잠시 뒤 다시 시도하거나 직접 입력해 주세요.");
+  }
+}
+// 공동주택 단지의 상가·관리동 등은 주용도가 "공동주택"으로 등록돼 있어 세대 수로 구분한다
+const dongKind = (b) => +b.hhldCnt ? `${b.mainPurpsCdNm} · ${b.hhldCnt}세대`
+  : b.mainPurpsCdNm === "공동주택" ? "부대·복리시설 (세대 없음)" : b.mainPurpsCdNm || "";
+function pickDong(items) {
+  const list = [...items].sort((x, y) => String(x.dongNm).localeCompare(String(y.dongNm), "ko", { numeric: true }));
+  const dlg = $("#modal");
+  dlg.innerHTML = `<form method="dialog">
+    <div class="modal-head"><h3>해체할 동 선택 <span class="badge badge-neutral">${list.length}개 동</span></h3><button class="icon-btn" value="cancel" aria-label="닫기">${I("x")}</button></div>
+    <div class="modal-body">${list.map((b, i) => `<button class="btn btn-outline" value="${i}" style="justify-content:space-between">
+      <span>${esc(b.dongNm?.trim() || b.bldNm?.trim() || "이름 없음")} <span class="caption muted">${esc(dongKind(b))}</span></span>
+      <span class="muted">지상 ${esc(b.grndFlrCnt)}층 · 지하 ${esc(b.ugrndFlrCnt)}층 · ${(+b.totArea).toLocaleString("ko-KR")}㎡</span></button>`).join("")}</div></form>`;
+  dlg.returnValue = "";
+  dlg.showModal();
+  return new Promise((done) => dlg.addEventListener("close", () => done(list[dlg.returnValue]), { once: true }));
+}
 
 PAGES.materials = () => {
   const linked = (pid) => state.materials.filter((m) => m.photoId === pid).length;

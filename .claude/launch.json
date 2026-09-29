@@ -4,8 +4,9 @@
     {
       "name": "reclaim",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5173"],
-      "port": 5173
+      "runtimeArgs": ["-c", "import os,sys,runpy; sys.argv=['http.server', os.environ.get('PORT','5173')]; runpy.run_module('http.server', run_name='__main__')"],
+      "port": 5173,
+      "autoPort": true
     }
   ]
 }
