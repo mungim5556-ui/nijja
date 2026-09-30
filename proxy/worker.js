@@ -1,6 +1,10 @@
 // 공공데이터포털 프록시 (Cloudflare Workers). 인증키는 Worker 비밀 변수 DATA_GO_KR_KEY에만 둔다.
 // 호출: https://<worker>.workers.dev/1613000/BldRgstHubService/getBrTitleInfo?sigunguCd=...
-const ALLOWED = new Set(["1613000/BldRgstHubService/getBrTitleInfo"]);
+// 브이월드는 해외 IP를 막아 여기서 부를 수 없고, 사이트가 브라우저에서 직접 부른다.
+const ALLOWED = new Set([
+  "1613000/BldRgstHubService/getBrTitleInfo",
+  "1230000/ao/PriceInfoService/getPriceInfoListFcltyCmmnMtrilBildng",
+]);
 const ORIGIN_OK = (o) => o === "https://mungim5556-ui.github.io" || /^http:\/\/localhost:\d+$/.test(o);
 
 export default {

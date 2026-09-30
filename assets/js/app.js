@@ -8,6 +8,8 @@ const STORE_KEY = "reclaim.project.v1";
 const THEME_KEY = "reclaim.theme";
 // 공공데이터포털 호출은 인증키를 보관한 프록시를 거친다 (proxy/worker.js)
 const DATA_API = "https://nijja-api.mungim5556.workers.dev";
+// 브이월드 인증키 (등록한 서비스 URL에서만 동작). 아래 자리에 브이월드에서 발급받은 키를 넣는다.
+const VWORLD_KEY = "96B4AE18-0165-4849-905E-E3B2CE6E1896";
 const ROLES = ["해체계획 담당자", "해체업체 관리자", "구조·건설 기술자", "공공기관 검토자", "건물 소유자", "승인권자", "시스템 관리자"];
 const REVIEWER_ROLES = ["구조·건설 기술자", "공공기관 검토자", "승인권자"];
 const STEPS = [
@@ -214,21 +216,85 @@ BIND.building = (el) => {
   });
 };
 
+// 공공데이터포털 API를 프록시로 호출해 항목 배열을 돌려준다.
+// 건축HUB는 body.items.item, 조달청은 body.items에 배열을 담는다.
+// 공공데이터포털이 가끔 503을 돌려줘 서버 오류일 때 한 번 다시 시도한다.
+async function dataApi(path, params, retry = 1) {
+  const r = await fetch(`${DATA_API}/${path}?${new URLSearchParams(params)}`);
+  if (r.status >= 500 && retry) return dataApi(path, params, retry - 1);
+  const res = (await r.json()).response;
+  if (res?.header?.resultCode !== "00") throw new Error(res?.header?.resultMsg);
+  const it = res.body?.items;
+  return [].concat(it?.item ?? (Array.isArray(it) ? it : []));
+}
+
+// 브이월드 지오코더로 주소의 위경도를 구한다. type은 road(도로명) 또는 parcel(지번).
+// 브이월드는 해외 IP(Cloudflare 프록시)를 막고 CORS도 없어, 방문자 브라우저에서 JSONP로 직접 부른다.
+// 키는 브이월드에 등록한 서비스 URL에서만 쓸 수 있어 페이지에 두어도 된다.
+async function geocode(address, type) {
+  const q = new URLSearchParams({ service: "address", request: "getcoord", version: "2.0", crs: "epsg:4326", format: "json", type, address, key: VWORLD_KEY, domain: location.origin });
+  const res = (await jsonp(`https://api.vworld.kr/req/address?${q}`)).response;
+  return res?.status === "OK" ? { lat: +res.result.point.y, lon: +res.result.point.x } : null;
+}
+function jsonp(url) {
+  return new Promise((ok, fail) => {
+    const cb = "jsonp_" + uid(), s = document.createElement("script");
+    const done = () => { delete window[cb]; s.remove(); };
+    window[cb] = (d) => { done(); ok(d); };
+    s.onerror = () => { done(); fail(new Error("jsonp")); };
+    s.src = `${url}&callback=${cb}`;
+    document.head.append(s);
+  });
+}
+
+// 현장 좌표와 건설폐기물 처리업소 목록(scripts/fetch_facilities.py)으로
+// 순환골재·혼합폐기물 처리장을 가장 가까운 실제 업소로 바꾼다. 고철 매입처·재사용 야적장은 자료가 없어 가정값 유지.
+async function placeDestinations(a) {
+  try {
+    const [site, facilities] = await Promise.all([
+      geocode(a.roadAddress || a.address, "road").then((p) => p || geocode(a.jibunAddress || a.autoJibunAddress, "parcel")),
+      fetch("assets/data/facilities.json").then((r) => r.json()),
+    ]);
+    // ponytail: 50km 이내라 평면 근사로 거리·방위를 구하고, 도로 거리는 직선 × 1.3으로 본다. 실제 경로가 필요하면 길찾기 API로 교체
+    const offset = (f) => ({ e: (f.lon - site.lon) * 111.32 * Math.cos((site.lat * Math.PI) / 180), n: (f.lat - site.lat) * 110.57 });
+    let placed = 0, reset = 0;
+    mutate((s) => {
+      for (const d of s.destinations) {
+        const near = site && facilities.filter((f) => f.kinds.includes(d.id))
+          .map((f) => ({ f, ...offset(f) })).map((x) => ({ ...x, km: Math.hypot(x.e, x.n) }))
+          .sort((x, y) => x.km - y.km)[0];
+        if (!near || near.km > 50) {
+          // 이전 주소로 잡아 둔 업소는 새 현장과 무관하니 가정값으로 되돌린다. 사용자가 고친 가정값은 그대로 둔다
+          if (d.source) { Object.assign(d, DEFAULT_DESTINATIONS.find((x) => x.id === d.id)); delete d.source; reset++; }
+          continue;
+        }
+        Object.assign(d, {
+          name: `${DEFAULT_DESTINATIONS.find((x) => x.id === d.id).name} (${near.f.name})`,
+          distance: Math.max(1, Math.round(near.km * 1.3)),
+          angle: Math.round(((Math.atan2(near.n, near.e) * 180) / Math.PI + 360) % 360),
+          source: `${near.f.addr} · 직선 ${near.km.toFixed(1)}km × 1.3`,
+        });
+        placed++;
+      }
+    });
+    if (placed || reset) render();
+    if (placed) toast(`가까운 건설폐기물 처리업소 ${placed}곳으로 운송 목적지를 바꿨습니다.`);
+    else if (reset) toast("50km 안에 건설폐기물 처리업소 자료가 없어 운송 목적지를 가정값으로 되돌렸습니다.");
+  } catch {} // 브이월드나 처리업소 파일을 못 불러오면 기존 목적지를 그대로 쓴다
+}
+
 // 카카오 우편번호 결과(법정동코드·지번)로 건축물대장 표제부를 조회해 건물 정보를 채운다.
 async function loadBuilding(a) {
   mutate((s) => { s.project.address = a.roadAddress || a.address; });
   render();
+  placeDestinations(a);
   const m = (a.jibunAddress || a.autoJibunAddress || "").match(/(산)?\s*(\d+)(?:-(\d+))?$/);
   if (!m) return toast("지번을 찾지 못해 건축물대장을 조회하지 못했습니다. 직접 입력해 주세요.");
-  const q = new URLSearchParams({
-    sigunguCd: a.bcode.slice(0, 5), bjdongCd: a.bcode.slice(5),
-    platGbCd: m[1] ? "1" : "0", bun: m[2].padStart(4, "0"), ji: (m[3] || "0").padStart(4, "0"), numOfRows: 100, pageNo: 1, _type: "json",
-  });
   try {
-    const r = await fetch(`${DATA_API}/1613000/BldRgstHubService/getBrTitleInfo?${q}`);
-    const res = (await r.json()).response;
-    if (res?.header?.resultCode !== "00") throw new Error(res?.header?.resultMsg);
-    const items = [].concat(res.body?.items?.item || []);
+    const items = await dataApi("1613000/BldRgstHubService/getBrTitleInfo", {
+      sigunguCd: a.bcode.slice(0, 5), bjdongCd: a.bcode.slice(5),
+      platGbCd: m[1] ? "1" : "0", bun: m[2].padStart(4, "0"), ji: (m[3] || "0").padStart(4, "0"), numOfRows: 100, pageNo: 1, _type: "json",
+    });
     if (!items.length) return toast("건축물대장에서 건물을 찾지 못했습니다. 직접 입력해 주세요.");
     // 아파트 단지처럼 한 지번에 동이 여러 개면 동마다 층수가 달라 사용자가 고른다
     const b = items.length === 1 ? items[0] : await pickDong(items);
@@ -560,17 +626,18 @@ PAGES.logistics = () => {
       <div class="card-head" style="margin:20px 0 12px"><h4>목적지 (현장 기준)</h4></div>
       <div class="table-wrap"><table class="tbl">
         <thead><tr><th>목적지</th><th>거리(km)</th><th>방위(°)</th><th class="r">반입 물량</th></tr></thead>
-        <tbody>${state.destinations.map((d, i) => `<tr><td>${esc(d.name)}</td><td>${numIn(`destinations.${i}.distance`, d.distance, 'min="1"')}</td><td>${numIn(`destinations.${i}.angle`, d.angle, 'min="0" max="359"')}</td><td class="r">${ton(logi.demands[d.id] || 0)}</td></tr>`).join("")}</tbody>
+        <tbody>${state.destinations.map((d, i) => `<tr><td>${esc(d.name)}${d.source ? `<div class="caption muted">${esc(d.source)}</div>` : ""}</td><td>${numIn(`destinations.${i}.distance`, d.distance, 'min="1"')}</td><td>${numIn(`destinations.${i}.angle`, d.angle, 'min="0" max="359"')}</td><td class="r">${ton(logi.demands[d.id] || 0)}</td></tr>`).join("")}</tbody>
       </table></div>
     </div>
     <div class="card">
-      <div class="card-head"><h4>단가 가정</h4><button class="btn btn-ghost btn-sm" id="reset-prices">기본값</button></div>
+      <div class="card-head"><h4>단가 가정</h4><span><button class="btn btn-ghost btn-sm" id="g2b-prices">조달청 가격</button><button class="btn btn-ghost btn-sm" id="reset-prices">기본값</button></span></div>
       <div class="form-grid" style="grid-template-columns:1fr 1fr">
         <div class="field"><label>가격 기준일</label><input class="input" type="date" data-path="prices.basisDate" value="${state.prices.basisDate}"></div>
         ${[["steelReuse", "재사용 강재 매각 (원/t)"], ["steelScrap", "고철 매각 (원/t)"], ["concreteRecycle", "순환골재 원료 가치 (원/t)"], ["concreteRecycleFee", "순환골재 반입비 (원/t)"], ["mixedWasteFee", "혼합폐기물 처리비 (원/t)"], ["dismantlePerLevel", "해체비 (원/t · 난이도 1당)"]]
           .map(([k, l]) => `<div class="field"><label>${l}</label>${numIn(`prices.${k}`, state.prices[k], 'min="0" step="1000"')}</div>`).join("")}
       </div>
-      <p class="caption muted" style="margin-top:16px">모든 단가는 기본 가정값입니다. 지역 시세와 규정에 맞게 바꿔 쓰세요. 운송 시간은 평균 40km/h, 상하차 30분, 하루 8시간 기준입니다.</p>
+      ${state.prices.source ? `<p class="caption" style="margin-top:16px">고철 매각가: ${esc(state.prices.source)}</p>` : ""}
+      <p class="caption muted" style="margin-top:16px">${state.prices.source ? "그 밖의" : "모든"} 단가는 기본 가정값입니다. 지역 시세와 규정에 맞게 바꿔 쓰세요. 운송 시간은 평균 40km/h, 상하차 30분, 하루 8시간 기준입니다.</p>
     </div>
   </div>
   ${navFoot()}`;
@@ -581,12 +648,37 @@ BIND.logistics = (el) => {
     const path = inp.dataset.path.split(".");
     const v = inp.type === "number" ? Number(inp.value) : inp.value;
     if (inp.type === "number" && (isNaN(v) || v < 0)) { toast("0 이상의 숫자를 입력하세요."); render(); return; }
-    mutate((s) => { let o = s; for (const k of path.slice(0, -1)) o = o[k]; o[path.at(-1)] = v; });
+    mutate((s) => {
+      let o = s; for (const k of path.slice(0, -1)) o = o[k]; o[path.at(-1)] = v;
+      // 직접 고치면 조달청·처리업소 출처 표시를 뗀다
+      if (inp.dataset.path === "prices.steelScrap") delete s.prices.source;
+      if (path[0] === "destinations") delete s.destinations[path[1]].source;
+    });
     render();
   }));
   $("#reset-vehicles", el).addEventListener("click", () => { mutate((s) => { s.vehicles = DEFAULT_VEHICLES.map((v) => ({ ...v })); s.destinations = DEFAULT_DESTINATIONS.map((d) => ({ ...d })); }); render(); });
   $("#reset-prices", el).addEventListener("click", () => { mutate((s) => { s.prices = { ...DEFAULT_PRICES }; }); render(); });
+  $("#g2b-prices", el).addEventListener("click", loadG2bPrices);
 };
+
+// 조달청 시설공통자재(건축)의 "철강설, 고철, 작업설부산물" 최신 게시가로 고철 매각가를 바꾼다.
+// 순환골재·처리비·해체비는 조달청 자료에 없어 가정값을 유지한다.
+async function loadG2bPrices() {
+  try {
+    const rows = (await dataApi("1230000/ao/PriceInfoService/getPriceInfoListFcltyCmmnMtrilBildng",
+      { prdctClsfcNoNm: "철강설", numOfRows: 100, pageNo: 1, type: "json" }))
+      .filter((r) => r.krnPrdctNm?.includes("고철") && r.unit === "톤");
+    if (!rows.length) return toast("조달청 고철 가격을 찾지 못했습니다.");
+    const date = rows.map((r) => r.nticeDt.slice(0, 10)).sort().at(-1);
+    const latest = rows.filter((r) => r.nticeDt.startsWith(date));
+    const price = Math.round(latest.reduce((s, r) => s + +r.prce, 0) / latest.length / 1000) * 1000; // 같은 날 여러 건이면 평균
+    mutate((s) => Object.assign(s.prices, { steelScrap: price, basisDate: date, source: `조달청 철강설(고철) ${date} 게시가${latest.length > 1 ? ` ${latest.length}건 평균` : ""}` }));
+    render();
+    toast(`고철 매각가를 조달청 게시가 ${price.toLocaleString("ko-KR")}원/t로 바꿨습니다.`);
+  } catch {
+    toast("조달청 가격 조회에 실패했습니다. 잠시 뒤 다시 시도해 주세요.");
+  }
+}
 
 function groupRoutes(routes) {
   const groups = new Map();
