@@ -247,7 +247,7 @@ function jsonp(url) {
   });
 }
 
-// 현장 좌표와 건설폐기물 처리업소 목록(scripts/fetch_facilities.py)으로
+// 현장 좌표와 건설폐기물 중간처분업체 목록(scripts/build_facilities.py)으로
 // 순환골재·혼합폐기물 처리장을 가장 가까운 실제 업소로 바꾼다. 고철 매입처·재사용 야적장은 자료가 없어 가정값 유지.
 async function placeDestinations(a) {
   try {
