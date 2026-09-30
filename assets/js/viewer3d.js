@@ -9,6 +9,7 @@ const COLORS = {
   review: 0xd9b23a,
   dispose: 0xb2aba1,
   current: 0xe8742a,
+  ghost: 0x8a8f99,
 };
 const FLOOR_H = 3.5;
 const ZONE = { A: [-6, -4], B: [6, -4], C: [-6, 4], D: [6, 4] };
@@ -37,9 +38,10 @@ export function createViewer(container, { materials, evals, steps, floors, onPic
   container.prepend(renderer.domElement);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 500);
+  const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
   const height = (Number(floors) || 5) * FLOOR_H;
-  camera.position.set(34, height + 16, 38);
+  const d = Math.max(34, height * 1.15); // 고층일수록 뒤로 물러나 건물 전체가 보이게
+  camera.position.set(d, height * 0.8 + 16, d * 1.12);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(0, height / 2, 0);
   controls.enableDamping = true;
@@ -103,6 +105,16 @@ export function createViewer(container, { materials, evals, steps, floors, onPic
       scene.add(mesh);
       meshes.push(mesh);
     }
+  }
+
+  // 자재를 입력하지 않은 층은 반투명 윤곽만 그린다 (평가·해체 단계에는 들어가지 않음)
+  const filled = new Set(materials.map((m) => Number(m.floor)));
+  for (let f = 1; f <= (Number(floors) || 0); f++) {
+    if (filled.has(f)) continue;
+    const box = new THREE.Mesh(new THREE.BoxGeometry(23.6, FLOOR_H - 0.2, 15.6), new THREE.MeshBasicMaterial({ color: COLORS.ghost, transparent: true, opacity: 0.08, depthWrite: false }));
+    box.position.y = f * FLOOR_H - FLOOR_H / 2;
+    box.add(new THREE.LineSegments(new THREE.EdgesGeometry(box.geometry), new THREE.LineBasicMaterial({ color: COLORS.ghost, transparent: true, opacity: 0.35 })));
+    scene.add(box);
   }
 
   // 장비 위치 표시

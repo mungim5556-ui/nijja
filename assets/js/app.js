@@ -333,7 +333,7 @@ PAGES.materials = () => {
   const linked = (pid) => state.materials.filter((m) => m.photoId === pid).length;
   return `
   ${pageHead("현장 사진·자재 정보", "현장 사진을 올리고, 콘크리트·골재와 구조용 강재의 재질·규격·위치·외관 상태를 입력하세요.",
-    `<button class="btn btn-primary" id="add-material">${I("plus")} 자재 추가</button>`)}
+    `${state.materials.some((m) => m.floor >= 1) ? `<button class="btn btn-outline" id="copy-floor">층 복제</button>` : ""}<button class="btn btn-primary" id="add-material">${I("plus")} 자재 추가</button>`)}
   <div class="card">
     <div class="card-head"><h3>${I("camera")} 현장 사진 <span class="badge badge-neutral">${state.photos.length}장</span></h3></div>
     <label class="dropzone" id="dropzone">
@@ -396,6 +396,7 @@ BIND.materials = (el) => {
   }));
   $("#add-material", el)?.addEventListener("click", () => materialModal());
   $("#add-material-2", el)?.addEventListener("click", () => materialModal());
+  $("#copy-floor", el)?.addEventListener("click", copyFloorModal);
   $$("[data-edit]", el).forEach((b) => b.addEventListener("click", () => materialModal(state.materials.find((m) => String(m.id) === b.dataset.edit))));
   $$("[data-del]", el).forEach((b) => b.addEventListener("click", () => {
     const m = state.materials.find((x) => String(x.id) === b.dataset.del);
@@ -492,6 +493,50 @@ function materialModal(m) {
         s.materials.push({ id, label: `M-${String(id).padStart(2, "0")}`, ...data });
       } else Object.assign(s.materials.find((x) => x.id === m.id), data);
     });
+    setTimeout(render);
+  });
+}
+
+// 기준층 자재 구성을 다른 층에 복제한다. 아파트·오피스처럼 같은 층이 반복되는 건물용.
+// 외관 상태·손상·사진은 그 층에서 관찰한 기록이라 옮기지 않는다 (복제한 층은 현장 조사 필요로 평가됨).
+function copyFloorModal() {
+  const srcFloors = [...new Set(state.materials.filter((m) => m.floor >= 1).map((m) => +m.floor))].sort((a, b) => a - b);
+  const top = Math.max(Number(state.project.floors) || 0, ...srcFloors);
+  const src0 = srcFloors.at(-1);
+  const dlg = $("#modal");
+  dlg.innerHTML = `
+  <form method="dialog" id="copy-form">
+    <div class="modal-head"><h3>층 복제</h3><button class="icon-btn" value="cancel" aria-label="닫기">${I("x")}</button></div>
+    <div class="modal-body">
+      <p class="muted">기준층의 자재 종류·부재·규격·구역·수량을 대상 층에 그대로 추가합니다. 자재가 이미 있는 층은 건너뜁니다.
+        외관 상태·손상·사진은 옮기지 않으니, 복제한 층은 필요하면 현장 확인 후 수정하세요.</p>
+      <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="field"><label>기준층</label><select class="select" name="src">${srcFloors.map((f) => `<option ${f === src0 ? "selected" : ""}>${f}</option>`).join("")}</select></div>
+        <div class="field"><label>대상 시작 층</label><input class="input" name="from" type="number" min="1" max="60" value="${Math.min(src0 + 1, top)}"></div>
+        <div class="field"><label>대상 끝 층</label><input class="input" name="to" type="number" min="1" max="60" value="${top}"></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-outline" value="cancel">취소</button><button class="btn btn-primary" value="ok" id="copy-ok">복제</button></div>
+  </form>`;
+  dlg.showModal();
+  $("#copy-ok", dlg).addEventListener("click", (e) => {
+    const fd = new FormData($("#copy-form", dlg));
+    const src = +fd.get("src"), from = +fd.get("from"), to = +fd.get("to");
+    if (!(from >= 1 && to >= from && to <= 60)) { e.preventDefault(); toast("대상 층 범위를 1~60 사이로 올바르게 입력하세요."); return; }
+    const base = state.materials.filter((m) => +m.floor === src && m.member !== "기초");
+    const taken = new Set(state.materials.map((m) => +m.floor));
+    const targets = Array.from({ length: to - from + 1 }, (_, i) => from + i).filter((f) => !taken.has(f));
+    if (!targets.length) { e.preventDefault(); toast("대상 층에 모두 자재가 있어 복제할 층이 없습니다."); return; }
+    mutate((s) => {
+      let id = Math.max(0, ...s.materials.map((x) => +x.id || 0));
+      for (const f of targets) for (const m of base) {
+        id++;
+        s.materials.push({ id, label: `M-${String(id).padStart(2, "0")}`, type: m.type, member: m.member, spec: m.spec, floor: f, zone: m.zone,
+          qty: m.qty, condition: "", damage: [], photoId: null, note: `${src}층 복제` });
+      }
+    });
+    const skipped = to - from + 1 - targets.length;
+    toast(`${src}층 자재 ${base.length}건을 ${targets.length}개 층에 복제했습니다${skipped ? ` (자재가 있는 ${skipped}개 층은 건너뜀)` : ""}.`);
     setTimeout(render);
   });
 }
@@ -831,9 +876,12 @@ BIND.plan = (el) => {
 async function mountViewer(el) {
   const box = $("#viewer", el);
   const { evals } = computeAll();
-  const legend = (mode) => mode === "grade"
+  const floors = Number(state.project.floors) || 0;
+  const emptyFloors = floors - new Set(state.materials.map((m) => Number(m.floor)).filter((f) => f >= 1 && f <= floors)).size;
+  const legend = (mode) => (mode === "grade"
     ? [["#2F7D4F", "재사용 가능"], ["#D9B23A", "검토 필요"], ["#B2ABA1", "폐기·재활용"], ["#E8742A", "현재 단계"]]
-    : [["#9C9084", "콘크리트·골재"], ["#4A6FA5", "구조용 강재"], ["#E8742A", "현재 단계"]];
+    : [["#9C9084", "콘크리트·골재"], ["#4A6FA5", "구조용 강재"], ["#E8742A", "현재 단계"]])
+    .concat(emptyFloors > 0 ? [["rgba(138,143,153,.35)", `자재 미입력 층 ${emptyFloors}개`]] : []);
   const setLegend = (mode) => { $("#legend", el).innerHTML = legend(mode).map(([c, l]) => `<span><i style="background:${c}"></i>${l}</span>`).join(""); };
   setLegend(ui.viewMode || "grade");
   $$("[data-mode]", el).forEach((b) => b.classList.toggle("on", b.dataset.mode === (ui.viewMode || "grade")));
