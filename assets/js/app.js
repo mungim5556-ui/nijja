@@ -331,6 +331,7 @@ function pickDong(items) {
 
 PAGES.materials = () => {
   const linked = (pid) => state.materials.filter((m) => m.photoId === pid).length;
+  const firstLinked = (pid) => state.materials.find((m) => m.photoId === pid);
   return `
   ${pageHead("현장 사진·자재 정보", "현장 사진을 올리고, 콘크리트·골재와 구조용 강재의 재질·규격·위치·외관 상태를 입력하세요.",
     `<label class="btn btn-outline">${I("upload")} IFC 가져오기<input type="file" id="ifc-input" accept=".ifc" hidden></label>${state.materials.some((m) => m.floor >= 1) ? `<button class="btn btn-outline" id="copy-floor">층 복제</button>` : ""}<button class="btn btn-primary" id="add-material">${I("plus")} 자재 추가</button>`)}
@@ -355,6 +356,13 @@ PAGES.materials = () => {
             <button class="icon-btn" data-del-photo="${p.id}" aria-label="${esc(p.name)} 삭제">${I("trash")}</button>
           </div>
           <span class="caption muted">${p.quality.w}×${p.quality.h} · 연결 자재 ${linked(p.id)}개</span>
+          ${state.materials.length ? `<div class="row">
+            <select class="select" data-link-photo="${p.id}" aria-label="${esc(p.name)} 부재 연결" style="flex:1;min-width:0">
+              <option value="">부재 연결 안 함</option>
+              ${state.materials.map((m) => `<option value="${m.id}" ${firstLinked(p.id)?.id === m.id ? "selected" : ""}>${m.label} ${esc(m.member)} · ${m.member === "기초" ? "기초" : m.floor + "층"} ${m.zone}</option>`).join("")}
+            </select>
+            ${firstLinked(p.id) ? `<button class="btn btn-outline btn-sm" data-ai-photo="${p.id}">AI 분석</button>` : ""}
+          </div>` : ""}
         </div>
       </div>`).join("")}</div>` : ""}
   </div>
@@ -394,6 +402,18 @@ BIND.materials = (el) => {
     mutate((s) => { s.photos = s.photos.filter((x) => x.id !== id); s.materials.forEach((m) => { if (m.photoId === id) m.photoId = null; }); });
     render();
   }));
+  // 사진 카드에서 부재를 고르면 그 자재의 연결 사진을 이 사진으로 바꾼다 (이전에 보이던 연결은 해제)
+  $$("[data-link-photo]", el).forEach((sel) => sel.addEventListener("change", () => {
+    const pid = sel.dataset.linkPhoto;
+    mutate((s) => {
+      const prev = s.materials.find((m) => m.photoId === pid);
+      if (prev) prev.photoId = null;
+      const next = s.materials.find((m) => String(m.id) === sel.value);
+      if (next) next.photoId = pid;
+    });
+    render();
+  }));
+  $$("[data-ai-photo]", el).forEach((b) => b.addEventListener("click", () => materialModal(state.materials.find((m) => m.photoId === b.dataset.aiPhoto), { analyze: true })));
   $("#add-material", el)?.addEventListener("click", () => materialModal());
   $("#add-material-2", el)?.addEventListener("click", () => materialModal());
   $("#copy-floor", el)?.addEventListener("click", copyFloorModal);
@@ -510,7 +530,18 @@ function processPhoto(file) {
   });
 }
 
-function materialModal(m) {
+// 사진을 Worker(/vision)로 보내 Claude가 판독한 상태·손상 제안을 받는다
+async function analyzePhoto(photo, { member, type, spec }) {
+  const r = await fetch(DATA_API + "/vision", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: photo.dataUrl.split(",")[1], member, type, spec }),
+  });
+  if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || `HTTP ${r.status}`);
+  return r.json();
+}
+
+function materialModal(m, { analyze = false } = {}) {
   const isNew = !m;
   const d = m || { type: "concrete", member: "슬래브", spec: "", floor: 1, zone: "A", qty: "", condition: "", damage: [], photoId: null, note: "" };
   const dlg = $("#modal");
@@ -530,13 +561,42 @@ function materialModal(m) {
       </div>
       <div class="field"><span class="label">외관 손상 (사진을 보고 선택)</span>
         <div class="chips">${Object.entries(DAMAGE).map(([k, v]) => `<label class="chip"><input type="checkbox" name="damage" value="${k}" ${(d.damage || []).includes(k) ? "checked" : ""}>${v}</label>`).join("")}</div>
-        <span class="caption muted">경량 이미지 분류 모델의 자동 손상 인식은 연동 예정입니다. 지금은 사진을 보고 직접 선택합니다.</span>
+        <div class="chips" style="align-items:center">
+          <button type="button" class="btn btn-outline btn-sm" id="ai-analyze" ${d.photoId ? "" : "hidden"}>${I("camera")} 사진으로 분석</button>
+          <span class="caption muted" id="ai-status">연결 사진을 AI가 보고 외관 상태·손상을 제안합니다. 저장 전에 확인하세요.</span>
+        </div>
       </div>
       <div class="field"><label>메모</label><input class="input" name="note" value="${esc(d.note)}"></div>
     </div>
     <div class="modal-foot"><button class="btn btn-outline" value="cancel">취소</button><button class="btn btn-primary" value="ok" id="mat-ok">${isNew ? "추가" : "저장"}</button></div>
   </form>`;
   dlg.showModal();
+  // AI 제안은 입력칸만 채운다. 사람이 확인하고 저장해야 반영된다.
+  let aiUsed = false;
+  const form = $("#mat-form", dlg), aiBtn = $("#ai-analyze", dlg), aiStatus = $("#ai-status", dlg);
+  $('[name="photoId"]', dlg).addEventListener("change", (e) => { aiBtn.hidden = !e.target.value; });
+  const runAi = async () => {
+    const fd = new FormData(form);
+    const photo = state.photos.find((p) => p.id === fd.get("photoId"));
+    if (!photo) return;
+    aiBtn.disabled = true;
+    aiStatus.textContent = "사진을 분석하는 중입니다…";
+    try {
+      const r = await analyzePhoto(photo, { member: fd.get("member"), type: fd.get("type"), spec: fd.get("spec").trim() });
+      $('[name="condition"]', dlg).value = r.condition;
+      $$('[name="damage"]', dlg).forEach((c) => (c.checked = r.damage.includes(c.value)));
+      $('[name="note"]', dlg).value = r.note;
+      aiUsed = true;
+      aiStatus.innerHTML = `<span class="badge badge-info">AI 제안</span> ${r.matches_member ? "" : '<span class="badge badge-warning">사진이 선택한 부재와 다를 수 있음</span> '}확인 후 저장하세요.`;
+    } catch (err) {
+      console.error(err);
+      aiStatus.textContent = `사진을 분석하지 못했습니다. 직접 선택하세요. (${err.message})`;
+    } finally {
+      aiBtn.disabled = false;
+    }
+  };
+  aiBtn.addEventListener("click", runAi);
+  if (analyze) runAi();
   $("#mat-ok", dlg).addEventListener("click", (e) => {
     const fd = new FormData($("#mat-form", dlg));
     const qty = Number(fd.get("qty"));
@@ -547,6 +607,7 @@ function materialModal(m) {
     const data = {
       type: fd.get("type"), member, spec: fd.get("spec").trim(), floor: member === "기초" ? 0 : floor, zone: fd.get("zone"),
       qty, condition: fd.get("condition"), damage: fd.getAll("damage"), photoId: fd.get("photoId") || null, note: fd.get("note").trim(),
+      aiAssisted: aiUsed || !!d.aiAssisted,
     };
     mutate((s) => {
       if (isNew) {
