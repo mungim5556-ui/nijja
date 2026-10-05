@@ -54,7 +54,7 @@ function emptyState() {
 
 let state = load() || emptyState();
 const session = window.auth?.get();
-const ui = { step: stepFromHash(), role: sessionGet("role") || session?.role || ROLES[0], viewer: null, planIndex: 0, playTimer: null, typeFilter: "all" };
+const ui = { step: stepFromHash(), role: sessionGet("role") || session?.role || ROLES[0], viewer: null, planIndex: 0, playTimer: null, typeFilter: "all", memberFilter: "", floorFilter: "" };
 
 function load() {
   try { const raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
@@ -329,7 +329,21 @@ function pickDong(items) {
   return new Promise((done) => dlg.addEventListener("close", () => done(list[dlg.returnValue]), { once: true }));
 }
 
+// 자재 표의 부재·층 필터 (자재 목록·평가 화면 공용, 화면 이동해도 유지)
+const byMemberFloor = (list) => list.filter((m) => (!ui.memberFilter || m.member === ui.memberFilter) && (ui.floorFilter === "" || String(m.floor) === ui.floorFilter));
+function memberFloorFilter() {
+  const floors = [...new Set(state.materials.map((m) => Number(m.floor)))].sort((a, b) => a - b);
+  return `<span class="chips">
+    <select class="select" data-filter="memberFilter" aria-label="부재 필터"><option value="">부재 전체</option>${MEMBERS.map((x) => `<option ${ui.memberFilter === x ? "selected" : ""}>${x}</option>`).join("")}</select>
+    <select class="select" data-filter="floorFilter" aria-label="층 필터"><option value="">층 전체</option>${floors.map((f) => `<option value="${f}" ${ui.floorFilter === String(f) ? "selected" : ""}>${f ? f + "층" : "기초"}</option>`).join("")}</select>
+  </span>`;
+}
+function bindMemberFloorFilter(el) {
+  $$("[data-filter]", el).forEach((sel) => sel.addEventListener("change", () => { ui[sel.dataset.filter] = sel.value; render(); }));
+}
+
 PAGES.materials = () => {
+  const shown = byMemberFloor(state.materials);
   const linked = (pid) => state.materials.filter((m) => m.photoId === pid).length;
   const firstLinked = (pid) => state.materials.find((m) => m.photoId === pid);
   return `
@@ -368,10 +382,11 @@ PAGES.materials = () => {
   </div>
 
   <div class="card">
-    <div class="card-head"><h3>${I("box")} 자재 목록 <span class="badge badge-neutral">${state.materials.length}건 · ${ton(state.materials.reduce((s, m) => s + (+m.qty || 0), 0))}</span></h3></div>
+    <div class="card-head"><h3>${I("box")} 자재 목록 <span class="badge badge-neutral">${shown.length === state.materials.length ? "" : `${shown.length} / `}${state.materials.length}건 · ${ton(shown.reduce((s, m) => s + (+m.qty || 0), 0))}</span></h3>
+      ${state.materials.length ? memberFloorFilter() : ""}</div>
     ${state.materials.length ? `<div class="table-wrap"><table class="tbl">
       <thead><tr><th>번호</th><th>자재</th><th>부재</th><th>규격</th><th>위치</th><th class="r">수량</th><th>외관 상태</th><th>손상</th><th>사진</th><th></th></tr></thead>
-      <tbody>${state.materials.map((m) => `
+      <tbody>${shown.map((m) => `
         <tr>
           <td class="mono">${m.label}</td>
           <td><span class="type-dot ${m.type}"></span>${TYPE_LABEL[m.type]}</td>
@@ -383,7 +398,7 @@ PAGES.materials = () => {
           <td>${(m.damage || []).map((d) => DAMAGE[d]).join(", ") || '<span class="muted">없음</span>'}</td>
           <td>${m.photoId ? I("check") : '<span class="badge badge-neutral">없음</span>'}</td>
           <td style="white-space:nowrap"><button class="btn btn-ghost btn-sm" data-edit="${m.id}">수정</button><button class="icon-btn" data-del="${m.id}" aria-label="${m.label} 삭제">${I("trash")}</button></td>
-        </tr>`).join("")}</tbody></table></div>`
+        </tr>`).join("")}${shown.length ? "" : `<tr><td colspan="99" class="muted" style="text-align:center;padding:24px">조건에 맞는 자재가 없습니다.</td></tr>`}</tbody></table></div>`
       : `<div class="empty">${I("box")}<p>등록된 자재가 없습니다.</p><button class="btn btn-outline" id="add-material-2">${I("plus")} 첫 자재 추가</button></div>`}
   </div>
   ${navFoot()}`;
@@ -416,6 +431,7 @@ BIND.materials = (el) => {
   $$("[data-ai-photo]", el).forEach((b) => b.addEventListener("click", () => materialModal(state.materials.find((m) => m.photoId === b.dataset.aiPhoto), { analyze: true })));
   $("#add-material", el)?.addEventListener("click", () => materialModal());
   $("#add-material-2", el)?.addEventListener("click", () => materialModal());
+  bindMemberFloorFilter(el);
   $("#copy-floor", el)?.addEventListener("click", copyFloorModal);
   $("#ifc-input", el).addEventListener("change", (e) => e.target.files[0] && importIfc(e.target.files[0]));
   $$("[data-edit]", el).forEach((b) => b.addEventListener("click", () => materialModal(state.materials.find((m) => String(m.id) === b.dataset.edit))));
@@ -670,7 +686,7 @@ PAGES.evaluate = () => {
   const total = state.materials.reduce((s, m) => s + (+m.qty || 0), 0);
   const value = state.materials.reduce((s, m) => s + evals[m.id].value, 0);
   const lowConf = state.materials.filter((m) => evals[m.id].confLevel === "low").length;
-  const list = state.materials.filter((m) => ui.typeFilter === "all" || m.type === ui.typeFilter);
+  const list = byMemberFloor(state.materials.filter((m) => ui.typeFilter === "all" || m.type === ui.typeFilter));
   return `
   ${pageHead("자재 평가", "입력한 자재 정보와 외관 손상 태그로 재사용 가능성, 예상 가치, 해체 난이도, 처리비를 규칙 기반 점수로 계산합니다.")}
   ${disclaimer("외관 정보만으로는 콘크리트 내부 상태나 강재의 부식 깊이를 알 수 없습니다.")}
@@ -685,10 +701,11 @@ PAGES.evaluate = () => {
       <div class="chips" role="radiogroup" aria-label="자재 종류 필터">
         ${[["all", "전체"], ["concrete", "콘크리트·골재"], ["steel", "구조용 강재"]].map(([k, v]) => `<label class="chip"><input type="radio" name="tf" value="${k}" ${ui.typeFilter === k ? "checked" : ""}>${v}</label>`).join("")}
       </div>
+      ${memberFloorFilter()}
     </div>
     <div class="table-wrap"><table class="tbl">
       <thead><tr><th>자재</th><th>위치</th><th class="r">수량</th><th>재사용 점수</th><th>판정</th><th>처리 경로</th><th class="r">예상 가치</th><th>해체 난이도</th><th class="r">해체·처리비</th><th>신뢰도</th><th>판단 근거</th></tr></thead>
-      <tbody>${list.map((m) => {
+      <tbody>${list.length ? "" : `<tr><td colspan="99" class="muted" style="text-align:center;padding:24px">조건에 맞는 자재가 없습니다.</td></tr>`}${list.map((m) => {
         const e = evals[m.id];
         const g = GRADE[e.grade];
         return `<tr>
@@ -716,6 +733,7 @@ PAGES.evaluate = () => {
 };
 BIND.evaluate = (el) => {
   $$('input[name="tf"]', el).forEach((r) => r.addEventListener("change", () => { ui.typeFilter = r.value; render(); }));
+  bindMemberFloorFilter(el);
 };
 
 function emptyPage(msg, stepIdx) {
