@@ -29,7 +29,7 @@ function geometryFor(m, slot) {
   }
 }
 
-export function createViewer(container, { materials, evals, steps, floors, onPick, view }) {
+export function createViewer(container, { materials, evals, steps, floors, onPick, view, model }) {
   const w = container.clientWidth || 800;
   const h = 520;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -39,8 +39,12 @@ export function createViewer(container, { materials, evals, steps, floors, onPic
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 1000);
-  const height = (Number(floors) || 5) * FLOOR_H;
-  const d = Math.max(34, height * 1.15); // 고층일수록 뒤로 물러나 건물 전체가 보이게
+  // IFC 모델이 있으면 실제 크기 기준, 없으면 24×16 블록 모델 기준
+  const [W, H, D] = model ? model.size : [24, (Number(floors) || 5) * FLOOR_H, 16];
+  const height = H;
+  const zones = model ? { A: [-W / 4, -D / 4], B: [W / 4, -D / 4], C: [-W / 4, D / 4], D: [W / 4, D / 4] } : ZONE;
+  const span = Math.max(80, Math.ceil(Math.max(W, D) * 3));
+  const d = Math.max(34, height * 1.15, Math.max(W, D) * 1.2); // 크고 높을수록 뒤로 물러나 건물 전체가 보이게
   camera.position.set(d, height * 0.8 + 16, d * 1.12);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(0, height / 2, 0);
@@ -56,12 +60,12 @@ export function createViewer(container, { materials, evals, steps, floors, onPic
   sun.position.set(30, 50, 20);
   scene.add(sun);
 
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshStandardMaterial({ color: 0x2b2c35, roughness: 1 }));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(span, span), new THREE.MeshStandardMaterial({ color: 0x2b2c35, roughness: 1 }));
   ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -1.01;
+  ground.position.y = (model ? 0 : -1) - 0.01; // IFC 모델은 바닥이 y=0
   scene.add(ground);
-  const grid = new THREE.GridHelper(80, 40, 0x44454e, 0x33343c);
-  grid.position.y = -1;
+  const grid = new THREE.GridHelper(span, 40, 0x44454e, 0x33343c);
+  grid.position.y = model ? 0 : -1;
   scene.add(grid);
 
   // 건물 외곽 (참고용 와이어)
@@ -70,16 +74,16 @@ export function createViewer(container, { materials, evals, steps, floors, onPic
     new THREE.LineBasicMaterial({ color: 0x6b6560, transparent: true, opacity: 0.5 })
   );
   shell.position.y = height / 2;
-  scene.add(shell);
+  if (!model) scene.add(shell);
 
   // 구역 라벨
-  for (const [z, [x, zz]] of Object.entries(ZONE)) {
+  for (const [z, [x, zz]] of Object.entries(zones)) {
     const c = document.createElement("canvas"); c.width = 128; c.height = 128;
     const g = c.getContext("2d");
     g.fillStyle = "rgba(237,235,231,.9)"; g.font = "700 72px sans-serif"; g.textAlign = "center"; g.textBaseline = "middle";
     g.fillText(z, 64, 64);
     const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true }));
-    s.position.set(x, -0.6, zz + (zz < 0 ? -6 : 6));
+    s.position.set(x, -0.6, zz + (zz < 0 ? -1 : 1) * (model ? D / 4 + 2 : 6));
     s.scale.set(2.2, 2.2, 1);
     scene.add(s);
   }
@@ -89,7 +93,27 @@ export function createViewer(container, { materials, evals, steps, floors, onPic
   steps.forEach((s, i) => s.materialIds.forEach((id) => (stepOf[id] = i)));
   const slots = {};
   const meshes = [];
-  for (const m of materials) {
+  if (model) {
+    // IFC 메시: 자재에 묶인 부재만 평가 색·클릭 대상, 나머지(문·창 등)는 반투명 배경
+    const byId = new Map();
+    for (const m of materials) for (const id of m.ifcIds || []) byId.set(id, m);
+    for (const g of model.meshes) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute("position", new THREE.BufferAttribute(g.positions, 3));
+      geo.setAttribute("normal", new THREE.BufferAttribute(g.normals, 3));
+      geo.setIndex(new THREE.BufferAttribute(g.index, 1));
+      const m = byId.get(g.expressID);
+      if (!m) {
+        scene.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: new THREE.Color(...g.color.slice(0, 3)), transparent: true, opacity: Math.min(g.color[3], 0.35), depthWrite: false })));
+        continue;
+      }
+      const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ roughness: 0.85, metalness: m.type === "steel" ? 0.4 : 0.05, transparent: true }));
+      mesh.userData = { m, step: stepOf[m.id] ?? -1 };
+      scene.add(mesh);
+      meshes.push(mesh);
+    }
+  }
+  for (const m of model ? [] : materials) {
     const key = `${m.floor}-${m.zone}-${m.member}`;
     const slot = (slots[key] = (slots[key] ?? -1) + 1);
     const geo = geometryFor(m, slot);
@@ -109,7 +133,7 @@ export function createViewer(container, { materials, evals, steps, floors, onPic
 
   // 자재를 입력하지 않은 층은 반투명 윤곽만 그린다 (평가·해체 단계에는 들어가지 않음)
   const filled = new Set(materials.map((m) => Number(m.floor)));
-  for (let f = 1; f <= (Number(floors) || 0); f++) {
+  for (let f = 1; f <= (model ? 0 : Number(floors) || 0); f++) {
     if (filled.has(f)) continue;
     const box = new THREE.Mesh(new THREE.BoxGeometry(23.6, FLOOR_H - 0.2, 15.6), new THREE.MeshBasicMaterial({ color: COLORS.ghost, transparent: true, opacity: 0.08, depthWrite: false }));
     box.position.y = f * FLOOR_H - FLOOR_H / 2;
@@ -147,13 +171,14 @@ export function createViewer(container, { materials, evals, steps, floors, onPic
       mesh.material.color.setHex(active ? COLORS.current : colorFor(m));
       mesh.material.emissive.setHex(active ? 0x7a3208 : mesh === selected ? 0x333333 : 0x000000);
       mesh.material.opacity = active || current === 0 || step < 0 ? 1 : 0.55;
-      mesh.userData.edges.material.color.setHex(mesh === selected ? 0xffffff : 0x16171b);
-      mesh.userData.edges.material.opacity = mesh === selected ? 1 : 0.35;
+      if (mesh.userData.edges) {
+        mesh.userData.edges.material.color.setHex(mesh === selected ? 0xffffff : 0x16171b);
+        mesh.userData.edges.material.opacity = mesh === selected ? 1 : 0.35;
+      }
     }
     const s = steps[current];
-    const zones = s?.zones || [];
-    if (s && zones.length) {
-      const [x, z] = ZONE[zones[0]];
+    if (s?.zones?.length) {
+      const [x, z] = zones[s.zones[0]];
       equip.position.set(x * 1.9, 0, z * 2.3);
       equip.visible = true;
     } else equip.visible = false;

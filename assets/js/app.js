@@ -333,7 +333,7 @@ PAGES.materials = () => {
   const linked = (pid) => state.materials.filter((m) => m.photoId === pid).length;
   return `
   ${pageHead("현장 사진·자재 정보", "현장 사진을 올리고, 콘크리트·골재와 구조용 강재의 재질·규격·위치·외관 상태를 입력하세요.",
-    `${state.materials.some((m) => m.floor >= 1) ? `<button class="btn btn-outline" id="copy-floor">층 복제</button>` : ""}<button class="btn btn-primary" id="add-material">${I("plus")} 자재 추가</button>`)}
+    `<label class="btn btn-outline">${I("upload")} IFC 가져오기<input type="file" id="ifc-input" accept=".ifc" hidden></label>${state.materials.some((m) => m.floor >= 1) ? `<button class="btn btn-outline" id="copy-floor">층 복제</button>` : ""}<button class="btn btn-primary" id="add-material">${I("plus")} 자재 추가</button>`)}
   <div class="card">
     <div class="card-head"><h3>${I("camera")} 현장 사진 <span class="badge badge-neutral">${state.photos.length}장</span></h3></div>
     <label class="dropzone" id="dropzone">
@@ -397,6 +397,7 @@ BIND.materials = (el) => {
   $("#add-material", el)?.addEventListener("click", () => materialModal());
   $("#add-material-2", el)?.addEventListener("click", () => materialModal());
   $("#copy-floor", el)?.addEventListener("click", copyFloorModal);
+  $("#ifc-input", el).addEventListener("change", (e) => e.target.files[0] && importIfc(e.target.files[0]));
   $$("[data-edit]", el).forEach((b) => b.addEventListener("click", () => materialModal(state.materials.find((m) => String(m.id) === b.dataset.edit))));
   $$("[data-del]", el).forEach((b) => b.addEventListener("click", () => {
     const m = state.materials.find((x) => String(x.id) === b.dataset.del);
@@ -405,6 +406,66 @@ BIND.materials = (el) => {
     render();
   }));
 };
+
+// 원본 IFC는 localStorage 한도(약 5MB)를 넘기 쉬워 IndexedDB에 하나만 둔다
+function idb(mode, fn) {
+  return new Promise((ok, fail) => {
+    const req = indexedDB.open("reclaim", 1);
+    req.onupgradeneeded = () => req.result.createObjectStore("files");
+    req.onerror = () => fail(req.error);
+    req.onsuccess = () => {
+      const r = fn(req.result.transaction("files", mode).objectStore("files"));
+      r.onsuccess = () => ok(r.result);
+      r.onerror = () => fail(r.error);
+    };
+  });
+}
+async function ifcModel() {
+  if (!state.model) return null;
+  if (ui.ifc?.name !== state.model.name) {
+    const buf = await idb("readonly", (st) => st.get("ifc"));
+    if (!buf) return null;
+    const { parseIfc } = await import("./ifc.js");
+    ui.ifc = { name: state.model.name, ...(await parseIfc(buf)) };
+  }
+  return ui.ifc;
+}
+
+// IFC 부재를 (종류·부재·층·구역·재료)로 묶어 자재 행으로 만든다. 손으로 입력한 자재는 남긴다.
+async function importIfc(file) {
+  toast("IFC 모델을 읽는 중입니다…");
+  try {
+    const buf = await file.arrayBuffer();
+    const { parseIfc } = await import("./ifc.js");
+    const model = await parseIfc(buf);
+    await idb("readwrite", (st) => st.put(buf, "ifc"));
+    ui.ifc = { name: file.name, ...model };
+    const groups = new Map();
+    for (const e of model.elements) {
+      const k = [e.type, e.member, e.floor, e.zone, e.spec].join("|");
+      const g = groups.get(k) || { type: e.type, member: e.member, spec: e.spec, floor: e.floor, zone: e.zone, qty: 0, ifcIds: [] };
+      g.qty += e.qty;
+      g.ifcIds.push(e.expressID);
+      groups.set(k, g);
+    }
+    mutate((s) => {
+      s.materials = s.materials.filter((m) => !m.ifcIds);
+      let id = Math.max(0, ...s.materials.map((x) => +x.id || 0));
+      for (const g of groups.values()) {
+        id++;
+        s.materials.push({ id, label: `M-${String(id).padStart(2, "0")}`, ...g, qty: Math.max(0.1, Math.round(g.qty * 10) / 10),
+          condition: "", damage: [], photoId: null, note: `IFC ${g.ifcIds.length}개 부재` });
+      }
+      s.model = { name: file.name, size: file.size };
+      if (!s.project.floors) s.project.floors = model.floors;
+    });
+    toast(`IFC에서 부재 ${model.elements.length}개를 자재 ${groups.size}건으로 가져왔습니다.`);
+  } catch (err) {
+    console.error(err);
+    toast("IFC 파일을 읽지 못했습니다. Revit에서 IFC로 다시 내보내 보세요.");
+  }
+  render();
+}
 
 const OK_TYPES = ["image/jpeg", "image/png", "image/webp"];
 async function addPhotos(files) {
@@ -877,7 +938,7 @@ async function mountViewer(el) {
   const box = $("#viewer", el);
   const { evals } = computeAll();
   const floors = Number(state.project.floors) || 0;
-  const emptyFloors = floors - new Set(state.materials.map((m) => Number(m.floor)).filter((f) => f >= 1 && f <= floors)).size;
+  const emptyFloors = state.model ? 0 : floors - new Set(state.materials.map((m) => Number(m.floor)).filter((f) => f >= 1 && f <= floors)).size;
   const legend = (mode) => (mode === "grade"
     ? [["#2F7D4F", "재사용 가능"], ["#D9B23A", "검토 필요"], ["#B2ABA1", "폐기·재활용"], ["#E8742A", "현재 단계"]]
     : [["#9C9084", "콘크리트·골재"], ["#4A6FA5", "구조용 강재"], ["#E8742A", "현재 단계"]])
@@ -887,9 +948,10 @@ async function mountViewer(el) {
   $$("[data-mode]", el).forEach((b) => b.classList.toggle("on", b.dataset.mode === (ui.viewMode || "grade")));
   try {
     const { createViewer } = await import("./viewer3d.js");
+    const model = await ifcModel();
     if (!document.body.contains(box)) return;
     ui.viewer = createViewer(box, {
-      materials: state.materials, evals, steps: state.plan.steps, floors: state.project.floors, view: ui.view,
+      materials: state.materials, evals, steps: state.plan.steps, floors: state.project.floors, view: ui.view, model,
       onPick: (m) => {
         const pick = $("#pick", el);
         if (!m) { pick.hidden = true; return; }
