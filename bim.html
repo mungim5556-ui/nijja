@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReClaim BIM 편집기</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/bim.css">
+  <script src="assets/js/auth.js"></script>
+  <script>auth.require();</script>
+  <script>try { const t = localStorage.getItem("reclaim.theme"); if (t) document.documentElement.dataset.theme = t; } catch {}</script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body class="bim viz-root">
+<script src="assets/js/icons.js"></script>
+
+<div class="bim-shell">
+  <header class="bim-top">
+    <a class="logo" href="app.html" title="해체 계획 앱으로"><span class="logo-mark"><svg class="i"><use href="#i-recycle"/></svg></span>ReClaim BIM</a>
+    <span class="name" id="model-name"></span>
+    <select class="select" id="level" aria-label="층 선택"></select>
+    <div class="seg" role="group" aria-label="보기">
+      <button type="button" id="view-2d" aria-pressed="true">평면</button>
+      <button type="button" id="view-3d" aria-pressed="false">3D</button>
+    </div>
+    <span class="spacer"></span>
+    <button class="icon-btn" id="undo" type="button" aria-label="실행 취소" title="실행 취소 (Ctrl+Z)"><svg class="i"><use href="#i-chevron-left"/></svg></button>
+    <button class="btn btn-outline btn-sm" id="demo" type="button">예시 모델</button>
+    <button class="btn btn-outline btn-sm" id="new" type="button">새 모델</button>
+    <button class="btn btn-outline btn-sm" id="export" type="button"><svg class="i"><use href="#i-download"/></svg>저장</button>
+    <label class="btn btn-outline btn-sm" for="import"><svg class="i"><use href="#i-upload"/></svg>불러오기</label>
+    <input type="file" id="import" accept=".json,application/json" hidden>
+    <button class="icon-btn" id="theme" type="button" aria-label="다크 모드 전환"><svg class="i"><use href="#i-moon"/></svg></button>
+  </header>
+
+  <div class="bim-body">
+    <nav class="tools" id="tools" aria-label="그리기 도구"></nav>
+    <section class="stage" id="stage" aria-label="모델 화면"></section>
+    <aside class="panel">
+      <div class="panel-tabs" role="tablist" id="tabs"></div>
+      <div class="panel-body" id="panel"></div>
+    </aside>
+  </div>
+</div>
+<div class="viz-tip" id="tip" role="status"></div>
+
+<script type="module" src="assets/js/bim/editor.js"></script>
+</body>
+</html>
