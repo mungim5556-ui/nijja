@@ -1,0 +1,741 @@
+{
+  "_comment": "자동 생성 파일. 직접 고치지 말고 assets/js/bim/catalog.js를 고친 뒤 node scripts/export_rates.mjs를 실행하세요.",
+  "materials": {
+    "rc": {
+      "label": "철근콘크리트",
+      "density": 2.45,
+      "waste": "concrete"
+    },
+    "mortar": {
+      "label": "시멘트 모르타르",
+      "density": 2,
+      "waste": "concrete"
+    },
+    "plaster": {
+      "label": "회반죽·플라스터",
+      "density": 1.6,
+      "waste": "concrete"
+    },
+    "brick": {
+      "label": "벽돌",
+      "density": 1.9,
+      "waste": "concrete"
+    },
+    "lumber": {
+      "label": "각재(목재)",
+      "density": 0.5,
+      "waste": "wood"
+    },
+    "plywood": {
+      "label": "합판",
+      "density": 0.6,
+      "waste": "wood"
+    },
+    "flooring": {
+      "label": "마루판",
+      "density": 0.7,
+      "waste": "wood"
+    },
+    "tex": {
+      "label": "텍스(광물섬유판)",
+      "density": 0.35,
+      "waste": "board"
+    },
+    "gypsum": {
+      "label": "석고보드",
+      "density": 0.8,
+      "waste": "board"
+    },
+    "pvcSheet": {
+      "label": "장판·리놀륨(PVC)",
+      "density": 1.35,
+      "waste": "resin"
+    },
+    "pvcFrame": {
+      "label": "PVC 창틀",
+      "density": 1.4,
+      "waste": "resin"
+    },
+    "eps": {
+      "label": "단열재(EPS)",
+      "density": 0.02,
+      "waste": "resin"
+    },
+    "tile": {
+      "label": "타일",
+      "density": 2,
+      "waste": "tile"
+    },
+    "wallpaper": {
+      "label": "벽지",
+      "density": 0.8,
+      "waste": "wallpaper"
+    },
+    "glass": {
+      "label": "판유리",
+      "density": 2.5,
+      "waste": "glass"
+    },
+    "aluminum": {
+      "label": "알루미늄",
+      "density": 2.7,
+      "waste": "metal"
+    },
+    "steel": {
+      "label": "강재·철근",
+      "density": 7.85,
+      "waste": "metal"
+    },
+    "copper": {
+      "label": "동관·동선",
+      "density": 8.9,
+      "waste": "metal"
+    },
+    "brass": {
+      "label": "황동",
+      "density": 8.5,
+      "waste": "metal"
+    },
+    "stainless": {
+      "label": "스테인리스",
+      "density": 7.9,
+      "waste": "metal"
+    },
+    "glasswool": {
+      "label": "단열재(글라스울)",
+      "density": 0.024,
+      "waste": "resin"
+    },
+    "stone": {
+      "label": "석재",
+      "density": 2.6,
+      "waste": "concrete"
+    },
+    "woodDoor": {
+      "label": "목재 문짝·문틀",
+      "density": 0.55,
+      "waste": "wood"
+    }
+  },
+  "waste": {
+    "concrete": {
+      "label": "폐콘크리트·건설폐재류",
+      "color": "#9C9084"
+    },
+    "metal": {
+      "label": "폐금속류",
+      "color": "#4A6FA5"
+    },
+    "wood": {
+      "label": "폐목재",
+      "color": "#B07A45"
+    },
+    "resin": {
+      "label": "폐합성수지",
+      "color": "#3E9C8F"
+    },
+    "glass": {
+      "label": "폐유리",
+      "color": "#7FB3D5"
+    },
+    "board": {
+      "label": "폐보드류",
+      "color": "#C9B79C"
+    },
+    "tile": {
+      "label": "폐타일·도자기",
+      "color": "#B85C4A"
+    },
+    "wallpaper": {
+      "label": "폐벽지",
+      "color": "#D9B23A"
+    },
+    "mixed": {
+      "label": "혼합건설폐기물",
+      "color": "#6B6560"
+    }
+  },
+  "workItems": {
+    "roof.tile": {
+      "label": "지붕 기와",
+      "general": {
+        "roofer": 0.01,
+        "laborer": 0.02
+      },
+      "selective": {
+        "roofer": 0.01,
+        "laborer": 0.02
+      }
+    },
+    "roof.frame": {
+      "label": "지붕틀",
+      "general": {
+        "carpenter": 0.04,
+        "laborer": 0.02
+      },
+      "selective": {
+        "laborer": 0.02
+      }
+    },
+    "roof.masonry": {
+      "label": "지붕 조적",
+      "general": {
+        "mason": 0.02,
+        "laborer": 0.02
+      },
+      "selective": {
+        "mason": 0.02,
+        "laborer": 0.02
+      }
+    },
+    "ceiling.rafter": {
+      "label": "천장 반자틀",
+      "general": {
+        "carpenter": 0.05,
+        "laborer": 0.025
+      },
+      "selective": {
+        "carpenter": 0.05,
+        "laborer": 0.025
+      }
+    },
+    "ceiling.tex": {
+      "label": "천장 텍스·합판",
+      "general": {
+        "carpenter": 0.015,
+        "laborer": 0.03
+      },
+      "selective": {
+        "carpenter": 0.05,
+        "laborer": 0.03
+      }
+    },
+    "ceiling.mortar": {
+      "label": "천장 모르타르·회반죽",
+      "general": {
+        "laborer": 0.12
+      },
+      "selective": {},
+      "selectiveAligned": {
+        "laborer": 0.12
+      }
+    },
+    "wall.partition": {
+      "label": "벽 목공사·칸막이",
+      "general": {
+        "carpenter": 0.06,
+        "laborer": 0.03
+      },
+      "selective": {
+        "carpenter": 0.05,
+        "laborer": 0.03
+      }
+    },
+    "wall.tex": {
+      "label": "벽 텍스·합판",
+      "general": {
+        "carpenter": 0.01,
+        "laborer": 0.02
+      },
+      "selective": {
+        "carpenter": 0.025,
+        "laborer": 0.02
+      }
+    },
+    "wall.wainscot": {
+      "label": "징두리판벽",
+      "general": {
+        "laborer": 0.03
+      },
+      "selective": {
+        "laborer": 0.03
+      }
+    },
+    "wall.plaster": {
+      "label": "회벽",
+      "general": {
+        "laborer": 0.04
+      },
+      "selective": {
+        "laborer": 0.04
+      }
+    },
+    "wall.tile": {
+      "label": "벽 타일",
+      "general": {
+        "laborer": 0.2
+      },
+      "selective": {
+        "laborer": 0.2
+      }
+    },
+    "wall.wallpaper": {
+      "label": "벽지",
+      "general": {
+        "laborer": 0.01
+      },
+      "selective": {
+        "laborer": 0.01
+      }
+    },
+    "floor.wood": {
+      "label": "바닥 장선·마루판",
+      "general": {
+        "carpenter": 0.2,
+        "laborer": 0.1
+      },
+      "selective": {
+        "carpenter": 0.1,
+        "laborer": 0.1
+      }
+    },
+    "floor.mortar": {
+      "label": "바닥 모르타르",
+      "general": {
+        "laborer": 0.12
+      },
+      "selective": {
+        "laborer": 0.12
+      }
+    },
+    "floor.linoleum": {
+      "label": "바닥 리놀륨·장판",
+      "general": {
+        "laborer": 0.03
+      },
+      "selective": {
+        "laborer": 0.03
+      }
+    },
+    "floor.tile": {
+      "label": "바닥 타일",
+      "general": {
+        "laborer": 0.2
+      },
+      "selective": {
+        "laborer": 0.02
+      },
+      "selectiveAligned": {
+        "laborer": 0.2
+      }
+    },
+    "opening.glass": {
+      "label": "유리 철거",
+      "general": {},
+      "selective": {
+        "carpenter": 0.02,
+        "laborer": 0.05
+      }
+    },
+    "opening.window": {
+      "label": "창틀 분리",
+      "general": {},
+      "selective": {
+        "carpenter": 0.05,
+        "laborer": 0.025
+      }
+    },
+    "opening.door": {
+      "label": "문틀 분리",
+      "general": {},
+      "selective": {
+        "carpenter": 0.02,
+        "laborer": 0.05
+      }
+    },
+    "sorting": {
+      "label": "폐기물 선별·분리 반출",
+      "general": {},
+      "selective": {
+        "carpenter": 0.1,
+        "laborer": 0.2
+      },
+      "perGFA": true
+    }
+  },
+  "workRules": [
+    {
+      "category": "ceiling",
+      "any": true,
+      "work": [
+        "ceiling.rafter",
+        "ceiling.tex"
+      ]
+    },
+    {
+      "category": "ceiling",
+      "mats": [
+        "plaster",
+        "mortar"
+      ],
+      "only": true,
+      "work": [
+        "ceiling.mortar"
+      ]
+    },
+    {
+      "category": "wall",
+      "mats": [
+        "wallpaper"
+      ],
+      "work": [
+        "wall.wallpaper"
+      ]
+    },
+    {
+      "category": "wall",
+      "mats": [
+        "tile"
+      ],
+      "work": [
+        "wall.tile"
+      ]
+    },
+    {
+      "category": "wall",
+      "mats": [
+        "plywood",
+        "gypsum",
+        "tex"
+      ],
+      "work": [
+        "wall.tex"
+      ]
+    },
+    {
+      "category": "wall",
+      "mats": [
+        "lumber"
+      ],
+      "work": [
+        "wall.partition"
+      ]
+    },
+    {
+      "category": "wall",
+      "mats": [
+        "plaster"
+      ],
+      "work": [
+        "wall.plaster"
+      ]
+    },
+    {
+      "category": "floor",
+      "mats": [
+        "flooring"
+      ],
+      "work": [
+        "floor.wood"
+      ]
+    },
+    {
+      "category": "floor",
+      "mats": [
+        "pvcSheet"
+      ],
+      "work": [
+        "floor.linoleum"
+      ]
+    },
+    {
+      "category": "floor",
+      "mats": [
+        "tile"
+      ],
+      "work": [
+        "floor.tile"
+      ]
+    },
+    {
+      "category": "window",
+      "any": true,
+      "work": [
+        "opening.glass",
+        "opening.window"
+      ]
+    },
+    {
+      "category": "door",
+      "any": true,
+      "work": [
+        "opening.door"
+      ]
+    },
+    {
+      "category": "roof",
+      "mats": [
+        "tile"
+      ],
+      "work": [
+        "roof.tile"
+      ]
+    }
+  ],
+  "materialKeywords": [
+    [
+      "wallpaper",
+      "벽지|wallpaper|wall ?covering"
+    ],
+    [
+      "gypsum",
+      "석고|gypsum|plasterboard|drywall|GWB"
+    ],
+    [
+      "tex",
+      "텍스|mineral ?fib|acoustic ?tile|ceiling ?tile"
+    ],
+    [
+      "plywood",
+      "합판|plywood|OSB|MDF|particle"
+    ],
+    [
+      "flooring",
+      "마루|flooring|parquet|hardwood"
+    ],
+    [
+      "woodDoor",
+      "목재 ?문|wood ?door"
+    ],
+    [
+      "lumber",
+      "목재|각재|wood|timber|lumber"
+    ],
+    [
+      "glasswool",
+      "글라스 ?울|glass ?wool|mineral ?wool|rock ?wool|암면"
+    ],
+    [
+      "eps",
+      "단열|스티로폼|EPS|XPS|insulation|polystyrene|PIR|우레탄"
+    ],
+    [
+      "glass",
+      "유리|glass|glazing"
+    ],
+    [
+      "pvcFrame",
+      "PVC ?창|uPVC|PVC frame"
+    ],
+    [
+      "pvcSheet",
+      "장판|리놀륨|linoleum|vinyl|PVC|비닐|데코타일"
+    ],
+    [
+      "aluminum",
+      "알루미늄|aluminium|aluminum|\\bAL\\b"
+    ],
+    [
+      "stainless",
+      "스테인|stainless|STS"
+    ],
+    [
+      "brass",
+      "황동|brass"
+    ],
+    [
+      "copper",
+      "동관|구리|copper"
+    ],
+    [
+      "steel",
+      "강재|철골|철근|steel|rebar|metal|SS\\d|SM\\d|SHN"
+    ],
+    [
+      "tile",
+      "타일|tile|ceramic|도자기|porcelain"
+    ],
+    [
+      "brick",
+      "벽돌|조적|brick|masonry|block|블록|CMU"
+    ],
+    [
+      "stone",
+      "석재|화강|대리석|stone|granite|marble"
+    ],
+    [
+      "plaster",
+      "회반죽|플라스터|plaster|stucco"
+    ],
+    [
+      "mortar",
+      "모르타르|mortar|screed|미장"
+    ],
+    [
+      "rc",
+      "콘크리트|concrete|RC|cement|시멘트"
+    ]
+  ],
+  "presets": {
+    "paper2023": {
+      "key": "paper2023",
+      "label": "논문 2023 (재현용)",
+      "basis": "박지선 외 (2023) 표 3~9, 한국건설자원협회 2023 처리단가",
+      "wage": {
+        "carpenter": 267639,
+        "laborer": 161858,
+        "roofer": 0,
+        "mason": 0
+      },
+      "includeStructure": false,
+      "selectiveEquip": false,
+      "haul": {
+        "on": false,
+        "truckLoad": 15,
+        "hoursPerTrip": 2
+      },
+      "equipment": {
+        "excavatorLarge": 0,
+        "excavatorSmall": 0,
+        "cutter": 0,
+        "dump": 0
+      },
+      "crushProd": 47.5,
+      "hoursPerDay": 8,
+      "structCrew": 2,
+      "masonry": {
+        "mason": 0,
+        "laborer": 0
+      },
+      "disposal": {
+        "concreteGeneral": 46374,
+        "concreteSelective": 46374,
+        "inert": 46374,
+        "wood": 35000,
+        "resin": 49000,
+        "mixedGeneral": 166193,
+        "mixedSelective": 67377
+      },
+      "revenue": {
+        "wood": 274348,
+        "resin": 850000,
+        "steel": 0,
+        "aluminum": 0,
+        "copper": 0,
+        "brass": 0,
+        "stainless": 0
+      },
+      "generalRecovers": [],
+      "recovery": 1,
+      "table4": "paper",
+      "crewSize": 20,
+      "indirectPerDay": 0,
+      "residualMixed": true
+    },
+    "team2024": {
+      "key": "team2024",
+      "label": "팀 조사 2024 (기본)",
+      "basis": "회의록 11/12: 2024 건설폐기물 중간처리단가, 2024 기계경비 산출표, 비철 시세(2026-11-10), 논문 품",
+      "wage": {
+        "carpenter": 267639,
+        "laborer": 161858,
+        "roofer": 0,
+        "mason": 267639
+      },
+      "includeStructure": true,
+      "selectiveEquip": true,
+      "haul": {
+        "on": true,
+        "truckLoad": 15,
+        "hoursPerTrip": 2
+      },
+      "equipment": {
+        "excavatorLarge": 160391,
+        "excavatorSmall": 82887,
+        "cutter": 54494,
+        "dump": 138158
+      },
+      "crushProd": 47.5,
+      "hoursPerDay": 8,
+      "structCrew": 2,
+      "masonry": {
+        "mason": 0.38,
+        "laborer": 0.252
+      },
+      "disposal": {
+        "concreteGeneral": 49571,
+        "concreteSelective": 31142,
+        "inert": 49571,
+        "wood": 35000,
+        "resin": 49000,
+        "mixedGeneral": 188715,
+        "mixedSelective": 72721
+      },
+      "revenue": {
+        "wood": 0,
+        "resin": 0,
+        "steel": 380000,
+        "aluminum": 2500000,
+        "copper": 15000000,
+        "brass": 10200000,
+        "stainless": 1570000
+      },
+      "generalRecovers": [
+        "steel"
+      ],
+      "recovery": 0.9,
+      "table4": "paper",
+      "crewSize": 20,
+      "indirectPerDay": 0,
+      "residualMixed": true
+    }
+  },
+  "defaultPreset": "team2024",
+  "separableMin": 3,
+  "wasteUnit": {
+    "주거 단독주택": {
+      "concrete": 1.3321,
+      "metal": 0.001,
+      "wood": 0.0968,
+      "resin": 0.0263,
+      "mixed": 0.203
+    },
+    "주거 공동주택": {
+      "concrete": 1.477,
+      "metal": 0.0655,
+      "wood": 0.015,
+      "resin": 0.0261,
+      "mixed": 0.1637
+    },
+    "비주거 RC": {
+      "concrete": 1.4028,
+      "metal": 0.073,
+      "wood": 0.0638,
+      "resin": 0.0215,
+      "mixed": 0.1348
+    },
+    "비주거 철골": {
+      "concrete": 0.9167,
+      "metal": 0.055,
+      "wood": 0.0194,
+      "resin": 0.0261,
+      "mixed": 0.1348
+    },
+    "비주거 SRC": {
+      "concrete": 1.5861,
+      "metal": 0.122,
+      "wood": 0.0018,
+      "resin": 0.0245,
+      "mixed": 0.1452
+    }
+  },
+  "metalPriceKey": {
+    "steel": "steel",
+    "aluminum": "aluminum",
+    "copper": "copper",
+    "brass": "brass",
+    "stainless": "stainless"
+  },
+  "inertMats": [
+    "brick",
+    "tile",
+    "stone"
+  ],
+  "crushMats": [
+    "rc",
+    "mortar",
+    "plaster",
+    "brick",
+    "stone"
+  ]
+}

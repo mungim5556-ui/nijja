@@ -1,0 +1,6064 @@
+{
+ "items": [
+  {
+   "id": "slmwd1yacv0pnu",
+   "category": "slab",
+   "area": 0,
+   "tons": {
+    "rc": 246.96
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv1c3k",
+   "category": "wall",
+   "area": 49.44,
+   "tons": {
+    "rc": 24.2256,
+    "eps": 0.08899199999999999,
+    "gypsum": 0.375744,
+    "wallpaper": 0.019776000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv24w6",
+   "category": "wall",
+   "area": 73.2,
+   "tons": {
+    "rc": 35.868,
+    "eps": 0.13176000000000002,
+    "gypsum": 0.55632,
+    "wallpaper": 0.02928
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv31ff",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv40zh",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv5rfd",
+   "category": "wall",
+   "area": 151.2,
+   "tons": {
+    "rc": 37.044000000000004,
+    "mortar": 5.443199999999999,
+    "wallpaper": 0.060480000000000006
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "suspected"
+  },
+  {
+   "id": "wamwd1yacv6j4f",
+   "category": "wall",
+   "area": 89.6,
+   "tons": {
+    "rc": 21.951999999999998,
+    "mortar": 3.2255999999999996,
+    "wallpaper": 0.035840000000000004
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv7yiy",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv8gfl",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv94il",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvafnq",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvb4fn",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvc5m6",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvd9ve",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacve46r",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvfbso",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvgl7c",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvhnxf",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvio5o",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvjx7u",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvk3sl",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacvl64p",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacvmla6",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacvnw87",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacvo1h7",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacvp8nf",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacvq3c8",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacvrzpy",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacvsmv4",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacvtko3",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacvub4a",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacvvdvn",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacvwa1j",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacvx8qw",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacvyrop",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacvz62q",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1010t",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv114c3",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv128se",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv13rga",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv14ldm",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv15zwx",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv16up6",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv17cte",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv18egh",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacv19llh",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1ajkx",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1bmgq",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1cfp6",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv1dq7s",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv1ev68",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv1fjqz",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv1g8k8",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv1hslv",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv1iq8x",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv1jfdo",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacv1koq7",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1l1dc",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "flooring": 0.63
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1mhyr",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "flooring": 0.252
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1nzaz",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv1owuq",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv1pggc",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv1qm3d",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv1rki7",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv1sfxu",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv1ttdd",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv1umu9",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacv1v49m",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1wsaf",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1x9ij",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv1yfy6",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv1zyqs",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv20tl4",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv2191k",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv22tqr",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv2359w",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv24x96",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv252y4",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv26q3x",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv274bo",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv28f3q",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv29f6s",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv2aa1w",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv2b9kk",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv2c61k",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv2df7z",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv2ex66",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "slmwd1yacv2f9x1",
+   "category": "slab",
+   "area": 0,
+   "tons": {
+    "rc": 246.96
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv2g4w9",
+   "category": "wall",
+   "area": 49.44,
+   "tons": {
+    "rc": 24.2256,
+    "eps": 0.08899199999999999,
+    "gypsum": 0.375744,
+    "wallpaper": 0.019776000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv2h51x",
+   "category": "wall",
+   "area": 73.2,
+   "tons": {
+    "rc": 35.868,
+    "eps": 0.13176000000000002,
+    "gypsum": 0.55632,
+    "wallpaper": 0.02928
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv2irpy",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv2j8ny",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv2kwwn",
+   "category": "wall",
+   "area": 151.2,
+   "tons": {
+    "rc": 37.044000000000004,
+    "mortar": 5.443199999999999,
+    "wallpaper": 0.060480000000000006
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv2lrsk",
+   "category": "wall",
+   "area": 89.6,
+   "tons": {
+    "rc": 21.951999999999998,
+    "mortar": 3.2255999999999996,
+    "wallpaper": 0.035840000000000004
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2m0jp",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2nzwp",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2omra",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2p0b1",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2qje8",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2r91v",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2syag",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2tim3",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2u0jq",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2v8ue",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2wlny",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2xxa3",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2ymkn",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv2zdag",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacv30kg9",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacv31wk4",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacv32ahu",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacv33xas",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacv34j0g",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacv35zi8",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv3620m",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv37vv0",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv38iug",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv39zcn",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv3agow",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv3bbex",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv3cknf",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacv3def1",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv3esl7",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv3f9be",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv3g5up",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv3h9il",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv3iw9t",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv3j1x9",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv3kx57",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv3li5b",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv3mel3",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv3nfbr",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacv3okhl",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv3pe5d",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv3qr16",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv3rx9e",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv3spo0",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv3t844",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv3u9qq",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv3vlpb",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv3wyxk",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv3xt9v",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv3y72z",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacv3zt2s",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv40n8q",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "flooring": 0.63
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv41hmt",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "flooring": 0.252
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv42zr3",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv434vh",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv44raf",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv45g4b",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv46js5",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacv471bm",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv48qyw",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacv49pjy",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacv4aiii",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv4be5b",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv4cl0f",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacv4d5ap",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4ebs1",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4fh98",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4g2yd",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4hxq7",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4idv2",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4ji4l",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4kn4i",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4ljll",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4mlqh",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4n6qh",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4o2q6",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacv4prg9",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv4qrzl",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv4r0gw",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv4sgns",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacv4tbuh",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "slmwd1yacv4ueok",
+   "category": "slab",
+   "area": 0,
+   "tons": {
+    "rc": 246.96
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw4v9oq",
+   "category": "wall",
+   "area": 49.44,
+   "tons": {
+    "rc": 24.2256,
+    "eps": 0.08899199999999999,
+    "gypsum": 0.375744,
+    "wallpaper": 0.019776000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw4wwst",
+   "category": "wall",
+   "area": 73.2,
+   "tons": {
+    "rc": 35.868,
+    "eps": 0.13176000000000002,
+    "gypsum": 0.55632,
+    "wallpaper": 0.02928
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw4xw18",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw4y6ie",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw4zqiq",
+   "category": "wall",
+   "area": 151.2,
+   "tons": {
+    "rc": 37.044000000000004,
+    "mortar": 5.443199999999999,
+    "wallpaper": 0.060480000000000006
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw50kg4",
+   "category": "wall",
+   "area": 89.6,
+   "tons": {
+    "rc": 21.951999999999998,
+    "mortar": 3.2255999999999996,
+    "wallpaper": 0.035840000000000004
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw51tkp",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw52kdy",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw53v7k",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw54u9x",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw55fdc",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw56cb0",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw57ndb",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw58nyo",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw59znk",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw5aqaj",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw5bic8",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw5clc3",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw5dl8n",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw5etj4",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw5fwrx",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw5gvol",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw5huay",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw5i927",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw5jftq",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw5k47c",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw5lizb",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw5ma3d",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw5ng6f",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw5oout",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw5pqm9",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw5qykd",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw5rbdj",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacw5s2bp",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw5tz3h",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw5uk7c",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw5vqty",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw5w4sn",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw5x6o4",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw5yxf9",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw5zrr7",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw601pu",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw61i1i",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw62ikr",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacw63s82",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw64ntz",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw650p8",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw665bl",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw67irc",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw68joj",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw69tcu",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw6ap7e",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw6bk5r",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw6c5jc",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw6d10s",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacw6eche",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw6fpgx",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "flooring": 0.63
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw6glgw",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "flooring": 0.252
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw6huk8",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw6iy8l",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw6jhh5",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw6k8pe",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw6lvno",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw6mzum",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw6nase",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw6o1d9",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacw6p0ew",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw6qfpw",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw6rvkk",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw6s984",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw6trzz",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw6un15",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw6vjzc",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw6wmvs",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw6x5uq",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw6ykqq",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw6z4qb",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw709nl",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw71arj",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw72n2z",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw73wzt",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw74l5l",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw75rys",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw768hw",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw77nnr",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw78cp9",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "slmwd1yacw79wmv",
+   "category": "slab",
+   "area": 0,
+   "tons": {
+    "rc": 246.96
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw7aun9",
+   "category": "wall",
+   "area": 49.44,
+   "tons": {
+    "rc": 24.2256,
+    "eps": 0.08899199999999999,
+    "gypsum": 0.375744,
+    "wallpaper": 0.019776000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw7bokj",
+   "category": "wall",
+   "area": 73.2,
+   "tons": {
+    "rc": 35.868,
+    "eps": 0.13176000000000002,
+    "gypsum": 0.55632,
+    "wallpaper": 0.02928
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw7c7ka",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw7db6r",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw7e35j",
+   "category": "wall",
+   "area": 151.2,
+   "tons": {
+    "rc": 37.044000000000004,
+    "mortar": 5.443199999999999,
+    "wallpaper": 0.060480000000000006
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw7fxbp",
+   "category": "wall",
+   "area": 89.6,
+   "tons": {
+    "rc": 21.951999999999998,
+    "mortar": 3.2255999999999996,
+    "wallpaper": 0.035840000000000004
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7gtfc",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7hsad",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7i923",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7jskn",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7khg2",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7ljeh",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7m2u1",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7ndid",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7o35f",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7pjwx",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7qtcm",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7rp83",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7saxr",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7ta21",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw7uz5u",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw7vv6u",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw7wccf",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw7xy27",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw7ygha",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacw7z93y",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw80yys",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8136y",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw822nm",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw83cwx",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8482t",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw85lov",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw86gpj",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacw87ba4",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw88y0l",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw89x01",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw8a1eh",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8bh8l",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8cd95",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw8dz14",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw8emgx",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8flw9",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw8grex",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw8h2vs",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacw8i8j9",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw8jbis",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw8k7rb",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw8lnw1",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8m2hp",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8ngy6",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw8oo1y",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw8p0sb",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8qgu0",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw8r490",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw8s90a",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacw8tcq2",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw8utx0",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "flooring": 0.63
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw8vium",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "flooring": 0.252
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw8wbga",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8xzxd",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw8yjoj",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw8zs1p",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw90f6k",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacw91s43",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw92lm4",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw93wsx",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacw9404x",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw95nxx",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw96p9n",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacw974kw",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw98iuz",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw993zg",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9afkj",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9blfu",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9cj0r",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9dbzt",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9e1hx",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9f8zu",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9gwd0",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9h20g",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9igal",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacw9jatw",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw9k0x7",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw9l2oz",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw9ma7j",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacw9n9dc",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "slmwd1yacw9o23x",
+   "category": "slab",
+   "area": 0,
+   "tons": {
+    "rc": 246.96
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw9palh",
+   "category": "wall",
+   "area": 49.44,
+   "tons": {
+    "rc": 24.2256,
+    "eps": 0.08899199999999999,
+    "gypsum": 0.375744,
+    "wallpaper": 0.019776000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw9qu13",
+   "category": "wall",
+   "area": 73.2,
+   "tons": {
+    "rc": 35.868,
+    "eps": 0.13176000000000002,
+    "gypsum": 0.55632,
+    "wallpaper": 0.02928
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw9r1do",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw9s1l6",
+   "category": "wall",
+   "area": 44.8,
+   "tons": {
+    "rc": 21.951999999999998,
+    "eps": 0.08064,
+    "gypsum": 0.34048,
+    "wallpaper": 0.017920000000000002
+   },
+   "work": [
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw9tq9z",
+   "category": "wall",
+   "area": 151.2,
+   "tons": {
+    "rc": 37.044000000000004,
+    "mortar": 5.443199999999999,
+    "wallpaper": 0.060480000000000006
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacw9uxup",
+   "category": "wall",
+   "area": 89.6,
+   "tons": {
+    "rc": 21.951999999999998,
+    "mortar": 3.2255999999999996,
+    "wallpaper": 0.035840000000000004
+   },
+   "work": [
+    "wall.wallpaper"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw9vr57",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw9w0zh",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw9xmiu",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw9yymy",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacw9zy0r",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa095h",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa161p",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa2ypd",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa3ijl",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa4v56",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa5amu",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa6tek",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa7ii7",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa8rmx",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "comwd1yacwa9uoj",
+   "category": "column",
+   "area": 0,
+   "tons": {
+    "rc": 1.715
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacwaak6z",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacwabj24",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacwaclrq",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacwadh4t",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "bemwd1yacwaeip3",
+   "category": "beam",
+   "area": 0,
+   "tons": {
+    "rc": 5.88
+   },
+   "work": [],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwafwj3",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwagc5j",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwahzuq",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwai6g0",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwajfk2",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwak3vi",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacwalosx",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacwam0g5",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwan9ko",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwao9jc",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwapvx4",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwaq2d6",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwarnzz",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwasddt",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwathgk",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwau64r",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwav60f",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacwaw165",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacwaxx9i",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "tex": 0.504
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwaye2n",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwazr1i",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwb0kic",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwb1dys",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwb29fy",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwb3bwi",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwb4jnm",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwb5la9",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwb6kwj",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacwb7iaw",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacwb8bwa",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwb9u2m",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "flooring": 0.63
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwbar0q",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "flooring": 0.252
+   },
+   "work": [
+    "floor.mortar",
+    "floor.wood"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwbbw9d",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwbc81d",
+   "category": "wall",
+   "area": 41.019999999999996,
+   "tons": {
+    "lumber": 1.0254999999999999,
+    "plywood": 0.22150799999999995,
+    "wallpaper": 0.016408
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwbdpf0",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "lumber": 0.6055,
+    "plywood": 0.130788,
+    "wallpaper": 0.009688
+   },
+   "work": [
+    "wall.partition",
+    "wall.tex",
+    "wall.wallpaper"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwbevqn",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwbfosg",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "pamwd1yacwbgam9",
+   "category": "wall",
+   "area": 24.22,
+   "tons": {
+    "brick": 2.3009,
+    "plaster": 0.5812799999999999
+   },
+   "work": [
+    "wall.plaster"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwbhux1",
+   "category": "door",
+   "area": 1.8900000000000001,
+   "tons": {
+    "woodDoor": 0.03402
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wamwd1yacwbikbb",
+   "category": "wall",
+   "area": 8.399999999999999,
+   "tons": {
+    "rc": 3.0869999999999997,
+    "mortar": 0.33599999999999997,
+    "tile": 0.1344
+   },
+   "work": [
+    "wall.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "cemwd1yacwbjqmt",
+   "category": "ceiling",
+   "area": 120,
+   "tons": {
+    "lumber": 0.36,
+    "plywood": 0.6479999999999999,
+    "wallpaper": 0.048
+   },
+   "work": [
+    "ceiling.rafter",
+    "ceiling.tex"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwbkwcq",
+   "category": "floor",
+   "area": 75,
+   "tons": {
+    "mortar": 6,
+    "pvcSheet": 0.2025
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwblv6w",
+   "category": "floor",
+   "area": 30,
+   "tons": {
+    "mortar": 2.4,
+    "pvcSheet": 0.081
+   },
+   "work": [
+    "floor.mortar",
+    "floor.linoleum"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "flmwd1yacwbm40m",
+   "category": "floor",
+   "area": 15,
+   "tons": {
+    "mortar": 1.2,
+    "tile": 0.3
+   },
+   "work": [
+    "floor.mortar",
+    "floor.tile"
+   ],
+   "separable": 2,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbn7py",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbov5t",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbpxxs",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbqg7s",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbrctv",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbsnwb",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbtr7y",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbuwhe",
+   "category": "window",
+   "area": 4.32,
+   "tons": {
+    "pvcFrame": 0.038880000000000005,
+    "glass": 0.0864
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbvvzo",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbwyn0",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbxpjd",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "wimwd1yacwbyits",
+   "category": "window",
+   "area": 2.7,
+   "tons": {
+    "pvcFrame": 0.024300000000000002,
+    "glass": 0.054
+   },
+   "work": [
+    "opening.glass",
+    "opening.window"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwbz4i1",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwc0s2f",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwc15ze",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  },
+  {
+   "id": "domwd1yacwc284b",
+   "category": "door",
+   "area": 2.1,
+   "tons": {
+    "steel": 0.0945
+   },
+   "work": [
+    "opening.door"
+   ],
+   "separable": 5,
+   "hazard": "none"
+  }
+ ],
+ "ctx": {
+  "gfa": 2400,
+  "use": "주거 공동주택"
+ },
+ "params": {}
+}

@@ -1,5 +1,6 @@
 // BIM 편집기의 기준 데이터: 재료, 폐기물 성상, 부재 구성(어셈블리), 해체 품, 단가.
-// 품과 처리단가의 기본값은 박지선·장경필·송태협(2023), 한국건설순환자원학회 논문집 11(3) 251-259에서 가져왔다.
+// 품은 박지선·장경필·송태협(2023), 한국건설순환자원학회 논문집 11(3) 251-259. 처리단가·장비비·매각가는 팀 조사(회의록 11/12).
+// 이 파일이 단가의 원본이다. Revit 확장용 rates.json은 scripts/export_rates.mjs로 만든다.
 // 재료 밀도는 프로토타입용 가정값이며 KDS 41 10 15 등 원문으로 확인해야 한다.
 
 export const PAPER = {
@@ -40,7 +41,12 @@ export const MATERIALS = {
   wallpaper: { label: "벽지", density: 0.8, waste: "wallpaper" },
   glass: { label: "판유리", density: 2.5, waste: "glass" },
   aluminum: { label: "알루미늄", density: 2.7, waste: "metal" },
-  steel: { label: "강재", density: 7.85, waste: "metal" },
+  steel: { label: "강재·철근", density: 7.85, waste: "metal" },
+  copper: { label: "동관·동선", density: 8.9, waste: "metal" },
+  brass: { label: "황동", density: 8.5, waste: "metal" },
+  stainless: { label: "스테인리스", density: 7.9, waste: "metal" },
+  glasswool: { label: "단열재(글라스울)", density: 0.024, waste: "resin" },
+  stone: { label: "석재", density: 2.6, waste: "concrete" },
   woodDoor: { label: "목재 문짝·문틀", density: 0.55, waste: "wood" },
 };
 
@@ -79,38 +85,71 @@ export const TRADES = {
   mason: "조적공",
 };
 
-/* ---------- 기본 단가 ---------- */
-export const DEFAULT_PARAMS = {
-  basis: "논문(2023) 기준값",
-  // 노임 (원/인). 논문 표 5. 지붕공·조적공은 두 방법에 같아 논문이 계산에서 뺐으므로 0으로 둔다.
-  wage: { carpenter: 267639, laborer: 161858, roofer: 0, mason: 0 },
-  // 처리단가 (원/t). 한국건설자원협회 2023 공시(논문 표 7), 목재·합성수지는 논문 표 8·9.
+/* ---------- 단가 프리셋 ---------- */
+// paper2023: 논문 재현용. 내장재 해체 인건비·처리비·재활용 수익만 비교한다 (구조체·장비·반출은 두 방법 공통이라 뺌).
+// team2024: 팀 조사 기본값 (회의록 11/12). 구조체 압쇄·장비·반출을 넣어 총비용과 공기를 비교한다.
+const PAPER2023 = {
+  key: "paper2023",
+  label: "논문 2023 (재현용)",
+  basis: "박지선 외 (2023) 표 3~9, 한국건설자원협회 2023 처리단가",
+  wage: { carpenter: 267639, laborer: 161858, roofer: 0, mason: 0 }, // 원/인. 지붕공·조적공은 논문이 계산에서 뺐다
+  includeStructure: false,
+  selectiveEquip: false,
+  haul: { on: false, truckLoad: 15, hoursPerTrip: 2 },
+  equipment: { excavatorLarge: 0, excavatorSmall: 0, cutter: 0, dump: 0 },
+  crushProd: 47.5,
+  hoursPerDay: 8,
+  structCrew: 2,
+  masonry: { mason: 0, laborer: 0 },
+  // 처리단가 (원/t)
   disposal: {
-    concrete: 46374,
-    wood: 35000,
-    resin: 49000,
-    glass: 67377, // 가정: 분리된 유리는 가연성 5% 미만 혼합건설폐기물 단가
-    board: 67377, // 가정
-    tile: 46374, // 가정: 불연성이라 건설폐재류와 함께 처리
-    wallpaper: 67377, // 논문: 벽지는 분리하지 않고 혼합으로 배출
-    metal: 0,
-    mixedGeneral: 166193, // 일반 해체: 가연성이 섞인 혼합폐기물
-    mixedSelective: 67377, // 분별 해체: 가연성이 빠진 혼합폐기물
+    concreteGeneral: 46374, concreteSelective: 46374, inert: 46374,
+    wood: 35000, resin: 49000,
+    mixedGeneral: 166193, mixedSelective: 67377,
   },
-  // 재활용 수익 (원/t). 논문은 제품 판매가로 계산했다.
-  revenue: {
-    wood: Math.round(4000 / (0.9 * 1.8 * 0.01 * 0.9)), // 합판 4,000원/장, 0.9×1.8×0.01m, 밀도 0.9 → 약 274,348원/t
-    resin: 850000, // 그래뉼
-    metal: 0, // 두 방법에 공통이므로 0
-  },
-  recovery: 1.0, // 회수율. 논문은 100%를 가정했다.
-  residualMixed: true, // 모델에 없는 혼합폐기물을 논문 표 6 원단위로 보정
-  // 표 4를 그대로 쓸지(논문), 표 3과 맞춘 값을 쓸지
-  table4: "paper", // paper | aligned
-  // 공기·간접비 (논문에 없는 확장 항목)
-  crewSize: 20, // 하루 투입 인원
-  indirectPerDay: 0, // 원/일. 0이면 논문과 같은 범위로 계산한다.
+  // 재활용·매각 수익 (원/t). 목재·합성수지는 논문의 제품 판매가.
+  revenue: { wood: Math.round(4000 / (0.9 * 1.8 * 0.01 * 0.9)), resin: 850000, steel: 0, aluminum: 0, copper: 0, brass: 0, stainless: 0 },
+  generalRecovers: [],
+  recovery: 1.0,
+  table4: "paper",
+  crewSize: 20,
+  indirectPerDay: 0,
+  residualMixed: true,
 };
+
+const TEAM2024 = {
+  key: "team2024",
+  label: "팀 조사 2024 (기본)",
+  basis: "회의록 11/12: 2024 건설폐기물 중간처리단가, 2024 기계경비 산출표, 비철 시세(2026-11-10), 논문 품",
+  wage: { carpenter: 267639, laborer: 161858, roofer: 0, mason: 267639 }, // 조적공 = 목공과 같게 둔 가정값
+  includeStructure: true,
+  selectiveEquip: true, // 분별 해체 내장 공정 동안 소형 굴착기 + 절단기
+  haul: { on: true, truckLoad: 15, hoursPerTrip: 2 }, // 24t 덤프 실적재 15t, 왕복·상하차 2시간 (가정)
+  equipment: { excavatorLarge: 160391, excavatorSmall: 82887, cutter: 54494, dump: 138158 }, // 원/시간 (운전원·연료 포함)
+  crushProd: 47.5, // 굴삭기+압쇄기 RC 해체 ㎥/일·작업조 (45~50)
+  hoursPerDay: 8,
+  structCrew: 2, // 압쇄 작업조 보통인부 수 (가정)
+  masonry: { mason: 0.38, laborer: 0.252 }, // 조적벽 분리 해체 인/㎥
+  disposal: {
+    concreteGeneral: 49571, // 건설폐재류
+    concreteSelective: 31142, // 순수 폐콘크리트 (내장재를 먼저 걷어내 깨끗해졌다고 가정)
+    inert: 49571, // 벽돌·타일 등 불연성
+    wood: 35000, resin: 49000, // 논문 값 (2024 값 미확인)
+    mixedGeneral: 188715, // 혼합건설폐재류 (불연성)
+    mixedSelective: 72721, // 혼합건설폐재류 (가연성 5% 미만)
+  },
+  // 원/t. 비철은 2026-11-10 시세(원/kg × 1000). 목재·합성수지 매각가는 업체 답변 전까지 0.
+  revenue: { wood: 0, resin: 0, steel: 380000, aluminum: 2500000, copper: 15000000, brass: 10200000, stainless: 1570000 },
+  generalRecovers: ["steel"], // 일괄 압쇄에서도 자석 선별로 고철은 회수
+  recovery: 0.9,
+  table4: "paper",
+  crewSize: 20,
+  indirectPerDay: 0,
+  residualMixed: true,
+};
+
+export const PRESETS = { paper2023: PAPER2023, team2024: TEAM2024 };
+export const DEFAULT_PARAMS = TEAM2024;
 
 /* ---------- 부재 종류와 구성 ---------- */
 export const TYPES = {
@@ -202,3 +241,58 @@ export const WASTE_UNIT = {
   "비주거 철골": { concrete: 0.9167, metal: 0.055, wood: 0.0194, resin: 0.0261, mixed: 0.1348 },
   "비주거 SRC": { concrete: 1.5861, metal: 0.122, wood: 0.0018, resin: 0.0245, mixed: 0.1452 },
 };
+
+
+/* ---------- 엔진 공통 규칙 (JS·Python이 같이 쓴다) ---------- */
+
+// 금속 재료별 매각가 키
+export const METAL_PRICE_KEY = { steel: "steel", aluminum: "aluminum", copper: "copper", brass: "brass", stainless: "stainless" };
+// 분별해체에서 불연성 처리(건설폐재류 단가)로 보내는 재료
+export const INERT_MATS = ["brick", "tile", "stone"];
+// 압쇄 대상 부피로 셀 재료
+export const CRUSH_MATS = ["rc", "mortar", "plaster", "brick", "stone"];
+
+// 재료 이름 → 재료 키. Revit·IFC 재료 이름을 자동 분류할 때 위에서부터 처음 맞는 것을 쓴다.
+export const MATERIAL_KEYWORDS = [
+  ["wallpaper", "벽지|wallpaper|wall ?covering"],
+  ["gypsum", "석고|gypsum|plasterboard|drywall|GWB"],
+  ["tex", "텍스|mineral ?fib|acoustic ?tile|ceiling ?tile"],
+  ["plywood", "합판|plywood|OSB|MDF|particle"],
+  ["flooring", "마루|flooring|parquet|hardwood"],
+  ["woodDoor", "목재 ?문|wood ?door"],
+  ["lumber", "목재|각재|wood|timber|lumber"],
+  ["glasswool", "글라스 ?울|glass ?wool|mineral ?wool|rock ?wool|암면"],
+  ["eps", "단열|스티로폼|EPS|XPS|insulation|polystyrene|PIR|우레탄"],
+  ["glass", "유리|glass|glazing"],
+  ["pvcFrame", "PVC ?창|uPVC|PVC frame"],
+  ["pvcSheet", "장판|리놀륨|linoleum|vinyl|PVC|비닐|데코타일"],
+  ["aluminum", "알루미늄|aluminium|aluminum|\\bAL\\b"],
+  ["stainless", "스테인|stainless|STS"],
+  ["brass", "황동|brass"],
+  ["copper", "동관|구리|copper"],
+  ["steel", "강재|철골|철근|steel|rebar|metal|SS\\d|SM\\d|SHN"],
+  ["tile", "타일|tile|ceramic|도자기|porcelain"],
+  ["brick", "벽돌|조적|brick|masonry|block|블록|CMU"],
+  ["stone", "석재|화강|대리석|stone|granite|marble"],
+  ["plaster", "회반죽|플라스터|plaster|stucco"],
+  ["mortar", "모르타르|mortar|screed|미장"],
+  ["rc", "콘크리트|concrete|RC|cement|시멘트"],
+];
+
+// 부재 종류 + 들어 있는 재료 → 해체 작업(품 항목). 손으로 그린 부재는 구성(ASSEMBLIES)의 work를 쓰고,
+// Revit·IFC에서 읽은 부재는 이 규칙으로 작업을 정한다.
+export const WORK_RULES = [
+  { category: "ceiling", any: true, work: ["ceiling.rafter", "ceiling.tex"] },
+  { category: "ceiling", mats: ["plaster", "mortar"], only: true, work: ["ceiling.mortar"] },
+  { category: "wall", mats: ["wallpaper"], work: ["wall.wallpaper"] },
+  { category: "wall", mats: ["tile"], work: ["wall.tile"] },
+  { category: "wall", mats: ["plywood", "gypsum", "tex"], work: ["wall.tex"] },
+  { category: "wall", mats: ["lumber"], work: ["wall.partition"] },
+  { category: "wall", mats: ["plaster"], work: ["wall.plaster"] },
+  { category: "floor", mats: ["flooring"], work: ["floor.wood"] },
+  { category: "floor", mats: ["pvcSheet"], work: ["floor.linoleum"] },
+  { category: "floor", mats: ["tile"], work: ["floor.tile"] },
+  { category: "window", any: true, work: ["opening.glass", "opening.window"] },
+  { category: "door", any: true, work: ["opening.door"] },
+  { category: "roof", mats: ["tile"], work: ["roof.tile"] },
+];

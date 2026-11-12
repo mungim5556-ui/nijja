@@ -2,3 +2,4 @@
 Thumbs.db
 desktop.ini
 scripts/*.csv
+__pycache__/
