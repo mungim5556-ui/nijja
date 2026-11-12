@@ -4,10 +4,11 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { ASSEMBLIES, MATERIALS, WASTE, TYPES } from "./catalog.js";
 import { levelOf, lineLength } from "./scenario.js";
 
-const DECISION = { selective: 0x1baf7a, general: 0xb2aba1, structure: 0x9c9084, selected: 0xe8742a };
+const DECISION = { selective: 0x1baf7a, general: 0xb2aba1, structure: 0x9c9084, hazard: 0xb42318, selected: 0xe8742a };
 
 function dominantWaste(el, q) {
   const tons = q?.[el.id]?.tons || {};
+  if (el.source === "ifc" && !Object.keys(tons).length) return "mixed";
   let best = null, max = 0;
   for (const [w, t] of Object.entries(tons)) if (t > max && w !== "concrete") { best = w; max = t; }
   if (!best && tons.concrete) best = "concrete";
@@ -19,7 +20,7 @@ function dominantWaste(el, q) {
   return best;
 }
 
-export function createModel3D(container, { model, q, result, colorBy = "waste", levelId = null, selectedId = null, onPick }) {
+export function createModel3D(container, { model, q, result, meshes: ifcMeshes = null, colorBy = "waste", levelId = null, selectedId = null, onPick }) {
   const w = container.clientWidth || 800;
   const h = container.clientHeight || 500;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -48,15 +49,35 @@ export function createModel3D(container, { model, q, result, colorBy = "waste", 
   const colorOf = (el) => {
     if (el.id === selectedId) return DECISION.selected;
     if (colorBy === "decision") {
-      const m = result?.perElement?.[el.id]?.method;
-      if (TYPES[el.type].structural && !(ASSEMBLIES[el.assembly]?.work || []).length) return DECISION.structure;
+      const m = result?.perItem?.[el.id]?.method;
+      if (m === "hazard") return DECISION.hazard;
+      const work = el.source === "ifc" ? el.work : ASSEMBLIES[el.assembly]?.work;
+      if (!(work || []).length) return DECISION.structure;
       return m === "selective" ? DECISION.selective : DECISION.general;
     }
     return parseInt(WASTE[dominantWaste(el, q)].color.slice(1), 16);
   };
 
   const els = model.elements.filter((e) => !levelId || e.levelId === levelId);
+  // IFC 실제 형상 (web-ifc 출력은 Y-up, m)
+  if (ifcMeshes) {
+    const byId = new Map(els.filter((e) => e.source === "ifc").map((e) => [e.expressID, e]));
+    for (const m of ifcMeshes) {
+      const el = byId.get(m.expressID);
+      if (!el) continue;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(m.positions, 3));
+      g.setIndex(new THREE.BufferAttribute(m.index, 1));
+      g.computeVertexNormals();
+      const mesh = new THREE.Mesh(g, mat(colorOf(el), el.category === "window" ? 0.6 : 1));
+      mesh.userData.id = el.id;
+      scene.add(mesh);
+      meshes.push(mesh);
+      box.expandByObject(mesh);
+    }
+  }
   for (const el of els) {
+    if (el.source === "ifc") continue;
     const lv = levelOf(model, el);
     const base = lv?.elevation || 0;
     const H = Number(el.height) || lv?.height || 2.8;

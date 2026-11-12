@@ -5,7 +5,7 @@ import {
 } from "./catalog.js";
 import {
   compare, mergeParams, takeoff, grossFloorArea, lineLength, isEligible, paperCase, simulate,
-  breakEvenResin, UNCERTAINTY, residualMixedTons,
+  breakEven, UNCERTAINTY, residualMixedTons, PRESETS,
 } from "./scenario.js";
 import { demoModel, emptyModel, newElement, copyLevel, uid } from "./demo-model.js";
 import { groupedBars, histogram, tornado, bindTips } from "./charts.js";
@@ -231,7 +231,7 @@ function drawPlan() {
   const w = st.clientWidth, h = st.clientHeight;
   if (!ui.view) fitView();
   const els = model.elements
-    .filter((e) => e.levelId === ui.levelId && (ui.layers[e.type] ?? true))
+    .filter((e) => e.source !== "ifc" && e.levelId === ui.levelId && (ui.layers[e.type] ?? true))
     .sort((a, b) => ORDER[a.type] - ORDER[b.type]);
   let out = `<g class="grid">${gridSvg(w, h)}</g><g class="els">`;
   for (const e of els) out += elementSvg(e, e.id === ui.selectedId);
@@ -492,7 +492,7 @@ async function render3d() {
   const st = $("#stage");
   st.innerHTML = `<div class="three" id="three"></div>
     <div class="stage-layers">
-      <button class="chip-toggle" type="button" data-color="decision" aria-pressed="${ui.color3d === "decision"}">최적안 결정</button>
+      <button class="chip-toggle" type="button" data-color="decision" aria-pressed="${ui.color3d === "decision"}">처리 방식</button>
       <button class="chip-toggle" type="button" data-color="waste" aria-pressed="${ui.color3d === "waste"}">폐기물 성상</button>
       <button class="chip-toggle" type="button" data-only="1" aria-pressed="${!!ui.only3d}">현재 층만</button>
     </div>
@@ -500,7 +500,7 @@ async function render3d() {
   st.querySelectorAll("[data-color]").forEach((b) => b.addEventListener("click", () => { ui.color3d = b.dataset.color; renderStage(); }));
   st.querySelector("[data-only]").addEventListener("click", () => { ui.only3d = !ui.only3d; threeView = null; renderStage(); });
   const legend = ui.color3d === "decision"
-    ? [["#1baf7a", "분별 해체"], ["#b2aba1", "일괄 철거"], ["#9c9084", "구조체(공통)"], ["#e8742a", "선택"]]
+    ? [["#1baf7a", "분별 회수"], ["#b2aba1", "일괄 처리"], ["#9c9084", "구조체(압쇄)"], ["#b42318", "석면 별도"], ["#e8742a", "선택"]]
     : Object.values(WASTE).map((w) => [w.color, w.label]);
   $("#legend3d").innerHTML = legend.map(([c, l]) => `<span class="hud-chip"><span class="swatch" style="background:${c}"></span>${esc(l)}</span>`).join("");
   try {
@@ -508,10 +508,11 @@ async function render3d() {
     if (ui.mode !== "3d") return;
     const r = results();
     three = createModel3D($("#three"), {
-      model, q: r.q, result: r.optimal, colorBy: ui.color3d, levelId: ui.only3d ? ui.levelId : null, selectedId: ui.selectedId,
+      model, q: r.q, result: r.selective, meshes: ui.ifcMeshes, colorBy: ui.color3d, levelId: ui.only3d ? ui.levelId : null, selectedId: ui.selectedId,
       onPick: (id) => { ui.selectedId = id; ui.tab = "props"; renderPanel(); renderStage(); },
     });
     three.setView(threeView);
+    if (!ui.ifcMeshes && model.elements.some((e) => e.source === "ifc")) $("#legend3d").insertAdjacentHTML("afterbegin", '<span class="hud-chip">IFC 형상은 저장되지 않습니다. 3D로 보려면 IFC를 다시 불러오세요.</span>');
   } catch (err) {
     $("#three").innerHTML = `<div class="callout" style="margin:16px">3D 화면을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요. (${esc(err.message)})</div>`;
   }
@@ -551,6 +552,7 @@ const opt = (map, cur) => Object.entries(map).map(([k, v]) => `<option value="${
 const num = (key, val, attrs = 'step="0.1"') => `<input class="input" type="number" data-k="${key}" value="${val ?? ""}" ${attrs}>`;
 
 function elementPanel(e) {
+  if (e.source === "ifc") return ifcElementPanel(e);
   const type = TYPES[e.type];
   const r = results();
   const q = r.q[e.id] || { tons: {}, area: 0, volume: 0, work: [] };
@@ -574,10 +576,9 @@ function elementPanel(e) {
       <div class="field"><label>바닥에서 (m)</label>${num("sill", e.sill, 'step="0.1" min="0"')}</div><div class="field"><label>벽 시작점에서 (m)</label><input class="input" type="number" step="0.1" data-k="tpos" value="${r2(e.t * L)}"></div>
       <div class="full sub">${g ? `${esc(TYPES[g.host.type].label)} 위 (길이 ${r2(L)} m)` : "벽이 지워졌습니다"}</div>`;
   }
-  const per = r.optimal.perElement[e.id];
-  const g = r.full.perElement[e.id], s = r.selective.perElement[e.id];
-  const eligible = isEligible(e);
-  const delta = eligible && g && s ? s.net - g.net : null;
+  const per = r.selective.perItem[e.id];
+  const eligible = isEligible(e, model);
+  const delta = r.deltas[e.id]?.delta ?? 0;
   const tonsRows = Object.entries(q.tons).filter(([, t]) => t > 0.0005).map(([w, t]) => `<tr><td><span class="swatch" style="background:${WASTE[w].color}"></span>${esc(WASTE[w].label)}</td><td class="r">${t < 0.1 ? r2(t * 1000) + " kg" : r2(t) + " t"}</td></tr>`).join("");
   const work = (q.work || []).map((k) => {
     const it = WORK_ITEMS[k];
@@ -599,11 +600,11 @@ function elementPanel(e) {
     </div>
     <div class="field"><label>메모</label><input class="input" data-k="note" value="${esc(e.note)}" placeholder="현장 확인 사항"></div>
     ${!type.structural || (ASSEMBLIES[e.assembly]?.work || []).length ? `
-      <div class="callout ${eligible ? (per?.method === "selective" ? "ok" : "info") : ""}">
+      <div class="callout ${eligible ? (delta < 0 ? "ok" : "info") : ""}">
         ${!(ASSEMBLIES[e.assembly]?.work || []).length ? "해체 작업이 없는 구성입니다. 두 방법에 공통으로 처리합니다."
           : e.hazard !== "none" ? "유해물질이 있어 석면 해체 공정(두 방법 공통)으로 처리합니다."
           : !eligible ? `해체 시공성이 ${SEPARABLE_MIN}점 미만이라 분별 해체 대상에서 뺐습니다.`
-          : `분별 해체하면 이 부재만으로 <b>${signed(kw(delta))}천원</b> (인건비 + 처리비 − 재활용 수익). 최적 혼합안: <b>${per?.method === "selective" ? "분별 해체" : "일괄 철거"}</b>`}
+          : `전면 분별해체에서 이 부재는 <b>분별 회수</b>합니다. 일괄 압쇄 대비 <b>${signed(kw(delta))}천원</b> (인건비 + 처리비 − 매각 수익, 장비·반출 제외)`}
       </div>` : ""}
   </div>
   <div class="section">
@@ -624,7 +625,13 @@ function modelPanel() {
     <td><input class="input" type="number" step="0.1" data-level="${l.id}" data-lk="height" value="${l.height}"></td>
     <td class="r">${model.elements.filter((e) => e.levelId === l.id).length}</td></tr>`).join("");
   const els = model.elements.filter((e) => e.levelId === ui.levelId);
-  const groups = Object.entries(TYPES).map(([k, t]) => {
+  const ifcGroups = Object.entries(CAT_LABEL).map(([k, label]) => {
+    const list = els.filter((e) => e.source === "ifc" && e.category === k);
+    if (!list.length) return "";
+    return `<details class="group"><summary>${esc(label)} ${list.length}개 (IFC)</summary><div class="items">${list.map((e) =>
+      `<button class="list-btn" type="button" data-pick="${e.id}"><span>${esc(e.name || e.id)}</span></button>`).join("")}</div></details>`;
+  }).join("");
+  const groups = ifcGroups + Object.entries(TYPES).map(([k, t]) => {
     const list = els.filter((e) => e.type === k);
     if (!list.length) return "";
     return `<details class="group"><summary>${esc(t.label)} ${list.length}개</summary><div class="items">${list.map((e, i) =>
@@ -649,11 +656,56 @@ function modelPanel() {
   <div class="section"><h4>${esc(level()?.name)} 부재 ${els.length}개</h4>${groups || '<p class="note">아직 부재가 없습니다.</p>'}</div>`;
 }
 
+const CAT_LABEL = { wall: "벽", floor: "바닥·슬래브", ceiling: "천장", roof: "지붕", column: "기둥", beam: "보", foundation: "기초", stair: "계단", railing: "난간", window: "창", door: "문", mep: "설비", other: "기타", slab: "슬래브" };
+
+function ifcElementPanel(e) {
+  const r = results();
+  const q = r.q[e.id] || { tons: {}, mats: {}, area: 0, work: [] };
+  const per = r.selective.perItem[e.id];
+  const delta = r.deltas[e.id]?.delta ?? 0;
+  const eligible = isEligible(e, model);
+  const matRows = Object.entries(q.mats).filter(([, t]) => t > 0.0005).map(([m, t]) => {
+    const w = MATERIALS[m].waste;
+    return `<tr><td><span class="swatch" style="background:${WASTE[w].color}"></span>${esc(MATERIALS[m].label)}</td><td>${esc(WASTE[w].label)}</td><td class="r">${t < 0.1 ? r2(t * 1000) + " kg" : r2(t) + " t"}</td></tr>`;
+  }).join("");
+  const work = (q.work || []).map((k) => esc(WORK_ITEMS[k]?.label || k)).join(", ");
+  return `
+  <div class="section">
+    <div class="sec-head"><h4>${esc(CAT_LABEL[e.category] || e.category)} · ${esc(e.name || "")}</h4><span class="badge badge-info">IFC</span></div>
+    <dl class="kv">
+      <dt>IFC 종류</dt><dd>${esc(e.ifcType || "")}</dd>
+      <dt>Revit ElementId</dt><dd>${e.revitId ?? "–"}</dd>
+      <dt>층</dt><dd>${esc(model.levels.find((l) => l.id === e.levelId)?.name || e.levelId)}</dd>
+      ${q.area ? `<dt>해체 면적</dt><dd>${r1(q.area)} ㎡</dd>` : ""}
+      <dt>부피</dt><dd>${r2(e.volume || 0)} ㎥</dd>
+    </dl>
+    <p class="sub">IFC 재료: ${esc((e.materialNames || []).join(" / ") || "없음")}${e.unknownVolume ? ` · 미분류 ${r2(e.unknownVolume)} ㎥ 제외` : ""}</p>
+  </div>
+  <div class="section">
+    <h4>해체 정보</h4>
+    <div class="field"><label>해체 시공성 (논문 표 1, 6점 척도)</label><select class="select" data-k="separable">${opt(Object.fromEntries(Object.entries(SEPARABLE).reverse().map(([k, v]) => [k, `${k}점 · ${v}`])), e.separable)}</select></div>
+    <div class="field"><label>유해물질</label><select class="select" data-k="hazard">${opt(HAZARD, e.hazard)}</select></div>
+    <div class="callout ${e.hazard !== "none" ? "" : eligible ? (delta < 0 ? "ok" : "info") : ""}">
+      ${e.hazard !== "none" ? "유해물질이 있어 석면 해체 공정(두 방법 공통)으로 따로 처리합니다."
+        : !work ? "해체 작업이 없는 부재(구조체 등)입니다. 두 방법 모두 압쇄합니다."
+        : !eligible ? `해체 시공성이 ${SEPARABLE_MIN}점 미만이라 분별 대상에서 뺐습니다.`
+        : `전면 분별해체에서 <b>${per?.method === "selective" ? "분별 회수" : "일괄 처리"}</b> · 일괄 압쇄 대비 <b>${signed(kw(delta))}천원</b>`}
+    </div>
+    ${work ? `<p class="sub">해체 작업: ${work}</p>` : ""}
+  </div>
+  <div class="section">
+    <h4>재료별 물량</h4>
+    ${matRows ? `<div class="table-wrap"><table class="tbl compact"><thead><tr><th>재료</th><th>성상</th><th class="r">양</th></tr></thead><tbody>${matRows}</tbody></table></div>` : '<p class="note">물량이 없습니다.</p>'}
+  </div>`;
+}
+
 function totalsByWaste(q) {
   const out = {};
   for (const t of Object.values(q)) for (const [w, v] of Object.entries(t.tons)) out[w] = (out[w] || 0) + v;
   return out;
 }
+
+const PLAN_KEYS = [["concrete", "폐콘크리트"], ["metal", "폐금속"], ["wood", "폐목재"], ["resin", "폐합성수지"], ["mixed", "혼합폐기물"]];
 
 function qtyPanel() {
   const r = results();
@@ -667,99 +719,145 @@ function qtyPanel() {
     const flag = pu && (mine < pu * 0.5 || mine > pu * 1.5);
     return `<tr><td><span class="swatch" style="background:${w.color}"></span>${esc(w.label)}</td><td class="r">${r1(tot[k])}</td><td class="r">${mine.toFixed(4)}</td><td class="r">${pu ? pu.toFixed(4) : "–"}${flag ? ' <span class="badge badge-warning" title="원단위와 50% 넘게 다름">차이</span>' : ""}</td></tr>`;
   }).join("");
-  const byType = Object.entries(TYPES).map(([k, t]) => {
-    const list = model.elements.filter((e) => e.type === k);
-    if (!list.length) return "";
-    const area = list.reduce((s, e) => s + (r.q[e.id]?.area || 0), 0);
-    const len = TYPES[k].kind === "line" ? list.reduce((s, e) => s + lineLength(e), 0) : 0;
-    return `<tr><td>${esc(t.label)}</td><td class="r">${list.length}</td><td class="r">${len ? r1(len) + " m" : ""}</td><td class="r">${area ? r1(area) + " ㎡" : ""}</td></tr>`;
+  // 해체계획서 비교
+  const plan = model.plan || {};
+  const mixedModel = residual + (tot.glass || 0) + (tot.board || 0) + (tot.tile || 0) + (tot.wallpaper || 0);
+  const modelOf = { concrete: tot.concrete || 0, metal: tot.metal || 0, wood: tot.wood || 0, resin: tot.resin || 0, mixed: mixedModel };
+  const planRows = PLAN_KEYS.map(([k, l]) => {
+    const pv = Number(plan[k]);
+    const err = pv > 0 ? ((modelOf[k] - pv) / pv) * 100 : null;
+    const cls = err == null ? "" : Math.abs(err) <= 20 ? "badge-success" : "badge-warning";
+    return `<tr><td>${l}</td><td><input class="input" type="number" min="0" step="0.1" data-plan="${k}" value="${plan[k] ?? ""}" placeholder="t"></td><td class="r">${r1(modelOf[k])}</td><td class="r">${err == null ? "–" : `<span class="badge ${cls}">${err > 0 ? "+" : ""}${err.toFixed(0)}%</span>`}</td></tr>`;
   }).join("");
+  const ifcEls = model.elements.filter((e) => e.source === "ifc");
+  const unknownVol = ifcEls.reduce((s, e) => s + (e.unknownVolume || 0), 0);
   return `
   <div class="section">
     <h4>폐기물 발생량</h4>
-    <dl class="kv"><dt>연면적 (슬래브 합)</dt><dd>${r1(gfa)} ㎡</dd><dt>층수</dt><dd>${model.levels.length}개 층</dd></dl>
+    <dl class="kv"><dt>연면적</dt><dd>${r1(gfa)} ㎡${model.gfa ? "" : " (슬래브 합)"}</dd><dt>층수</dt><dd>${model.levels.length}개 층</dd><dt>부재</dt><dd>${model.elements.length}개${ifcEls.length ? ` (IFC ${ifcEls.length})` : ""}</dd></dl>
+    ${unknownVol ? `<div class="callout">재료 이름을 분류하지 못한 부피 <b>${r2(unknownVol)} ㎥</b>가 계산에서 빠졌습니다. IFC를 다시 불러올 때 재료를 지정하세요.</div>` : ""}
     <div class="table-wrap"><table class="tbl compact"><thead><tr><th>성상</th><th class="r">t</th><th class="r">t/㎡</th><th class="r">원단위</th></tr></thead><tbody>
       ${rows || '<tr><td colspan="4" class="muted">부재가 없습니다</td></tr>'}
       <tr><td><span class="swatch" style="background:${WASTE.mixed.color}"></span>모델 밖 혼합폐기물 (보정)</td><td class="r">${r1(residual)}</td><td class="r">${gfa ? (residual / gfa).toFixed(4) : "–"}</td><td class="r">${unit.mixed?.toFixed(4) ?? "–"}</td></tr>
     </tbody></table></div>
-    <p class="note">원단위는 논문 표 6(국토교통부 2023 표준품셈, ${esc(model.use)})입니다. 모델의 t/㎡이 원단위와 크게 다르면 빠진 부재가 있는지 확인하세요. 기초·계단·설비는 아직 그릴 수 없어 폐콘크리트가 원단위보다 적게 나옵니다.</p>
+    <p class="note">원단위는 논문 표 6(국토교통부 2023 표준품셈, ${esc(model.use)})입니다. 모델의 t/㎡이 원단위와 크게 다르면 빠진 부재가 있는지 확인하세요.</p>
+  </div>
+  <div class="section">
+    <h4>해체계획서와 비교</h4>
+    <p class="note">같은 건물 해체계획서의 성상별 폐기물량을 넣으면 모델 물량과의 오차를 보여줍니다. 목표는 ±20% 이내입니다. 혼합폐기물은 모델의 유리·보드·타일·벽지와 모델 밖 보정분을 합친 값과 비교합니다.</p>
+    <div class="table-wrap"><table class="tbl compact"><thead><tr><th>성상</th><th>계획서 (t)</th><th class="r">모델 (t)</th><th class="r">오차</th></tr></thead><tbody>${planRows}</tbody></table></div>
   </div>
   <div class="section">
     <h4>부재 종류별</h4>
-    <div class="table-wrap"><table class="tbl compact"><thead><tr><th>종류</th><th class="r">개수</th><th class="r">길이</th><th class="r">해체 면적</th></tr></thead><tbody>${byType}</tbody></table></div>
+    <div class="table-wrap"><table class="tbl compact"><thead><tr><th>종류</th><th class="r">개수</th><th class="r">해체 면적</th><th class="r">t</th></tr></thead><tbody>${categoryRows(r)}</tbody></table></div>
     <p class="note">재료 밀도는 가정값입니다 (예: 철근콘크리트 2.45, 합판 0.6, 석고보드 0.8 t/㎥). KDS 41 10 15로 확인이 필요합니다.</p>
   </div>`;
 }
 
+function categoryRows(r) {
+  const by = {};
+  for (const it of r.items) {
+    const b = (by[it.category] ||= { n: 0, area: 0, t: 0 });
+    b.n++; b.area += it.area || 0; b.t += Object.values(it.tons).reduce((s, v) => s + v, 0);
+  }
+  return Object.entries(by).map(([k, b]) => `<tr><td>${esc(CAT_LABEL[k] || k)}</td><td class="r">${b.n}</td><td class="r">${b.area ? r1(b.area) + " ㎡" : ""}</td><td class="r">${r1(b.t)}</td></tr>`).join("");
+}
+
 const SCEN = [
-  { key: "full", label: "완전 철거", color: "var(--series-1)" },
-  { key: "selective", label: "분별 해체", color: "var(--series-2)" },
-  { key: "optimal", label: "최적 혼합안", color: "var(--series-3)" },
+  { key: "general", label: "일괄 압쇄", color: "var(--series-1)" },
+  { key: "selective", label: "전면 분별해체", color: "var(--series-2)" },
+];
+const ITEMS = [
+  ["인건비", (x) => x.laborCost],
+  ["장비비", (x) => x.equipCost],
+  ["반출비", (x) => x.haulCost],
+  ["처리비", (x) => x.disposalCost],
+  ["매각 수익", (x) => x.revenueTotal],
 ];
 
 function comparePanel() {
   const r = results();
   const p = mergeParams(model.params);
-  const best = SCEN.reduce((a, b) => (r[b.key].total < r[a.key].total ? b : a));
-  const base = r.full.total;
-  const cards = SCEN.map((s) => {
-    const t = r[s.key].total;
-    return `<div class="scen-card ${s.key === best.key ? "best" : ""}"><span class="label"><span class="swatch" style="background:${s.color}"></span>${s.label}</span>
-      <span class="val">${mw(t)}</span><span class="d">${s.key === "full" ? "기준" : signed(mw(t - base))} · ${r1(r[s.key].days)}일</span></div>`;
+  if (!model.elements.length) return planOnlyPanel(p);
+  const g = r.general, s = r.selective;
+  const d = s.total - g.total;
+  const best = d < 0 ? SCEN[1] : SCEN[0];
+  const items = [...ITEMS, ...(p.indirectPerDay ? [["공기 간접비", (x) => x.indirect]] : [])];
+  const cards = SCEN.map((sc) => {
+    const x = r[sc.key];
+    return `<div class="scen-card ${sc.key === best.key ? "best" : ""}"><span class="label"><span class="swatch" style="background:${sc.color}"></span>${sc.label}</span>
+      <span class="val">${mw(x.total)}</span><span class="d">공기 ${r1(x.days)}일${sc.key === "selective" ? ` · ${signed(mw(d))}` : ""}</span></div>`;
   }).join("");
-  const items = [
-    ["시공비 (인건비)", (x) => x.laborCost],
-    ["처리비", (x) => x.disposalCost],
-    ["재활용 수익", (x) => x.revenueTotal],
-    ...(p.indirectPerDay ? [["공기 간접비", (x) => x.indirect]] : []),
-  ];
   const chart = groupedBars({
-    categories: items.map(([l, f]) => ({ label: l, values: SCEN.map((s) => f(r[s.key]) / 1e6) })),
-    series: SCEN.map((s) => ({ label: s.label, color: s.color })),
+    categories: items.map(([l, f]) => ({ label: l, values: SCEN.map((sc) => f(r[sc.key]) / 1e6) })),
+    series: SCEN.map((sc) => ({ label: sc.label, color: sc.color })),
     unit: "백만원",
     fmt: (v) => (Math.round(v * 10) / 10).toLocaleString(),
   });
-  const tableRows = items.map(([l, f]) => `<tr><td>${l}</td>${SCEN.map((s) => { const v = f(r[s.key]); return `<td class="r">${l === "재활용 수익" && v > 0 ? "−" : ""}${mw(v)}</td>`; }).join("")}</tr>`).join("");
-  const pickN = r.optimalSet.size, eligN = r.eligible.size;
-  const sortCost = r.selective.sorting?.laborCost || 0;
-  const pc = paperCase(model.params, { area: grossFloorArea(model) || 2400, use: model.use });
-
-  // 왜 분별이 불리/유리한지 한 줄 설명
-  const dSel = r.selective.total - base;
-  const dLabor = r.selective.laborCost - r.full.laborCost;
-  const dDisp = r.selective.disposalCost - r.full.disposalCost;
-  const dRev = r.selective.revenueTotal;
+  const tableRows = items.map(([l, f]) => `<tr><td>${l}</td>${SCEN.map((sc) => { const v = f(r[sc.key]); return `<td class="r">${l === "매각 수익" && v > 0 ? "−" : ""}${mw(v)}</td>`; }).join("")}<td class="r">${signed(mw((l === "매각 수익" ? -1 : 1) * (f(s) - f(g))))}</td></tr>`).join("");
+  const nSel = Object.values(s.perItem).filter((x) => x.method === "selective").length;
+  const nHaz = s.hazardItems.length;
+  const why = [
+    ["인건비", s.laborCost - g.laborCost], ["장비비", s.equipCost - g.equipCost], ["처리비", s.disposalCost - g.disposalCost], ["매각 수익", -(s.revenueTotal - g.revenueTotal)],
+  ].sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   return `
   <div class="verdict">
-    <strong>이 모델에서는 ${best.label}이 가장 경제적입니다</strong>
-    <span>분별 해체 전체: 시공비 ${signed(mw(dLabor))} · 처리비 ${signed(mw(dDisp))} · 재활용 수익 −${mw(dRev)} → <b style="color:#fff">${signed(mw(dSel))}백만원</b></span>
+    <strong>이 모델에서는 ${best.label}이 ${mw(Math.abs(d))}백만원 더 경제적입니다</strong>
+    <span>가장 큰 차이: ${why[0]} ${signed(mw(why[1]))}백만원 · 공기 ${r1(g.days)} → ${r1(s.days)}일</span>
   </div>
   <div class="section">
-    <div class="sec-head"><h4>시나리오 총비용</h4><span class="sub">단위: 백만원</span></div>
-    <div class="scen-cards">${cards}</div>
-    <div class="legend">${SCEN.map((s) => `<span><span class="swatch" style="background:${s.color}"></span>${s.label}</span>`).join("")}</div>
+    <div class="sec-head"><h4>시나리오 총비용</h4><span class="sub">단위: 백만원 · ${esc(p.label || "")}</span></div>
+    <div class="scen-cards" style="grid-template-columns:1fr 1fr">${cards}</div>
+    <div class="legend">${SCEN.map((sc) => `<span><span class="swatch" style="background:${sc.color}"></span>${sc.label}</span>`).join("")}</div>
     ${chart}
-    <div class="table-wrap"><table class="tbl compact"><thead><tr><th>항목</th>${SCEN.map((s) => `<th class="r">${s.label}</th>`).join("")}</tr></thead><tbody>
+    <div class="table-wrap"><table class="tbl compact"><thead><tr><th>항목</th>${SCEN.map((sc) => `<th class="r">${sc.label}</th>`).join("")}<th class="r">차이</th></tr></thead><tbody>
       ${tableRows}
-      <tr><td><b>합계</b></td>${SCEN.map((s) => `<td class="r"><b>${mw(r[s.key].total)}</b></td>`).join("")}</tr>
-      <tr><td>공기 (${p.crewSize}인/일)</td>${SCEN.map((s) => `<td class="r">${r1(r[s.key].days)}일</td>`).join("")}</tr>
+      <tr><td><b>합계</b></td>${SCEN.map((sc) => `<td class="r"><b>${mw(r[sc.key].total)}</b></td>`).join("")}<td class="r"><b>${signed(mw(d))}</b></td></tr>
+      <tr><td>공기 (내장 + 압쇄)</td>${SCEN.map((sc) => `<td class="r">${r1(r[sc.key].interiorDays)} + ${r1(r[sc.key].structDays)}일</td>`).join("")}<td class="r">${signed(r1(s.days - g.days))}일</td></tr>
     </tbody></table></div>
-    <p class="note">최적 혼합안: 분별 가능한 부재 ${eligN}개 중 <b>${pickN}개</b>를 분별합니다${pickN ? "" : " (분별할수록 손해라 완전 철거와 같아졌습니다)"}. 분별을 하나라도 하면 연면적 기준 선별·반출 공정(목공 0.1 + 보통인부 0.2 인/㎡, 논문 표 4)이 붙어 <b>${mw(sortCost)}백만원</b>이 고정으로 듭니다. 대신 모델 밖 혼합폐기물 ${r1(r.full.residual?.t || 0)}t의 단가가 ${(p.disposal.mixedGeneral).toLocaleString()} → ${(p.disposal.mixedSelective).toLocaleString()}원/t으로 내려갑니다.</p>
+    <p class="note">전면 분별해체: 부재 ${nSel}개를 분별 회수합니다${nHaz ? ` (석면 표시 ${nHaz}개는 두 방법 공통으로 따로 처리)` : ""}. 분별 현장은 연면적 기준 선별·반출 공정(목공 0.1 + 보통인부 0.2 인/㎡)과 ${p.selectiveEquip ? "내장 공정 동안 소형 굴착기·절단기" : ""}가 붙고, 내장재를 먼저 걷어낸 폐콘크리트는 순수 폐콘크리트 단가(${p.disposal.concreteSelective.toLocaleString()}원/t, 일괄 ${p.disposal.concreteGeneral.toLocaleString()}원/t)로 처리한다고 가정합니다.</p>
+    <div class="sec-head">
+      <button class="btn btn-outline btn-sm" type="button" data-act="csv"><svg class="i"><use href="#i-download"/></svg>Revit용 CSV</button>
+      <span class="sub">Revit에서 ReClaim 탭 → CSV 적용</span>
+    </div>
   </div>
-  <div class="section">
-    <h4>논문 방식과 비교</h4>
-    <p class="note">같은 연면적(${r1(pc.area)}㎡)을 논문처럼 <b>모든 품 × 연면적, 원단위 × 연면적</b>으로 계산하면:</p>
-    <div class="table-wrap"><table class="tbl compact"><thead><tr><th>Δ (분별 − 일반)</th><th class="r">논문 방식</th><th class="r">이 모델</th></tr></thead><tbody>
-      <tr><td>시공비</td><td class="r">${signed(kw(pc.delta.construction))}</td><td class="r">${signed(kw(dLabor))}</td></tr>
-      <tr><td>처리비</td><td class="r">${signed(kw(pc.delta.disposal))}</td><td class="r">${signed(kw(dDisp))}</td></tr>
-      <tr><td>재활용 수익</td><td class="r">${signed(kw(pc.delta.revenue))}</td><td class="r">${signed(kw(-dRev))}</td></tr>
-      <tr><td><b>합계</b></td><td class="r"><b>${signed(kw(pc.delta.total))}</b></td><td class="r"><b>${signed(kw(dSel))}</b></td></tr>
-    </tbody></table></div>
-    <p class="note">단위: 천원. 2,400㎡·공동주택이면 논문 방식은 논문 결과(−34,727천원)를 재현합니다. 논문은 바닥 타일(0.20→0.02)·천장 모르타르(0.12→0) 같은 품 감소를 <b>건물 전체 면적</b>에 곱해 시공비 증가를 상쇄했습니다. 이 모델은 실제로 그린 부재 면적에만 품을 곱하므로 결과가 다를 수 있습니다.</p>
-  </div>
+  ${planSection(p)}
   ${paramsSection(p)}
   ${mcSection()}
-  <p class="note">기준: ${esc(PAPER.cite)}. 결과는 전문가 검토를 돕는 1차 스크리닝 자료입니다.</p>`;
+  <p class="note">기준: ${esc(p.basis || "")}. 품은 ${esc(PAPER.cite)}. 결과는 전문가 검토를 돕는 1차 스크리닝 자료입니다.</p>`;
+}
+
+// 해체계획서만 있을 때: 연면적 × 원단위(또는 계획서 물량)
+function planSection(p) {
+  const plan = model.plan || {};
+  const area = Number(plan.area) || grossFloorArea(model) || 0;
+  const tonsOverride = Object.fromEntries(PLAN_KEYS.filter(([k]) => Number(plan[k]) > 0).map(([k]) => [k, Number(plan[k])]));
+  const pc = area ? paperCase(model.params, { area, use: model.use, tonsOverride }) : null;
+  return `
+  <details class="section group" ${model.elements.length ? "" : "open"}>
+    <summary>해체계획서 간이 계산 (BIM 없이)</summary>
+    <p class="note">연면적과 용도만으로(물량 탭에 계획서 물량을 넣었으면 그 값으로) 같은 단가를 써서 계산합니다. 품은 논문처럼 연면적 전체에 곱합니다.</p>
+    <div class="fgrid">
+      <div class="field"><label>연면적 (㎡)</label><input class="input" type="number" min="0" step="10" data-plan="area" value="${plan.area ?? ""}" placeholder="${r1(grossFloorArea(model))}"></div>
+      <div class="field"><label>용도·구조</label><select class="select" data-mk="use">${opt(Object.fromEntries(Object.keys(WASTE_UNIT).map((k) => [k, k])), model.use)}</select></div>
+    </div>
+    ${pc ? `<div class="table-wrap"><table class="tbl compact"><thead><tr><th></th><th class="r">일괄 압쇄</th><th class="r">전면 분별해체</th></tr></thead><tbody>
+      <tr><td>인건비</td><td class="r">${mw(pc.general.laborCost)}</td><td class="r">${mw(pc.selective.laborCost)}</td></tr>
+      <tr><td>장비·반출비</td><td class="r">${mw(pc.general.equipCost + pc.general.haulCost)}</td><td class="r">${mw(pc.selective.equipCost + pc.selective.haulCost)}</td></tr>
+      <tr><td>처리비</td><td class="r">${mw(pc.general.disposalCost)}</td><td class="r">${mw(pc.selective.disposalCost)}</td></tr>
+      <tr><td>매각 수익</td><td class="r">−${mw(pc.general.revenueTotal)}</td><td class="r">−${mw(pc.selective.revenueTotal)}</td></tr>
+      <tr><td><b>합계 (백만원)</b></td><td class="r"><b>${mw(pc.general.total)}</b></td><td class="r"><b>${mw(pc.selective.total)}</b></td></tr>
+      <tr><td>공기</td><td class="r">${r1(pc.general.days)}일</td><td class="r">${r1(pc.selective.days)}일</td></tr>
+    </tbody></table></div>
+    <p class="note">${Object.keys(tonsOverride).length ? "계획서 물량 사용: " + Object.keys(tonsOverride).map((k) => PLAN_KEYS.find((x) => x[0] === k)[1]).join(", ") : "물량은 원단위로 추정"} · Δ ${signed(mw(pc.delta.total))}백만원</p>` : ""}
+  </details>`;
+}
+
+function planOnlyPanel(p) {
+  return `
+  <div class="callout info">모델에 부재가 없습니다. 위의 <b>IFC 불러오기</b>로 Revit 모델을 넣거나, 해체계획서의 연면적·용도로 간이 계산을 하세요.</div>
+  ${planSection(p)}
+  ${paramsSection(p)}`;
 }
 
 function paramsSection(p) {
@@ -767,55 +865,74 @@ function paramsSection(p) {
   return `
   <details class="section group">
     <summary>단가·가정 바꾸기</summary>
+    <div class="field"><label>단가 기준</label><select class="select" data-p="preset">${opt(Object.fromEntries(Object.values(PRESETS).map((x) => [x.key, x.label])), p.key)}</select></div>
+    <p class="sub">인건비·장비</p>
     <div class="fgrid">
-      <div class="field"><label>목공 노임 (원/인)</label>${n("wage.carpenter", p.wage.carpenter)}</div>
-      <div class="field"><label>보통인부 노임 (원/인)</label>${n("wage.laborer", p.wage.laborer)}</div>
-      <div class="field"><label>혼합폐기물 일반 (원/t)</label>${n("disposal.mixedGeneral", p.disposal.mixedGeneral)}</div>
-      <div class="field"><label>혼합폐기물 분별 (원/t)</label>${n("disposal.mixedSelective", p.disposal.mixedSelective)}</div>
-      <div class="field"><label>건설폐재류 (원/t)</label>${n("disposal.concrete", p.disposal.concrete)}</div>
-      <div class="field"><label>폐목재 처리 (원/t)</label>${n("disposal.wood", p.disposal.wood)}</div>
-      <div class="field"><label>폐합성수지 처리 (원/t)</label>${n("disposal.resin", p.disposal.resin)}</div>
-      <div class="field"><label>폐목재 수익 (원/t)</label>${n("revenue.wood", p.revenue.wood)}</div>
-      <div class="field"><label>폐합성수지 수익 (원/t)</label>${n("revenue.resin", p.revenue.resin)}</div>
-      <div class="field"><label>회수율 (0~1)</label>${n("recovery", p.recovery, 0.05)}</div>
+      <div class="field"><label>목공 (원/인)</label>${n("wage.carpenter", p.wage.carpenter)}</div>
+      <div class="field"><label>보통인부 (원/인)</label>${n("wage.laborer", p.wage.laborer)}</div>
+      <div class="field"><label>조적공 (원/인)</label>${n("wage.mason", p.wage.mason)}</div>
       <div class="field"><label>하루 투입 인원</label>${n("crewSize", p.crewSize, 1)}</div>
+      <div class="field"><label>대형 굴착기 (원/h)</label>${n("equipment.excavatorLarge", p.equipment.excavatorLarge)}</div>
+      <div class="field"><label>소형 굴착기 (원/h)</label>${n("equipment.excavatorSmall", p.equipment.excavatorSmall)}</div>
+      <div class="field"><label>절단기 (원/h)</label>${n("equipment.cutter", p.equipment.cutter)}</div>
+      <div class="field"><label>덤프 24t (원/h)</label>${n("equipment.dump", p.equipment.dump)}</div>
+      <div class="field"><label>압쇄 작업량 (㎥/일)</label>${n("crushProd", p.crushProd, 0.5)}</div>
+      <div class="field"><label>덤프 실적재 (t/회)</label>${n("haul.truckLoad", p.haul.truckLoad, 1)}</div>
+      <div class="field"><label>회당 시간 (h)</label>${n("haul.hoursPerTrip", p.haul.hoursPerTrip, 0.5)}</div>
       <div class="field"><label>공기 간접비 (원/일)</label>${n("indirectPerDay", p.indirectPerDay, 10000)}</div>
-      <div class="field full"><label>분별 해체 품 (표 4)</label><select class="select" data-p="table4">${opt({ paper: "논문 표 4 그대로", aligned: "천장 모르타르·바닥 타일을 표 3과 같게" }, p.table4)}</select></div>
-      <label class="check full"><input type="checkbox" data-p="residualMixed" ${p.residualMixed !== false ? "checked" : ""}> 모델 밖 혼합폐기물을 원단위로 보정</label>
     </div>
-    <p class="note">기본값: 노임·품은 논문 표 3~5, 처리단가는 한국건설자원협회 2023(논문 표 7), 재활용 수익은 논문의 제품 판매가(합판 4,000원/장, 그래뉼 850천원/t)입니다. 공기 간접비는 논문에 없는 항목이라 0으로 둡니다.</p>
+    <p class="sub">처리비 (원/t)</p>
+    <div class="fgrid">
+      <div class="field"><label>콘크리트 · 일괄</label>${n("disposal.concreteGeneral", p.disposal.concreteGeneral)}</div>
+      <div class="field"><label>콘크리트 · 분별 후</label>${n("disposal.concreteSelective", p.disposal.concreteSelective)}</div>
+      <div class="field"><label>혼합 · 일괄 (불연성)</label>${n("disposal.mixedGeneral", p.disposal.mixedGeneral)}</div>
+      <div class="field"><label>혼합 · 분별 (가연성)</label>${n("disposal.mixedSelective", p.disposal.mixedSelective)}</div>
+      <div class="field"><label>폐목재</label>${n("disposal.wood", p.disposal.wood)}</div>
+      <div class="field"><label>폐합성수지</label>${n("disposal.resin", p.disposal.resin)}</div>
+    </div>
+    <p class="sub">매각 수익 (원/t)</p>
+    <div class="fgrid">
+      <div class="field"><label>고철</label>${n("revenue.steel", p.revenue.steel)}</div>
+      <div class="field"><label>알루미늄 샤시</label>${n("revenue.aluminum", p.revenue.aluminum)}</div>
+      <div class="field"><label>동</label>${n("revenue.copper", p.revenue.copper)}</div>
+      <div class="field"><label>폐목재</label>${n("revenue.wood", p.revenue.wood)}</div>
+      <div class="field"><label>폐합성수지</label>${n("revenue.resin", p.revenue.resin)}</div>
+      <div class="field"><label>회수율 (0~1)</label>${n("recovery", p.recovery, 0.05)}</div>
+    </div>
+    <div class="field"><label>분별 해체 품 (표 4)</label><select class="select" data-p="table4">${opt({ paper: "논문 표 4 그대로", aligned: "천장 모르타르·바닥 타일을 표 3과 같게" }, p.table4)}</select></div>
+    <label class="check"><input type="checkbox" data-p="includeStructure" ${p.includeStructure ? "checked" : ""}> 구조체 압쇄(장비·인력·공기) 포함</label>
+    <label class="check"><input type="checkbox" data-p="haul.on" ${p.haul.on ? "checked" : ""}> 반출(덤프) 포함</label>
+    <label class="check"><input type="checkbox" data-p="selectiveEquip" ${p.selectiveEquip ? "checked" : ""}> 분별 내장 공정에 소형 굴착기·절단기</label>
+    <label class="check"><input type="checkbox" data-p="residualMixed" ${p.residualMixed !== false ? "checked" : ""}> 모델 밖 혼합폐기물을 원단위로 보정</label>
+    <p class="note">기준: ${esc(p.basis)}. 조적공 노임, 덤프 실적재·회당 시간, 소형 장비 투입은 가정값입니다.</p>
     <button class="btn btn-outline btn-sm" type="button" data-act="reset-params" style="justify-self:start">기본값으로</button>
   </details>`;
 }
 
 function mcSection() {
   const mc = ui.mc;
-  const ranges = Object.values(UNCERTAINTY).map((u) => `<tr><td>${esc(u.label)}</td><td class="r">${u.range.map((v) => v >= 1000 ? v.toLocaleString() : v).join(" / ")}</td></tr>`).join("");
+  const ranges = Object.values(UNCERTAINTY).map((u) => `<tr><td>${esc(u.label)}</td><td class="r">${u.range.map((v) => v >= 1000 ? Math.round(v).toLocaleString() : Math.round(v * 100) / 100).join(" / ")}</td></tr>`).join("");
   if (!mc) return `
   <div class="section">
     <h4>불확실성 분석</h4>
-    <p class="note">단가와 품을 범위 안에서 2,000번 바꿔 가며 계산해, 분별 해체가 더 경제적일 확률을 구합니다.</p>
+    <p class="note">단가·품·회수율을 범위 안에서 2,000번 바꿔 가며 계산해, 전면 분별해체가 더 경제적일 확률을 구합니다.</p>
     <button class="btn btn-secondary btn-sm" type="button" data-act="mc" style="justify-self:start"><svg class="i"><use href="#i-chart"/></svg>분석 실행</button>
     <details class="group"><summary>범위 (최소 / 최빈 / 최대, 가정값)</summary><div class="table-wrap"><table class="tbl compact"><tbody>${ranges}</tbody></table></div></details>
   </div>`;
-  const s = mc.selective, o = mc.optimal;
-  const be = mc.breakEven;
+  const s = mc.selective;
+  const be = (v, unitWon) => v == null ? "–" : v < 0 ? "음수 (항상 불리)" : v > 5e7 ? "현실적으로 도달 불가" : `${Math.round(v / 1000).toLocaleString()}천원/t`;
   return `
   <div class="section">
     <div class="sec-head"><h4>불확실성 분석</h4><button class="btn btn-ghost btn-sm" type="button" data-act="mc">다시 실행</button></div>
     <div class="scen-cards" style="grid-template-columns:1fr 1fr">
-      <div class="scen-card"><span class="label">분별 해체가 더 저렴할 확률</span><span class="val">${(s.pCheaper * 100).toFixed(1)}%</span><span class="d">중앙값 ${signed(mw(s.p50))}백만원</span></div>
-      <div class="scen-card"><span class="label">최적안이 더 저렴할 확률</span><span class="val">${(o.pCheaper * 100).toFixed(1)}%</span><span class="d">${o.pCheaper ? `중앙값 ${signed(mw(o.p50))}백만원` : "모든 경우 분별 0개 (= 완전 철거)"}</span></div>
+      <div class="scen-card"><span class="label">분별해체가 더 저렴할 확률</span><span class="val">${(s.pCheaper * 100).toFixed(1)}%</span><span class="d">${mc.n.toLocaleString()}회</span></div>
+      <div class="scen-card"><span class="label">Δ 중앙값 (분별 − 일괄)</span><span class="val">${signed(mw(s.p50))}</span><span class="d">P10 ${mw(s.p10)} · P90 ${mw(s.p90)}</span></div>
     </div>
-    <p class="sub">분별 해체 − 완전 철거 (Δ, 백만원) 분포 · ${mc.n.toLocaleString()}회</p>
+    <p class="sub">전면 분별해체 − 일괄 압쇄 (Δ, 백만원) 분포</p>
     ${histogram(s.values.map((v) => v / 1e6), { fmt: (v) => (Math.round(v * 10) / 10).toLocaleString(), unit: "백만원", zeroLabel: "같음", color: "var(--series-2)" })}
-    <div class="table-wrap"><table class="tbl compact"><thead><tr><th></th><th class="r">P10</th><th class="r">P50</th><th class="r">P90</th></tr></thead><tbody>
-      <tr><td>분별 해체</td><td class="r">${mw(s.p10)}</td><td class="r">${mw(s.p50)}</td><td class="r">${mw(s.p90)}</td></tr>
-      <tr><td>최적 혼합안</td><td class="r">${mw(o.p10)}</td><td class="r">${mw(o.p50)}</td><td class="r">${mw(o.p90)}</td></tr>
-    </tbody></table></div>
     <p class="sub">어떤 가정이 결론을 가장 크게 흔드나 (한 변수만 최소↔최대, 검은 선 = 모든 변수 최빈값)</p>
     ${tornado(mc.tornado.map((t) => ({ label: t.label, low: t.low / 1e6, high: t.high / 1e6 })), { base: mc.base / 1e6, fmt: (v) => (Math.round(v * 10) / 10).toLocaleString(), unit: "백만원" })}
-    <div class="callout info">손익분기: 폐합성수지를 <b>${be == null ? "–" : be > 5e6 ? "현실적으로 도달 불가 (" + mw(be) + "백만원/t)" : Math.round(be / 1000).toLocaleString() + "천원/t"}</b> 이상에 팔아야 분별 해체 전체가 완전 철거와 같아집니다 (현재 가정 ${Math.round(mergeParams(model.params).revenue.resin / 1000).toLocaleString()}천원/t).</div>
+    <div class="callout info">손익분기 — 분별해체가 일괄 압쇄와 같아지려면: 일괄 혼합폐기물 단가 <b>${be(mc.beMixed)}</b> 이상, 또는 폐합성수지 매각가 <b>${be(mc.beResin)}</b> 이상.</div>
     <details class="group"><summary>범위 (최소 / 최빈 / 최대, 가정값)</summary><div class="table-wrap"><table class="tbl compact"><tbody>${ranges}</tbody></table></div></details>
   </div>`;
 }
@@ -846,6 +963,12 @@ $("#panel").addEventListener("change", (ev) => {
     renderLevels(); renderPanel(); renderStage();
     return;
   }
+  if (t.dataset.plan) {
+    mutate((m) => { m.plan ||= {}; m.plan[t.dataset.plan] = t.value === "" ? undefined : Number(t.value); });
+    renderPanel();
+    return;
+  }
+  if (t.dataset.p === "preset") { mutate((m) => { m.params = { preset: t.value }; }); renderPanel(); return; }
   if (t.dataset.p) {
     const path = t.dataset.p.split(".");
     const v = t.type === "checkbox" ? t.checked : t.tagName === "SELECT" ? t.value : Number(t.value);
@@ -893,17 +1016,71 @@ $("#panel").addEventListener("click", (ev) => {
     mutate((m) => { m.levels = m.levels.filter((l) => l.id !== id); m.elements = m.elements.filter((e) => e.levelId !== id); });
     ui.levelId = model.levels[0].id; ui.view = null; renderLevels(); renderPanel(); renderStage();
   }
-  if (act === "reset-params") { mutate((m) => { m.params = {}; }); renderPanel(); }
+  if (act === "reset-params") { mutate((m) => { m.params = m.params?.preset ? { preset: m.params.preset } : {}; }); renderPanel(); }
+  if (act === "csv") return exportCsv();
   if (act === "mc") {
     b.disabled = true; b.textContent = "계산 중…";
     setTimeout(() => {
       const res = simulate(model, model.params, { n: 2000 });
-      res.breakEven = breakEvenResin(model, model.params);
+      res.beMixed = breakEven(model, model.params, "mixedGeneral");
+      res.beResin = breakEven(model, model.params, "revenueResin");
       ui.mc = res;
       renderPanel();
     }, 30);
   }
 });
+
+// Revit "CSV 적용" 버튼이 읽는 형식 (revit/ReClaim.extension/lib/reclaim_io.py)
+function exportCsv() {
+  const r = results();
+  const lines = ["element_id,ifc_guid,category,waste,tons,method,recyclable,delta_k"];
+  for (const it of r.items) {
+    const el = model.elements.find((e) => e.id === it.id);
+    const byWaste = {};
+    for (const [m, t] of Object.entries(it.tons)) { const w = MATERIALS[m]?.waste || "mixed"; byWaste[w] = (byWaste[w] || 0) + t; }
+    const dom = Object.entries(byWaste).filter(([w]) => w !== "concrete").sort((a, b) => b[1] - a[1])[0]?.[0] || (byWaste.concrete ? "concrete" : "mixed");
+    const tons = Object.values(it.tons).reduce((s, v) => s + v, 0);
+    const method = r.deltas[it.id]?.method || "general";
+    const cells = [el?.revitId ?? "", el?.ifcGuid ?? "", it.category, WASTE[dom]?.label || dom, tons.toFixed(3), method, method === "selective" ? 1 : 0, ((r.deltas[it.id]?.delta || 0) / 1000).toFixed(1)];
+    lines.push(cells.map((c) => (/[",\n]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : c)).join(","));
+  }
+  const blob = new Blob(["\ufeff" + lines.join("\n") + "\n"], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${(model.name || "model").replace(/[\\/:*?"<>|]/g, "_")}.reclaim.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+const MAP_KEY = "reclaim.materialMap";
+function loadMap() { try { return JSON.parse(localStorage.getItem(MAP_KEY) || "{}"); } catch { return {}; } }
+async function importIfcFile(file) {
+  const btn = $("#ifc-label");
+  const old = btn.innerHTML;
+  btn.textContent = "IFC 읽는 중…";
+  try {
+    const { importIfcBuffer } = await import("./ifc-import.js");
+    let mapping = loadMap();
+    let res = await importIfcBuffer(await file.arrayBuffer(), { name: file.name.replace(/\.ifc$/i, ""), mapping, use: model.use });
+    const unknown = Object.keys(res.unknown);
+    if (unknown.length) {
+      const keys = Object.keys(MATERIALS);
+      const ask = unknown.slice(0, 12).map((n) => `${n}`).join("\n");
+      const answer = prompt(`이름으로 분류하지 못한 재료가 ${unknown.length}개 있습니다:\n${ask}\n\n같은 순서로 재료 키를 쉼표로 적어 주세요 (비우면 건너뜀).\n사용 가능한 키: ${keys.join(", ")}`, "");
+      if (answer) {
+        answer.split(",").map((x) => x.trim()).forEach((k, i) => { if (k && MATERIALS[k] && unknown[i]) mapping[unknown[i]] = k; });
+        try { localStorage.setItem(MAP_KEY, JSON.stringify(mapping)); } catch {}
+        res = await importIfcBuffer(await file.arrayBuffer(), { name: file.name.replace(/\.ifc$/i, ""), mapping, use: model.use });
+      }
+    }
+    mutate(() => {}); model = res.model; resetUi(); ui.ifcMeshes = res.meshes; save();
+    ui.tab = "compare";
+    renderAll();
+    setMode("3d");
+  } catch (err) {
+    alert("IFC를 읽지 못했습니다: " + err.message);
+  } finally { btn.innerHTML = old; }
+}
 
 function deleteSelected() {
   const e = selected();
@@ -951,6 +1128,7 @@ $("#import").addEventListener("change", async (e) => {
     mutate(() => {}); model = { params: {}, use: "주거 공동주택", ...m }; resetUi(); save(); renderAll();
   } catch (err) { alert("모델 파일을 읽지 못했습니다: " + err.message); }
 });
+$("#ifc").addEventListener("change", (e) => { const f = e.target.files[0]; e.target.value = ""; if (f) importIfcFile(f); });
 $("#theme").addEventListener("click", () => {
   const dark = document.documentElement.dataset.theme === "dark" || (!document.documentElement.dataset.theme && matchMedia("(prefers-color-scheme: dark)").matches);
   document.documentElement.dataset.theme = dark ? "light" : "dark";
@@ -959,7 +1137,7 @@ $("#theme").addEventListener("click", () => {
 });
 
 function resetUi() {
-  ui.levelId = model.levels[0]?.id; ui.selectedId = null; ui.view = null; ui.draft = null; ui.cache = null; ui.mc = null; threeView = null;
+  ui.levelId = model.levels[0]?.id; ui.selectedId = null; ui.view = null; ui.draft = null; ui.cache = null; ui.mc = null; threeView = null; ui.ifcMeshes = null;
 }
 
 /* ---------------- 키보드 ---------------- */

@@ -286,7 +286,8 @@ def item_deltas(items, ctx, params=None, rates=RATES):
         g = item_cost(it, "general", "general", p, rates)
         elig = is_eligible(it, rates)
         s = item_cost(it, "selective" if elig else "general", "selective", p, rates)
-        out[it["id"]] = {"method": "selective" if elig else "general", "delta": s["net"] - g["net"]}
+        method = "selective" if elig else ("general" if it.get("work") else "structure")
+        out[it["id"]] = {"method": method, "delta": s["net"] - g["net"]}
     return out
 
 

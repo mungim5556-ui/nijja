@@ -230,7 +230,7 @@ def write_result(el, waste_label, tons, method, recyclable, delta_k):
 
 
 def method_label(method):
-    return {"selective": u"분별 회수", "general": u"일괄 처리", "hazard": u"석면 별도"}.get(method, method)
+    return {"selective": u"분별 회수", "general": u"일괄 처리", "structure": u"압쇄(공통)", "hazard": u"석면 별도"}.get(method, method)
 
 
 # ---------- 결과 색 뷰 ----------
@@ -268,7 +268,7 @@ def result_view(doc, guids, name=u"ReClaim 결과"):
         if c is not None and c.AllowsBoundParameters:
             cat_ids.Add(c.Id)
     solid = _solid_fill(doc)
-    colors = [(u"분별 회수", Color(27, 175, 122)), (u"일괄 처리", Color(178, 171, 161)), (u"석면 별도", Color(180, 35, 24))]
+    colors = [(u"분별 회수", Color(27, 175, 122)), (u"일괄 처리", Color(178, 171, 161)), (u"압쇄(공통)", Color(156, 144, 132)), (u"석면 별도", Color(180, 35, 24))]
     existing = dict((f.Name, f) for f in FilteredElementCollector(doc).OfClass(ParameterFilterElement))
     for label, color in colors:
         fname = u"ReClaim - " + label

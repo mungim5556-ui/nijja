@@ -231,7 +231,8 @@ export function itemDeltas(items, ctx, params) {
     const g = itemCost(it, "general", "general", p);
     const eligible = isEligible(it);
     const s = itemCost(it, eligible ? "selective" : "general", "selective", p);
-    out[it.id] = { method: eligible ? "selective" : "general", delta: s.net - g.net };
+    // structure: 해체 작업이 없는 구조체 — 두 방법 모두 압쇄 (분별 현장에서는 깨끗한 콘크리트 단가만 다름)
+    out[it.id] = { method: eligible ? "selective" : (it.work || []).length ? "general" : "structure", delta: s.net - g.net };
   }
   return out;
 }

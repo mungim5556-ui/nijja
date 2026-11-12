@@ -3,7 +3,7 @@
 
 CSV 열 (웹 bim.html의 'Revit용 CSV'가 이 형식으로 내보낸다):
     element_id, ifc_guid, category, waste, tons, method, recyclable, delta_k
-    method: selective(분별 회수) | general(일괄 처리) | hazard(석면 별도)
+    method: selective(분별 회수) | general(일괄 처리) | structure(압쇄 공통) | hazard(석면 별도)
     delta_k: 부재 하나를 분별했을 때 비용 차이(천원, 음수면 분별이 이득)
 """
 from __future__ import division
@@ -14,7 +14,7 @@ import json
 import csv
 
 CSV_COLUMNS = ["element_id", "ifc_guid", "category", "waste", "tons", "method", "recyclable", "delta_k"]
-METHOD_LABEL = {"selective": u"분별 회수", "general": u"일괄 처리", "hazard": u"석면 별도"}
+METHOD_LABEL = {"selective": u"분별 회수", "general": u"일괄 처리", "structure": u"압쇄(공통)", "hazard": u"석면 별도"}
 
 
 def downloads_dir():

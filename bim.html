@@ -32,10 +32,12 @@
     </div>
     <span class="spacer"></span>
     <button class="icon-btn" id="undo" type="button" aria-label="실행 취소" title="실행 취소 (Ctrl+Z)"><svg class="i"><use href="#i-chevron-left"/></svg></button>
+    <label class="btn btn-primary btn-sm" for="ifc" id="ifc-label"><svg class="i"><use href="#i-upload"/></svg>IFC 불러오기</label>
+    <input type="file" id="ifc" accept=".ifc" hidden>
     <button class="btn btn-outline btn-sm" id="demo" type="button">예시 모델</button>
     <button class="btn btn-outline btn-sm" id="new" type="button">새 모델</button>
     <button class="btn btn-outline btn-sm" id="export" type="button"><svg class="i"><use href="#i-download"/></svg>저장</button>
-    <label class="btn btn-outline btn-sm" for="import"><svg class="i"><use href="#i-upload"/></svg>불러오기</label>
+    <label class="btn btn-outline btn-sm" for="import" title="저장한 모델 또는 Revit '해체 분석'의 .reclaim.json"><svg class="i"><use href="#i-file"/></svg>결과·모델 열기</label>
     <input type="file" id="import" accept=".json,application/json" hidden>
     <button class="icon-btn" id="theme" type="button" aria-label="다크 모드 전환"><svg class="i"><use href="#i-moon"/></svg></button>
   </header>

@@ -73,7 +73,7 @@ try:
         if el is None:
             continue
         waste = E.dominant_waste(it["tons"])
-        method = res["selective"]["perItem"].get(it["id"], {}).get("method", "general")
+        method = deltas[it["id"]]["method"]
         R.write_result(el, E.RATES["waste"].get(waste, {}).get("label", waste), sum(it["tons"].values()),
                        method, method == "selective", deltas[it["id"]]["delta"] / 1000.0)
     view = R.result_view(doc, guids)
