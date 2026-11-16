@@ -5,7 +5,7 @@ __doc__ = u"다운로드 폴더의 최신 *.reclaim.csv → RC_* 매개변수 + 
 
 import os
 
-from Autodesk.Revit.DB import BuiltInParameter, ElementId, FilteredElementCollector, Transaction
+from Autodesk.Revit.DB import BuiltInParameter, FilteredElementCollector, Transaction
 from pyrevit import forms, script
 
 import reclaim_io as IO
@@ -32,7 +32,7 @@ guid_index = None
 def find(row):
     global guid_index
     if row["element_id"] is not None:
-        el = doc.GetElement(ElementId(int(row["element_id"])))
+        el = doc.GetElement(R.element_id(row["element_id"]))
         if el is not None:
             return el
     if row["ifc_guid"]:

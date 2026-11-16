@@ -48,6 +48,15 @@ IN_PARAMS = [(u"RC_시공성", True), (u"RC_유해물질", False)]
 HAZARD_TEXT = {u"석면 의심": "suspected", u"석면 확인": "confirmed", u"suspected": "suspected", u"confirmed": "confirmed"}
 
 
+def element_id(n):
+    """정수 → ElementId. Revit 2024+는 Int64 생성자가 있어 IronPython이 int만으로는 오버로드를 못 고른다."""
+    try:
+        from System import Int64
+        return ElementId(Int64(int(n)))
+    except Exception:
+        return ElementId(int(n))
+
+
 def _param_value(el, name):
     p = el.LookupParameter(name)
     if not p or not p.HasValue:

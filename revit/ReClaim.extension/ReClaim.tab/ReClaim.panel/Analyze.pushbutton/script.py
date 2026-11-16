@@ -7,7 +7,7 @@ import io
 import json
 import os
 
-from Autodesk.Revit.DB import ElementId, Transaction
+from Autodesk.Revit.DB import Transaction
 from pyrevit import forms, script
 
 import reclaim_engine as E
@@ -69,7 +69,7 @@ t.Start()
 try:
     guids = R.ensure_shared_params(doc, app, EXT)
     for it in items:
-        el = doc.GetElement(ElementId(int(it["id"])))
+        el = doc.GetElement(R.element_id(it["id"]))
         if el is None:
             continue
         waste = E.dominant_waste(it["tons"])
