@@ -12,6 +12,8 @@ import os
 import sys
 
 DEFAULT_URL = "https://nijja-api.mungim5556.workers.dev/results"
+# Cloudflare가 User-Agent 없는 요청(.NET WebClient 기본값)과 "Python-urllib"을 403(1010)으로 막는다.
+USER_AGENT = "ReClaim-batch/1.0"
 
 
 def _post_dotnet(url, token, body):
@@ -21,6 +23,7 @@ def _post_dotnet(url, token, body):
     ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12
     wc = WebClient()
     wc.Encoding = Encoding.UTF8
+    wc.Headers.Add("User-Agent", USER_AGENT)
     wc.Headers.Add("Authorization", "Bearer " + token)
     wc.Headers.Add("Content-Type", "application/json; charset=utf-8")
     try:
@@ -39,7 +42,7 @@ def _post_urllib(url, token, body):
         from urllib.error import HTTPError
     except ImportError:  # Python 2
         from urllib2 import Request, urlopen, HTTPError
-    req = Request(url, data=body.encode("utf-8"), headers={"Authorization": "Bearer " + token, "Content-Type": "application/json; charset=utf-8"})
+    req = Request(url, data=body.encode("utf-8"), headers={"User-Agent": USER_AGENT, "Authorization": "Bearer " + token, "Content-Type": "application/json; charset=utf-8"})
     try:
         r = urlopen(req, timeout=60)
         return r.getcode(), r.read().decode("utf-8")

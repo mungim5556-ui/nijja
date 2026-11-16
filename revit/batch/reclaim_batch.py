@@ -106,6 +106,14 @@ for path in models:
             opt.OverwriteExistingFile = True
             copy_path = os.path.join(out_dir, u"%s_ReClaim.rvt" % doc.Title)
             doc.SaveAs(copy_path, opt)
+            # 같은 이름으로 다시 저장할 때마다 Revit이 <이름>.0001.rvt 백업을 남긴다 → 지운다
+            stem = os.path.splitext(os.path.basename(copy_path))[0]
+            for f in os.listdir(out_dir):
+                if f.startswith(stem + u".") and f.lower().endswith(".rvt") and f[len(stem) + 1:-4].isdigit():
+                    try:
+                        os.remove(os.path.join(out_dir, f))
+                    except Exception:
+                        pass
             log(u"결과 사본 저장: %s" % copy_path)
         if up.get("token"):
             import reclaim_upload as UP
