@@ -615,7 +615,15 @@
         "brass": 0,
         "stainless": 0
       },
-      "generalRecovers": [],
+      "rebarKgPerM3": 0,
+      "recScrap": {
+        "general": 1,
+        "selective": 1
+      },
+      "recNonferrous": {
+        "general": 0,
+        "selective": 1
+      },
       "recovery": 1,
       "table4": "paper",
       "crewSize": 20,
@@ -624,18 +632,18 @@
     },
     "team2024": {
       "key": "team2024",
-      "label": "팀 조사 2024 (기본)",
-      "basis": "회의록 11/12: 2024 건설폐기물 중간처리단가, 2024 기계경비 산출표, 비철 시세(2026-11-10), 논문 품",
+      "label": "팀 기준 (ReClaim Compare 변수)",
+      "basis": "ReClaim Compare rates.json · 회의록 11/12·11/14: 2024 중간처리단가, 2024 기계경비, 비철 시세(2026-11-10), 논문 품",
       "wage": {
         "carpenter": 267639,
         "laborer": 161858,
         "roofer": 0,
-        "mason": 267639
+        "mason": 0
       },
       "includeStructure": true,
-      "selectiveEquip": true,
+      "selectiveEquip": false,
       "haul": {
-        "on": true,
+        "on": false,
         "truckLoad": 15,
         "hoursPerTrip": 2
       },
@@ -649,12 +657,13 @@
       "hoursPerDay": 8,
       "structCrew": 2,
       "masonry": {
-        "mason": 0.38,
-        "laborer": 0.252
+        "mason": 0,
+        "laborer": 0
       },
+      "rebarKgPerM3": 100,
       "disposal": {
         "concreteGeneral": 49571,
-        "concreteSelective": 31142,
+        "concreteSelective": 49571,
         "inert": 49571,
         "wood": 35000,
         "resin": 49000,
@@ -662,21 +671,26 @@
         "mixedSelective": 72721
       },
       "revenue": {
-        "wood": 0,
-        "resin": 0,
-        "steel": 380000,
+        "wood": 20000,
+        "resin": 150000,
+        "steel": 360000,
         "aluminum": 2500000,
-        "copper": 15000000,
+        "copper": 16400000,
         "brass": 10200000,
         "stainless": 1570000
       },
-      "generalRecovers": [
-        "steel"
-      ],
-      "recovery": 0.9,
+      "recScrap": {
+        "general": 0.9,
+        "selective": 0.95
+      },
+      "recNonferrous": {
+        "general": 0.3,
+        "selective": 0.9
+      },
+      "recovery": 0.8,
       "table4": "paper",
       "crewSize": 20,
-      "indirectPerDay": 0,
+      "indirectPerDay": 500000,
       "residualMixed": true
     }
   },

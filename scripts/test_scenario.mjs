@@ -23,10 +23,18 @@ check(aligned.delta.total > 0, `표 4 보정 시 Δ ${Math.round(aligned.delta.t
 // 3) 팀 2024 프리셋: 구조체 압쇄·장비·반출·공기가 들어간다
 const m = demoModel();
 const c = compare(m, {});
-check(c.general.equipCost > 0 && c.general.haulCost > 0 && c.general.structDays > 0, `일괄 압쇄에 장비비·반출비·압쇄 일수 포함 (장비 ${Math.round(c.general.equipCost / 1e6)}백만원, 압쇄 ${c.general.structDays.toFixed(1)}일)`);
+check(c.general.equipCost > 0 && c.general.structDays > 0 && c.general.indirect > 0, `일괄 압쇄에 장비비·압쇄 일수·간접비 포함 (장비 ${Math.round(c.general.equipCost / 1e6)}백만원, 압쇄 ${c.general.structDays.toFixed(1)}일)`);
+check(c.general.haulCost === 0 && c.selective.equip.excavatorSmall === undefined, "ReClaim Compare에 없는 반출비·소형 장비는 기본값에서 꺼져 있다");
+check((c.general.revenue.steel || 0) > 0, `콘크리트 속 철근(100kg/㎥) 고철 수익 (${Math.round((c.general.revenue.steel || 0) / 1e6)}백만원)`);
 check(c.selective.days > c.general.days, `분별 해체 공기가 더 길다 (${c.general.days.toFixed(1)} → ${c.selective.days.toFixed(1)}일)`);
 check(Math.abs(c.general.structDays - c.selective.structDays) < 1e-9, "구조체 압쇄 일수는 두 안이 같다");
-check(c.selective.disposal.concrete?.cost < c.general.disposal.concrete?.cost, "분별 후 폐콘크리트 처리비가 더 싸다 (순수 폐콘크리트 단가)");
+check(Math.abs(c.selective.disposal.concrete.cost - c.general.disposal.concrete.cost) < 1, "폐콘크리트 처리단가는 두 방법이 같다 (fee_concrete_selective = fee_concrete)");
+
+// 5) ReClaim Compare(reclaim-compare 저장소 a5c3be0)와 같은 결과: 공동주택 2,400㎡, 원단위 물량
+const rcq = { concrete: 1.477 * 2400, metal: 0.0655 * 2400, wood: 0.015 * 2400, resin: 0.0261 * 2400, mixed: 0.1637 * 2400 };
+const rc = paperCase({}, { area: 2400, use: "주거 공동주택", tonsOverride: rcq });
+near("ReClaim Compare 일괄 압쇄 (백만원)", rc.general.total / 1e4, 100162, 2);
+near("ReClaim Compare 전면 분별해체 (백만원)", rc.selective.total / 1e4, 100583, 2);
 
 // 4) 몬테카를로는 같은 seed면 같은 결과
 const a = simulate(m, {}, { n: 200, seed: 7 }), b = simulate(m, {}, { n: 200, seed: 7 });

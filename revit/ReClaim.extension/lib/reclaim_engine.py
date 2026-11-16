@@ -124,7 +124,8 @@ def item_cost(item, method, scenario, p, rates=RATES):
         if not days > 0:
             return
         r["labor"][trade] = r["labor"].get(trade, 0) + days
-        r["manDays"] += days
+        if (p["wage"].get(trade) or 0) > 0:
+            r["manDays"] += days
         r["laborCost"] += days * (p["wage"].get(trade) or 0) * wf
 
     for key in item.get("work") or []:
@@ -152,6 +153,12 @@ def item_cost(item, method, scenario, p, rates=RATES):
 
     d = p["disposal"]
     mixed_here = d["mixedSelective"] if scenario == "selective" else d["mixedGeneral"]
+    sel = scenario == "selective"
+    rc = item["tons"].get("rc", 0)
+    if rc > 0 and p.get("rebarKgPerM3"):
+        rebar = rc / rates["materials"]["rc"]["density"] * p["rebarKgPerM3"] / 1000.0
+        rec = p["recScrap"]["selective"] if sel else p["recScrap"]["general"]
+        earn("steel", rebar * rec, p["revenue"].get("steel"))
     for m, t in item["tons"].items():
         if not t > 0:
             continue
@@ -164,10 +171,11 @@ def item_cost(item, method, scenario, p, rates=RATES):
             continue
         if w == "metal":
             key = rates["metalPriceKey"].get(m, "steel")
-            if method == "selective" or key in p["generalRecovers"]:
-                earn(key, t, p["revenue"].get(key))
-            else:
-                put("mixed", t, mixed_here)
+            rr = p["recScrap"] if key == "steel" else p["recNonferrous"]
+            rec = rr["selective"] if sel else rr["general"]
+            earn(key, t * rec, p["revenue"].get(key))
+            if rec < 1:
+                put("mixed", t * (1 - rec), mixed_here)
             continue
         if method == "general":
             put("mixed", t, mixed_here)

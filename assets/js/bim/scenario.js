@@ -137,24 +137,41 @@ export function paperCase(params = { preset: "paper2023" }, { area = 2400, use =
     }
     let laborCost = Object.values(labor).reduce((s, v) => s + v.cost, 0);
     const sel = method === "selective";
-    const disposal = {
-      concrete: { t: t.concrete, cost: t.concrete * (sel ? p.disposal.concreteSelective : p.disposal.concreteGeneral) },
-      wood: { t: t.wood, cost: t.wood * p.disposal.wood },
-      resin: { t: t.resin, cost: t.resin * p.disposal.resin },
-      mixed: { t: t.mixed, cost: t.mixed * (sel ? p.disposal.mixedSelective : p.disposal.mixedGeneral) },
-    };
+    const mixedPrice = sel ? p.disposal.mixedSelective : p.disposal.mixedGeneral;
+    let disposal, revenue;
+    if (p.key === "paper2023") {
+      // 논문 방식: 두 방법 모두 목재·수지를 따로 처리하고, 혼합폐기물 단가만 다르다
+      disposal = {
+        concrete: { t: t.concrete, cost: t.concrete * (sel ? p.disposal.concreteSelective : p.disposal.concreteGeneral) },
+        wood: { t: t.wood, cost: t.wood * p.disposal.wood },
+        resin: { t: t.resin, cost: t.resin * p.disposal.resin },
+        mixed: { t: t.mixed, cost: t.mixed * mixedPrice },
+      };
+      revenue = sel ? { wood: t.wood * p.recovery * p.revenue.wood, resin: t.resin * p.recovery * p.revenue.resin } : {};
+    } else {
+      // 팀 방식 (ReClaim Compare): 일괄 압쇄는 목재·수지가 혼합폐기물로, 분별은 분리율만큼 따로 처리·매각
+      const sep = sel ? p.recovery : 0;
+      const wood = t.wood * sep, resin = t.resin * sep;
+      const scrap = sel ? p.recScrap.selective : p.recScrap.general;
+      disposal = {
+        concrete: { t: t.concrete, cost: t.concrete * (sel ? p.disposal.concreteSelective : p.disposal.concreteGeneral) },
+        wood: { t: wood, cost: wood * p.disposal.wood },
+        resin: { t: resin, cost: resin * p.disposal.resin },
+        mixed: { t: t.mixed + t.wood - wood + t.resin - resin, cost: (t.mixed + t.wood - wood + t.resin - resin) * mixedPrice },
+      };
+      // 원단위의 폐금속에 철근이 이미 들어 있으므로 면적 방식에서는 철근을 따로 더하지 않는다
+      revenue = { steel: t.metal * scrap * p.revenue.steel, wood: wood * p.revenue.wood, resin: resin * p.revenue.resin };
+    }
     const disposalCost = Object.values(disposal).reduce((s, v) => s + v.cost, 0);
-    const revenue = sel ? { wood: t.wood * p.recovery * p.revenue.wood, resin: t.resin * p.recovery * p.revenue.resin, steel: t.metal * p.recovery * p.revenue.steel }
-      : { steel: p.generalRecovers.includes("steel") ? t.metal * p.revenue.steel : 0 };
     const revenueTotal = Object.values(revenue).reduce((s, v) => s + v, 0);
     // 팀 프리셋: 구조체 압쇄·반출·소형 장비
     let equipCost = 0, haulCost = 0, structDays = 0;
     if (p.includeStructure) {
-      structDays = t.concrete / 2.4 / p.crushProd;
+      structDays = t.concrete / 2.4 / p.crushProd; // 폐콘크리트 톤 → ㎥ (ReClaim Compare density.concrete = 2.4)
       equipCost += structDays * p.hoursPerDay * p.equipment.excavatorLarge;
       laborCost += structDays * p.structCrew * p.wage.laborer;
     }
-    const interiorDays = Object.values(labor).reduce((s, v) => s + v.days, 0) / Math.max(1, p.crewSize);
+    const interiorDays = Object.entries(labor).filter(([k]) => p.wage[k] > 0).reduce((s, [, v]) => s + v.days, 0) / Math.max(1, p.crewSize);
     if (sel && p.selectiveEquip) equipCost += interiorDays * p.hoursPerDay * (p.equipment.excavatorSmall + p.equipment.cutter);
     if (p.haul.on) haulCost = ((t.concrete + t.wood + t.resin + t.mixed + t.metal) / p.haul.truckLoad) * p.haul.hoursPerTrip * p.equipment.dump;
     const days = interiorDays + structDays;
@@ -180,11 +197,13 @@ export function paperCase(params = { preset: "paper2023" }, { area = 2400, use =
 // 가정 범위 [최소, 최빈, 최대]
 export const UNCERTAINTY = {
   mixedGeneral: { label: "일괄 압쇄 혼합폐기물 단가 (원/t)", range: [166193, 188715, 210000], apply: (p, v) => { p.disposal.mixedGeneral = v; } },
-  concreteSelective: { label: "분별 후 폐콘크리트 단가 (원/t)", range: [31142, 31142, 49571], apply: (p, v) => { p.disposal.concreteSelective = v; } },
+  concreteSelective: { label: "분별 후 폐콘크리트 단가 (원/t)", range: [31142, 49571, 49571], apply: (p, v) => { p.disposal.concreteSelective = v; } },
   selectiveLabor: { label: "분별 해체 품 배율", range: [0.9, 1.0, 1.29], apply: (p, v) => { p.selectiveLaborFactor = v; } },
-  revenueResin: { label: "폐합성수지 매각가 (원/t)", range: [0, 100000, 850000], apply: (p, v) => { p.revenue.resin = v; } },
+  revenueResin: { label: "폐합성수지 매각가 (원/t)", range: [0, 150000, 850000], apply: (p, v) => { p.revenue.resin = v; } },
   revenueWood: { label: "폐목재 매각가 (원/t)", range: [0, 20000, 274348], apply: (p, v) => { p.revenue.wood = v; } },
-  recovery: { label: "회수율", range: [0.6, 0.85, 1.0], apply: (p, v) => { p.recovery = v; } },
+  recovery: { label: "목재·수지 분리율", range: [0.6, 0.8, 1.0], apply: (p, v) => { p.recovery = v; } },
+  recNonferrousSel: { label: "분별 비철 회수율", range: [0.6, 0.9, 1.0], apply: (p, v) => { p.recNonferrous = { ...p.recNonferrous, selective: v }; } },
+  indirect: { label: "일당 간접비 (원/일)", range: [300000, 500000, 800000], apply: (p, v) => { p.indirectPerDay = v; } },
   wage: { label: "노임 배율", range: [0.95, 1.0, 1.1], apply: (p, v) => { p.wageFactor = v; } },
   equip: { label: "장비비 배율", range: [0.9, 1.0, 1.15], apply: (p, v) => { p.equipFactor = v; } },
 };

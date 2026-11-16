@@ -22,6 +22,8 @@ export function mergeParams(p = {}) {
     equipment: { ...base.equipment, ...(p.equipment || {}) },
     haul: { ...base.haul, ...(p.haul || {}) },
     masonry: { ...base.masonry, ...(p.masonry || {}) },
+    recScrap: { ...base.recScrap, ...(p.recScrap || {}) },
+    recNonferrous: { ...base.recNonferrous, ...(p.recNonferrous || {}) },
   };
 }
 
@@ -77,7 +79,7 @@ export function itemCost(item, method, scenario, p) {
   const addLabor = (trade, days) => {
     if (!(days > 0)) return;
     r.labor[trade] = (r.labor[trade] || 0) + days;
-    r.manDays += days;
+    if (p.wage[trade] > 0) r.manDays += days; // 노임을 넣지 않은 직종(지붕공·조적공)은 공기에서도 뺀다 (ReClaim Compare와 같게)
     r.laborCost += days * (p.wage[trade] || 0) * wf;
   };
   const lf = method === "selective" ? (p.selectiveLaborFactor || 1) : 1;
@@ -101,6 +103,14 @@ export function itemCost(item, method, scenario, p) {
     r.revenueTotal += t * price;
   };
   const mixedHere = scenario === "selective" ? p.disposal.mixedSelective : p.disposal.mixedGeneral;
+  const sel = scenario === "selective";
+  // 콘크리트 속 철근 → 고철 (구조체 압쇄 후 자석 선별, 현장 방식별 회수율)
+  if (item.tons.rc > 0 && p.rebarKgPerM3) {
+    const rebar = (item.tons.rc / MATERIALS.rc.density) * p.rebarKgPerM3 / 1000;
+    const rec = sel ? p.recScrap.selective : p.recScrap.general;
+    earn("steel", rebar * rec, p.revenue.steel);
+    r.rebar = rebar;
+  }
   for (const [m, t] of Object.entries(item.tons)) {
     if (!(t > 0)) continue;
     const w = MATERIALS[m]?.waste || "mixed";
@@ -110,11 +120,12 @@ export function itemCost(item, method, scenario, p) {
       continue;
     }
     if (w === "metal") {
+      // 고철(강재)과 비철(알루미늄·동 등)은 현장 방식별 회수율로 매각하고, 나머지는 혼합폐기물
       const key = METAL_PRICE_KEY[m] || "steel";
-      const recovered = method === "selective" || p.generalRecovers.includes(key);
-      // 금속은 떼어내면 거의 전량 회수된다고 보고 회수율을 적용하지 않는다
-      if (recovered) earn(key, t, p.revenue[key]);
-      else put("mixed", t, mixedHere);
+      const rates = key === "steel" ? p.recScrap : p.recNonferrous;
+      const rec = sel ? rates.selective : rates.general;
+      earn(key, t * rec, p.revenue[key]);
+      if (rec < 1) put("mixed", t * (1 - rec), mixedHere);
       continue;
     }
     if (method === "general") { put("mixed", t, mixedHere); continue; }

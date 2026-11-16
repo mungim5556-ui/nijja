@@ -226,9 +226,9 @@ flowchart LR
 
 설치와 사용법은 [`revit/README.md`](revit/README.md)에 있습니다.
 
-- **비용 항목**: 인건비(논문 표 3·4 품 × 부재 면적, 조적벽 분리 품) + 장비비(압쇄 대형 굴착기, 분별 내장 공정 소형 굴착기·절단기) + 반출비(덤프) + 처리비 − 매각 수익(고철·알루미늄·동 등) (+ 선택: 공기 간접비). 공기 = 내장 공정 + 압쇄(45~50㎥/일).
+- **비용 항목**: 인건비(논문 표 3·4 품) + 장비비(압쇄 대형 굴착기) + 처리비 + 공기 간접비(50만원/일) − 매각 수익(콘크리트 속 철근 100kg/㎥·고철·알루미늄·동, 분리한 목재·수지). 공기 = 내장 공정(작업조 20인) + 압쇄(47.5㎥/일). 반출(덤프)·분별 소형 장비·조적 분리는 설정에서 켤 수 있습니다.
 - **단가 기준** (공법 비교 → 단가·가정 바꾸기에서 전환):
-  - `팀 조사 2024`(기본): 2024 건설폐기물 중간처리단가, 2024 기계경비 산출표, 비철 시세(2026-11-10).
+  - `팀 기준 (ReClaim Compare 변수)`(기본): 팀이 [ReClaim Compare](https://github.com/mungim5556-ui/reclaim-compare)와 Obsidian(11/14 회의록)에 정리한 변수와 같은 값·같은 계산입니다. 해체계획서 간이 계산은 ReClaim Compare와 같은 결과를 냅니다(`scripts/test_scenario.mjs`에서 확인).
   - `논문 2023`: 박지선 외(2023) 재현용.
 - **IFC 자동 물량**: 재료 층(IfcMaterialLayerSet) 두께 비율로 부피를 나누고, 재료 이름을 자동 분류합니다. 분류하지 못한 이름은 한 번 지정하면 기억합니다. `Pset_ReClaim`(해체 시공성·유해물질)과 Revit ElementId(Tag)도 읽습니다.
 - **불확실성 분석**: 처리단가·품·장비비·매각가·회수율을 범위 안에서 2,000번 바꿔, 분별해체가 더 경제적일 확률·토네이도·손익분기를 보여줍니다.
@@ -238,7 +238,7 @@ flowchart LR
   - `node scripts/test_engines.mjs`: 웹(JS)과 Revit(Python) 계산 일치, `rates.json` 최신 여부
   - `python3 revit/ReClaim.extension/lib/reclaim_engine.py`: Python 계산부 자체 점검
 
-> 단가의 원본은 `assets/js/bim/catalog.js`입니다. 바꾼 뒤 `node scripts/export_rates.mjs`로 Revit용 `rates.json`을 다시 만드세요. 조적공 노임, 덤프 실적재·회당 시간, 소형 장비 투입, 목재·합성수지 매각가(0)는 업체 답변 전까지의 가정값입니다.
+> 단가의 원본은 `assets/js/bim/catalog.js`입니다. 바꾼 뒤 `node scripts/export_rates.mjs`로 Revit용 `rates.json`을 다시 만드세요. 출처 없는 가정값(`ASSUMED`): 하루 8시간, 구조체 보조 2인, 철근 100kg/㎥, 폐목재 20,000·폐합성수지 150,000원/t, 고철 회수율 0.9/0.95, 비철 0.3/0.9, 분리율 0.8, 작업조 20인, 간접비 50만원/일.
 
 **파일 구성**
 

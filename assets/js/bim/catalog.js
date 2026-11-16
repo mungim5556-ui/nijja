@@ -109,7 +109,9 @@ const PAPER2023 = {
   },
   // 재활용·매각 수익 (원/t). 목재·합성수지는 논문의 제품 판매가.
   revenue: { wood: Math.round(4000 / (0.9 * 1.8 * 0.01 * 0.9)), resin: 850000, steel: 0, aluminum: 0, copper: 0, brass: 0, stainless: 0 },
-  generalRecovers: [],
+  rebarKgPerM3: 0,
+  recScrap: { general: 1, selective: 1 },
+  recNonferrous: { general: 0, selective: 1 },
   recovery: 1.0,
   table4: "paper",
   crewSize: 20,
@@ -117,36 +119,43 @@ const PAPER2023 = {
   residualMixed: true,
 };
 
+// 팀 기준값: ReClaim Compare(reclaim-compare 저장소 assets/data/rates.json, 11/14 회의록)와 같은 변수·값.
+// assumed: true 인 값은 출처 없는 잠정값이다 (ASSUMED 목록 참고).
 const TEAM2024 = {
   key: "team2024",
-  label: "팀 조사 2024 (기본)",
-  basis: "회의록 11/12: 2024 건설폐기물 중간처리단가, 2024 기계경비 산출표, 비철 시세(2026-11-10), 논문 품",
-  wage: { carpenter: 267639, laborer: 161858, roofer: 0, mason: 267639 }, // 조적공 = 목공과 같게 둔 가정값
+  label: "팀 기준 (ReClaim Compare 변수)",
+  basis: "ReClaim Compare rates.json · 회의록 11/12·11/14: 2024 중간처리단가, 2024 기계경비, 비철 시세(2026-11-10), 논문 품",
+  wage: { carpenter: 267639, laborer: 161858, roofer: 0, mason: 0 }, // 원/인·일 (논문 표 5)
   includeStructure: true,
-  selectiveEquip: true, // 분별 해체 내장 공정 동안 소형 굴착기 + 절단기
-  haul: { on: true, truckLoad: 15, hoursPerTrip: 2 }, // 24t 덤프 실적재 15t, 왕복·상하차 2시간 (가정)
-  equipment: { excavatorLarge: 160391, excavatorSmall: 82887, cutter: 54494, dump: 138158 }, // 원/시간 (운전원·연료 포함)
-  crushProd: 47.5, // 굴삭기+압쇄기 RC 해체 ㎥/일·작업조 (45~50)
-  hoursPerDay: 8,
-  structCrew: 2, // 압쇄 작업조 보통인부 수 (가정)
-  masonry: { mason: 0.38, laborer: 0.252 }, // 조적벽 분리 해체 인/㎥
+  selectiveEquip: false, // ReClaim Compare에 없는 항목 — 끔 (켜면 분별 내장 공정 동안 소형 굴착기·절단기)
+  haul: { on: false, truckLoad: 15, hoursPerTrip: 2 }, // ReClaim Compare에 없는 항목 — 끔
+  equipment: { excavatorLarge: 160391, excavatorSmall: 82887, cutter: 54494, dump: 138158 }, // 원/h
+  crushProd: 47.5, // crush_m3_per_day
+  hoursPerDay: 8, // hours_per_day (가정)
+  structCrew: 2, // structure_crew (가정)
+  masonry: { mason: 0, laborer: 0 }, // ReClaim Compare에 없는 항목 — 끔 (팀 조사값: 조적공 0.38, 보통인부 0.252 인/㎥)
+  rebarKgPerM3: 100, // rebar_kg_per_m3 (가정): 콘크리트 속 철근 → 고철
   disposal: {
-    concreteGeneral: 49571, // 건설폐재류
-    concreteSelective: 31142, // 순수 폐콘크리트 (내장재를 먼저 걷어내 깨끗해졌다고 가정)
-    inert: 49571, // 벽돌·타일 등 불연성
-    wood: 35000, resin: 49000, // 논문 값 (2024 값 미확인)
-    mixedGeneral: 188715, // 혼합건설폐재류 (불연성)
-    mixedSelective: 72721, // 혼합건설폐재류 (가연성 5% 미만)
+    concreteGeneral: 49571, // fee_concrete
+    concreteSelective: 49571, // fee_concrete_selective (압쇄와 같게)
+    inert: 49571,
+    wood: 35000, resin: 49000, // fee_wood, fee_resin (논문)
+    mixedGeneral: 188715, // fee_mixed_crush
+    mixedSelective: 72721, // fee_mixed_selective
   },
-  // 원/t. 비철은 2026-11-10 시세(원/kg × 1000). 목재·합성수지 매각가는 업체 답변 전까지 0.
-  revenue: { wood: 0, resin: 0, steel: 380000, aluminum: 2500000, copper: 15000000, brass: 10200000, stainless: 1570000 },
-  generalRecovers: ["steel"], // 일괄 압쇄에서도 자석 선별로 고철은 회수
-  recovery: 0.9,
+  // 원/t
+  revenue: { wood: 20000, resin: 150000, steel: 360000, aluminum: 2500000, copper: 16400000, brass: 10200000, stainless: 1570000 },
+  recScrap: { general: 0.9, selective: 0.95 }, // rec_scrap_crush / rec_scrap_sel (가정)
+  recNonferrous: { general: 0.3, selective: 0.9 }, // rec_nonferrous_crush / rec_nonferrous_sel (가정)
+  recovery: 0.8, // rec_sel: 분별 시 목재·수지 분리율 (가정)
   table4: "paper",
-  crewSize: 20,
-  indirectPerDay: 0,
+  crewSize: 20, // crew_size (가정)
+  indirectPerDay: 500000, // indirect_per_day (가정)
   residualMixed: true,
 };
+
+// 출처 없는 잠정값 (ReClaim Compare에서 assumed: true)
+export const ASSUMED = ["hoursPerDay", "structCrew", "rebarKgPerM3", "revenue.wood", "revenue.resin", "recScrap", "recNonferrous", "recovery", "crewSize", "indirectPerDay"];
 
 export const PRESETS = { paper2023: PAPER2023, team2024: TEAM2024 };
 export const DEFAULT_PARAMS = TEAM2024;

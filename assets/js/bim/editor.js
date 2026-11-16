@@ -815,7 +815,7 @@ function comparePanel() {
       <tr><td><b>합계</b></td>${SCEN.map((sc) => `<td class="r"><b>${mw(r[sc.key].total)}</b></td>`).join("")}<td class="r"><b>${signed(mw(d))}</b></td></tr>
       <tr><td>공기 (내장 + 압쇄)</td>${SCEN.map((sc) => `<td class="r">${r1(r[sc.key].interiorDays)} + ${r1(r[sc.key].structDays)}일</td>`).join("")}<td class="r">${signed(r1(s.days - g.days))}일</td></tr>
     </tbody></table></div>
-    <p class="note">전면 분별해체: 부재 ${nSel}개를 분별 회수합니다${nHaz ? ` (석면 표시 ${nHaz}개는 두 방법 공통으로 따로 처리)` : ""}. 분별 현장은 연면적 기준 선별·반출 공정(목공 0.1 + 보통인부 0.2 인/㎡)과 ${p.selectiveEquip ? "내장 공정 동안 소형 굴착기·절단기" : ""}가 붙고, 내장재를 먼저 걷어낸 폐콘크리트는 순수 폐콘크리트 단가(${p.disposal.concreteSelective.toLocaleString()}원/t, 일괄 ${p.disposal.concreteGeneral.toLocaleString()}원/t)로 처리한다고 가정합니다.</p>
+    <p class="note">전면 분별해체: 부재 ${nSel}개를 분별 회수합니다${nHaz ? ` (석면 표시 ${nHaz}개는 두 방법 공통으로 따로 처리)` : ""}. 분별 현장은 연면적 기준 선별·반출 공정(목공 0.1 + 보통인부 0.2 인/㎡)${p.selectiveEquip ? "과 내장 공정 동안 소형 굴착기·절단기" : ""}가 붙고, 남은 혼합폐기물 단가가 ${p.disposal.mixedGeneral.toLocaleString()} → ${p.disposal.mixedSelective.toLocaleString()}원/t으로 내려갑니다. 콘크리트 속 철근(${p.rebarKgPerM3}kg/㎥)은 두 방법 모두 고철로 매각합니다(회수율 ${p.recScrap.general} / ${p.recScrap.selective}).</p>
     <div class="sec-head">
       <button class="btn btn-outline btn-sm" type="button" data-act="csv"><svg class="i"><use href="#i-download"/></svg>Revit용 CSV</button>
       <span class="sub">Revit에서 ReClaim 탭 → CSV 적용</span>
@@ -897,14 +897,19 @@ function paramsSection(p) {
       <div class="field"><label>동</label>${n("revenue.copper", p.revenue.copper)}</div>
       <div class="field"><label>폐목재</label>${n("revenue.wood", p.revenue.wood)}</div>
       <div class="field"><label>폐합성수지</label>${n("revenue.resin", p.revenue.resin)}</div>
-      <div class="field"><label>회수율 (0~1)</label>${n("recovery", p.recovery, 0.05)}</div>
+      <div class="field"><label>목재·수지 분리율</label>${n("recovery", p.recovery, 0.05)}</div>
+      <div class="field"><label>철근량 (kg/㎥)</label>${n("rebarKgPerM3", p.rebarKgPerM3, 5)}</div>
+      <div class="field"><label>고철 회수율 · 압쇄</label>${n("recScrap.general", p.recScrap.general, 0.05)}</div>
+      <div class="field"><label>고철 회수율 · 분별</label>${n("recScrap.selective", p.recScrap.selective, 0.05)}</div>
+      <div class="field"><label>비철 회수율 · 압쇄</label>${n("recNonferrous.general", p.recNonferrous.general, 0.05)}</div>
+      <div class="field"><label>비철 회수율 · 분별</label>${n("recNonferrous.selective", p.recNonferrous.selective, 0.05)}</div>
     </div>
     <div class="field"><label>분별 해체 품 (표 4)</label><select class="select" data-p="table4">${opt({ paper: "논문 표 4 그대로", aligned: "천장 모르타르·바닥 타일을 표 3과 같게" }, p.table4)}</select></div>
     <label class="check"><input type="checkbox" data-p="includeStructure" ${p.includeStructure ? "checked" : ""}> 구조체 압쇄(장비·인력·공기) 포함</label>
     <label class="check"><input type="checkbox" data-p="haul.on" ${p.haul.on ? "checked" : ""}> 반출(덤프) 포함</label>
     <label class="check"><input type="checkbox" data-p="selectiveEquip" ${p.selectiveEquip ? "checked" : ""}> 분별 내장 공정에 소형 굴착기·절단기</label>
     <label class="check"><input type="checkbox" data-p="residualMixed" ${p.residualMixed !== false ? "checked" : ""}> 모델 밖 혼합폐기물을 원단위로 보정</label>
-    <p class="note">기준: ${esc(p.basis)}. 조적공 노임, 덤프 실적재·회당 시간, 소형 장비 투입은 가정값입니다.</p>
+    <p class="note">기준: ${esc(p.basis)}. 가정값(출처 없음): 하루 8시간, 구조체 보조 2인, 철근 100kg/㎥, 폐목재·폐합성수지 매각가, 고철·비철 회수율, 분리율, 작업조 20인, 일당 간접비. 반출·소형 장비·조적 분리는 ReClaim Compare에 없어 기본값에서 꺼 두었습니다.</p>
     <button class="btn btn-outline btn-sm" type="button" data-act="reset-params" style="justify-self:start">기본값으로</button>
   </details>`;
 }
