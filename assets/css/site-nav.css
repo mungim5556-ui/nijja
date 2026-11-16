@@ -1,6 +1,10 @@
 /* ReClaim 화면 사이를 오가는 상단 탭 (해체 계획 · BIM 편집기 · 공법 비교) */
 .site-nav { display: flex; align-items: center; gap: 4px; padding: 0 16px; min-height: 40px; background: var(--dark-card, #1C1D22); overflow-x: auto; }
-.site-nav a { color: #B8B5B0; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 12px; border-bottom: 2px solid transparent; white-space: nowrap; }
-.site-nav a:hover { color: #fff; }
-.site-nav a[aria-current="page"] { color: #fff; border-bottom-color: #E8742A; }
-.site-nav .site-logo { color: #fff; font-family: var(--font-display, sans-serif); font-weight: 700; margin-right: 8px; padding-left: 0; }
+:root .site-nav a { color: #B8B5B0; text-decoration: none; font-size: 13px; font-weight: 600; padding: 10px 12px; border-bottom: 2px solid transparent; white-space: nowrap; }
+:root .site-nav a:hover { color: #fff; }
+:root .site-nav a[aria-current="page"] { color: #fff; border-bottom-color: #E8742A; }
+:root .site-nav .site-logo { color: #fff; font-family: var(--font-display, sans-serif); font-weight: 700; margin-right: 8px; padding-left: 0; }
+.site-nav .site-spacer { flex: 1; }
+.site-nav .site-theme { background: transparent; border: 1px solid #3A3B44; border-radius: 6px; width: 30px; height: 28px; display: inline-grid; place-items: center; color: #B8B5B0; cursor: pointer; flex: none; }
+.site-nav .site-theme:hover { color: #fff; background: #26272E; }
+.site-nav .site-theme svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }

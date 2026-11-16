@@ -1,0 +1,43 @@
+/* 공법 비교 탭을 ReClaim 화면(해체 계획·BIM 편집기)과 같은 톤으로 맞춘다.
+   compare/의 원래 CSS·JS는 그대로 두고, 이 파일을 마지막에 불러와 덮어쓴다. */
+
+body { background: var(--bg); }
+
+/* 머리글: ReClaim 상단 바처럼 주황 로고 마크 + 제목 */
+.top { padding: 12px 32px 0; gap: 8px 32px; }
+.brand { flex-direction: row; align-items: center; gap: 12px; padding-bottom: 12px; }
+.brand .logo-mark { width: 36px; height: 36px; border-radius: 10px; background: #E8742A; color: #1C1D22; display: grid; place-items: center; flex: none; }
+.brand .logo-mark svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.brand .titles { display: flex; flex-direction: column; min-width: 0; }
+.brand strong { font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.brand .titles span { font-size: 13px; color: var(--text-muted); }
+
+/* 단계 탭: ReClaim 해체 계획 앱의 단계 번호와 같은 모양 (현재 단계는 주황 원) */
+.tabs button { font-size: 14px; padding: 10px 14px 12px; }
+.tabs button:hover { color: var(--text); }
+.tabs button span { width: 26px; height: 26px; line-height: 24px; border: 1px solid var(--border); background: transparent; font-family: var(--font-display); font-weight: 600; color: var(--text-muted); }
+.tabs button[aria-current] span { background: #E8742A; border-color: #E8742A; color: #1C1D22; }
+
+/* 본문: ReClaim 화면과 같은 여백·제목 크기 */
+.page { max-width: 1240px; padding: 28px 32px 80px; gap: 24px; }
+.page h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
+.page h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.lead { margin-top: 6px; }
+
+/* 결론 카드: BIM 편집기 공법 비교의 결론 상자처럼 어두운 카드 */
+.card:has(> .verdict) { background: var(--dark-card); color: #EDEBE7; border-color: transparent; }
+.card:has(> .verdict) p:not(.verdict), .card:has(> .verdict) .muted { color: #B8B5B0; }
+.card:has(> .verdict) b, .card:has(> .verdict) strong { color: #fff; }
+
+/* 숫자 카드: ReClaim 통계 숫자와 같은 글꼴 */
+.kpi .v { font-family: var(--font-display); letter-spacing: -0.02em; }
+
+/* 다크 모드 전환 버튼(상단 탭)을 눌렀을 때도 차트 색을 다크 단계로 */
+:root[data-theme="dark"] { --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; }
+
+@media (max-width: 860px) {
+  .top { padding: 10px 16px 0; }
+  .page { padding: 20px 16px 48px; }
+  .page h1 { font-size: 24px; }
+  .tabs { overflow-x: auto; max-width: 100%; }
+}
