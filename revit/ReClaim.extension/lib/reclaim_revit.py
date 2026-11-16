@@ -12,7 +12,7 @@ from Autodesk.Revit.DB import (
     CategorySet, InstanceBinding, ExternalDefinitionCreationOptions, SharedParameterElement,
     ParameterFilterElement, ParameterFilterRuleFactory, ElementParameterFilter, LogicalOrFilter,
     OverrideGraphicSettings, Color, FillPatternElement, FillPatternTarget, View3D, ViewFamilyType, ViewFamily,
-    StorageType,
+    StorageType, Options, Solid, GeometryInstance,
 )
 from System.Collections.Generic import List
 
@@ -102,6 +102,45 @@ def _level_name(doc, el):
     return "L?"
 
 
+# 재료가 지정되지 않은 부재의 기본 재료 (도면·해체계획서 확인 전 가정)
+CATEGORY_DEFAULT = {"wall": "rc", "floor": "rc", "roof": "rc", "column": "rc", "beam": "rc", "foundation": "rc", "stair": "rc", "ceiling": "gypsum"}
+
+
+def _solid_volume(el):
+    """형상에서 솔리드 부피 합 (ft³). DirectShape나 재료 물량이 없는 부재용."""
+    total = [0.0]
+
+    def walk(geo):
+        if geo is None:
+            return
+        for g in geo:
+            if isinstance(g, Solid):
+                try:
+                    total[0] += abs(g.Volume)
+                except Exception:
+                    pass
+            elif isinstance(g, GeometryInstance):
+                walk(g.GetInstanceGeometry())
+
+    try:
+        walk(el.get_Geometry(Options()))
+    except Exception:
+        pass
+    return total[0]
+
+
+def _element_volume(el):
+    """부재 부피 (m³): 매개변수 → 형상 순으로 읽는다."""
+    for bip in (BuiltInParameter.HOST_VOLUME_COMPUTED,):
+        try:
+            p = el.get_Parameter(bip)
+        except Exception:
+            p = None
+        if p and p.HasValue and p.AsDouble() > 0:
+            return p.AsDouble() * FT3
+    return _solid_volume(el) * FT3
+
+
 def collect_items(doc, mapping=None):
     """모델에서 엔진 입력(items)과 미분류 재료 목록, 연면적을 만든다."""
     items, unknown = [], {}
@@ -135,6 +174,20 @@ def collect_items(doc, mapping=None):
                     key = "rc" if cat in STRUCTURAL + ("wall", "floor", "roof") else None
                 if key:
                     tons[key] = tons.get(key, 0) + vol * E.RATES["materials"][key]["density"]
+            # 재료가 없거나 재료 물량이 0이면 부재 부피 × (지정 재료 또는 범주 기본 재료)
+            fallback = False
+            if not tons and cat not in ("window", "door"):
+                vol = _element_volume(el)
+                key = None
+                for mid in mids:
+                    mat = doc.GetElement(mid)
+                    key = E.classify_material(mat.Name if mat else "", extra=mapping)
+                    if key:
+                        break
+                key = key or CATEGORY_DEFAULT.get(cat)
+                if vol > 0 and key:
+                    tons[key] = vol * E.RATES["materials"][key]["density"]
+                    fallback = True
             if cat in ("window", "door"):
                 area = _opening_area(doc, el)
                 if not tons:
@@ -153,7 +206,7 @@ def collect_items(doc, mapping=None):
                 "work": E.work_for(cat, tons),
                 "separable": sep if sep else (2 if cat in STRUCTURAL else 5),
                 "hazard": HAZARD_TEXT.get(haz or "", "none"),
-                "name": el.Name, "level": _level_name(doc, el),
+                "name": el.Name, "level": _level_name(doc, el), "fallback": fallback,
             })
     return items, unknown, gfa
 

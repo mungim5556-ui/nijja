@@ -50,5 +50,6 @@ IFC를 내보낼 때 **수정 설정 → 속성 세트 → 사용자 정의 속�
 ## 계산 기준
 
 - 물량: 부재마다 `GetMaterialIds` + `GetMaterialVolume`으로 재료별 부피를 읽고 밀도로 톤을 냅니다. 재료 물량이 없는 창·문은 크기 × 기본 단위 질량(창 PVC 9 + 유리 20 kg/㎡, 문 18 kg/㎡)을 씁니다.
+- 재료가 지정되지 않았거나 재료 물량이 0인 부재(재료 미지정 벽·바닥, DirectShape 기둥·보 등)는 부재 부피(`HOST_VOLUME_COMPUTED`, 없으면 형상 솔리드 부피)에 재료를 붙여 계산합니다. 재료 이름이 있으면 그 이름으로 분류하고, 없으면 범주 기본값(벽·바닥·지붕·기둥·보·기초·계단 = 철근콘크리트, 천장 = 석고보드)을 씁니다. 출력 창에 해당 부재 수가 표시되니 도면·해체계획서로 실제 재료를 확인하세요.
 - 단가·품·밀도는 `ReClaim.extension/lib/rates.json`이며, 웹의 `assets/js/bim/catalog.js`에서 자동 생성됩니다(`node scripts/export_rates.mjs`). 웹과 Revit 계산이 같은지는 `node scripts/test_engines.mjs`로 확인합니다.
 - Revit 밖에서 계산부만 점검: `python3 revit/ReClaim.extension/lib/reclaim_engine.py`

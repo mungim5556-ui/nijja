@@ -101,6 +101,9 @@ out.print_table(
     columns=[u"항목", u"일괄 압쇄", u"전면 분별해체"])
 d = s["total"] - g["total"]
 out.print_md(u"**{}**: 분별해체가 {} {}백만원".format(u"결론", u"더 비쌈" if d > 0 else u"더 저렴", m(abs(d))))
+n_fb = len([it for it in items if it.get("fallback")])
+if n_fb:
+    out.print_md(u"재료가 지정되지 않았거나 재료 물량이 없는 부재 {}개는 부재 부피에 기본 재료(벽·바닥·기둥·보 = 철근콘크리트, 천장 = 석고보드)를 넣어 계산했습니다. 실제 재료는 도면·해체계획서로 확인하세요.".format(n_fb))
 if unknown:
     out.print_md(u"미분류 재료 {}개는 구조 부재면 콘크리트로, 아니면 제외했습니다: {}".format(len(unknown), u", ".join(sorted(unknown))))
 out.print_md(u"요약 파일: `{}` — 웹 BIM 편집기의 '결과 열기'로 불확실성 분석을 볼 수 있습니다.".format(summary_path))
