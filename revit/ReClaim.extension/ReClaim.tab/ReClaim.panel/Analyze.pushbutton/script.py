@@ -96,6 +96,7 @@ out.print_md(u"연면적 {:,.0f}㎡ · 부재 {}개 · 용도 {}".format(gfa, le
 out.print_table(
     [[u"인건비", m(g["laborCost"]), m(s["laborCost"])], [u"장비비", m(g["equipCost"]), m(s["equipCost"])],
      [u"반출비", m(g["haulCost"]), m(s["haulCost"])], [u"처리비", m(g["disposalCost"]), m(s["disposalCost"])],
+     [u"공기 간접비", m(g["indirect"]), m(s["indirect"])],
      [u"매각 수익", u"−" + m(g["revenueTotal"]), u"−" + m(s["revenueTotal"])],
      [u"합계 (백만원)", m(g["total"]), m(s["total"])], [u"공기 (일)", u"%.1f" % g["days"], u"%.1f" % s["days"]]],
     columns=[u"항목", u"일괄 압쇄", u"전면 분별해체"])
