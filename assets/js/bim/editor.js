@@ -1087,6 +1087,62 @@ async function importIfcFile(file) {
   } finally { btn.innerHTML = old; }
 }
 
+/* ---------------- 서버 결과 (Revit → Worker → 여기) ---------------- */
+const RESULTS_URL = (() => { try { return localStorage.getItem("reclaim.resultsUrl"); } catch { return null; } })() || "https://nijja-api.mungim5556.workers.dev/results";
+function resultsToken(ask = false) {
+  let t = null;
+  try { t = localStorage.getItem("reclaim.resultsToken"); } catch {}
+  if (!t || ask) {
+    t = prompt("결과 서버 토큰을 입력하세요 (Cloudflare Worker의 RESULTS_TOKEN). 이 브라우저에만 저장됩니다.", t || "");
+    if (t) try { localStorage.setItem("reclaim.resultsToken", t.trim()); } catch {}
+  }
+  return t ? t.trim() : null;
+}
+async function resultsFetch(path = "") {
+  const token = resultsToken();
+  if (!token) throw new Error("토큰이 없습니다");
+  const r = await fetch(RESULTS_URL + path, { headers: { Authorization: "Bearer " + token } });
+  if (r.status === 401) { try { localStorage.removeItem("reclaim.resultsToken"); } catch {} throw new Error("토큰이 맞지 않습니다. 다시 눌러 새 토큰을 넣어 주세요."); }
+  if (r.status === 503) throw new Error("결과 서버가 아직 설정되지 않았습니다 (Worker의 KV RESULTS·RESULTS_TOKEN)");
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+async function openServerResult(id) {
+  const m = await resultsFetch("/" + encodeURIComponent(id));
+  if (!Array.isArray(m.levels) || !Array.isArray(m.elements)) throw new Error("ReClaim 결과가 아닙니다");
+  mutate(() => {}); model = { params: {}, use: "주거 공동주택", ...m, serverId: id }; resetUi(); save();
+  ui.tab = "compare";
+  renderAll();
+}
+async function showServerResults() {
+  const dlg = $("#results-dlg");
+  const head = `<div class="dlg-head"><h4 id="results-title">서버 결과</h4><span><button class="btn btn-ghost btn-sm" type="button" data-dlg="token">토큰 바꾸기</button><button class="icon-btn" type="button" data-dlg="close" aria-label="닫기"><svg class="i"><use href="#i-x"/></svg></button></span></div>`;
+  dlg.innerHTML = head + `<div class="dlg-body"><p class="note">불러오는 중…</p></div>`;
+  if (!dlg.open) dlg.showModal();
+  let body;
+  try {
+    const list = await resultsFetch();
+    body = list.length ? `<p class="note">Revit '해체 분석'이나 무인 일괄 실행이 보낸 결과입니다. 행을 누르면 편집기로 불러와 공법 비교·불확실성 분석을 볼 수 있습니다.</p>
+      <div class="table-wrap"><table class="tbl compact"><thead><tr><th>모델</th><th>보낸 때</th><th class="r">부재</th><th class="r">일괄</th><th class="r">분별</th><th class="r">차이</th></tr></thead><tbody>
+      ${list.map((e) => `<tr data-result="${esc(e.id)}" tabindex="0"><td>${esc(e.name)}<div class="sub">${esc(e.use)} · ${r1(e.gfa)}㎡</div></td><td>${new Date(e.at).toLocaleString("ko-KR")}</td><td class="r">${e.elements}</td><td class="r">${e.general == null ? "–" : mw(e.general)}</td><td class="r">${e.selective == null ? "–" : mw(e.selective)}</td><td class="r">${e.general == null ? "–" : signed(mw(e.selective - e.general))}</td></tr>`).join("")}
+      </tbody></table></div><p class="sub">단위: 백만원</p>` : `<p class="note">아직 올라온 결과가 없습니다. Revit ReClaim 탭의 '해체 분석'(설정에서 upload.auto)이나 revit/batch/run_reclaim.bat으로 보내세요.</p>`;
+  } catch (err) {
+    body = `<div class="callout">${esc(err.message)}</div>`;
+  }
+  dlg.innerHTML = head + `<div class="dlg-body">${body}</div>`;
+}
+$("#server").addEventListener("click", () => showServerResults());
+$("#results-dlg").addEventListener("click", async (e) => {
+  const dlg = $("#results-dlg");
+  const b = e.target.closest("[data-dlg]");
+  if (b?.dataset.dlg === "close") return dlg.close();
+  if (b?.dataset.dlg === "token") { resultsToken(true); return showServerResults(); }
+  const row = e.target.closest("[data-result]");
+  if (!row) return;
+  try { await openServerResult(row.dataset.result); dlg.close(); }
+  catch (err) { alert("결과를 불러오지 못했습니다: " + err.message); }
+});
+
 function deleteSelected() {
   const e = selected();
   if (!e) return;
@@ -1170,3 +1226,7 @@ function renderAll() {
   renderStage();
 }
 renderAll();
+{
+  const id = new URLSearchParams(location.search).get("result");
+  if (id) openServerResult(id).catch((err) => alert("결과를 불러오지 못했습니다: " + err.message));
+}

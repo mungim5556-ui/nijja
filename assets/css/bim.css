@@ -104,6 +104,13 @@ details.group .items { display: grid; gap: 2px; padding: 4px 0 8px; max-height: 
 .callout.info { border-color: var(--color-secondary); background: var(--color-secondary-soft); }
 .check { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 
+/* 서버 결과 목록 */
+.results-dlg { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 0; width: min(760px, calc(100vw - 32px)); max-height: min(80vh, 720px); background: var(--surface); color: var(--text); box-shadow: var(--shadow-lg); }
+.results-dlg::backdrop { background: rgba(22, 23, 27, .45); }
+.results-dlg .dlg-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.results-dlg .dlg-body { padding: 16px 20px 20px; overflow: auto; max-height: calc(min(80vh, 720px) - 64px); display: grid; gap: 12px; }
+.results-dlg tbody tr { cursor: pointer; }
+
 @media (max-width: 1100px) { .bim-body { grid-template-columns: 64px minmax(0, 1fr) 340px; } }
 @media (max-width: 860px) {
   body.bim { height: auto; overflow: auto; }

@@ -41,6 +41,7 @@
     <button class="icon-btn" id="undo" type="button" aria-label="실행 취소" title="실행 취소 (Ctrl+Z)"><svg class="i"><use href="#i-chevron-left"/></svg></button>
     <label class="btn btn-primary btn-sm" for="ifc" id="ifc-label"><svg class="i"><use href="#i-upload"/></svg>IFC 불러오기</label>
     <input type="file" id="ifc" accept=".ifc" hidden>
+    <button class="btn btn-outline btn-sm" id="server" type="button" title="Revit에서 결과 서버로 보낸 해체 분석 결과"><svg class="i"><use href="#i-list"/></svg>서버 결과</button>
     <button class="btn btn-outline btn-sm" id="demo" type="button">예시 모델</button>
     <button class="btn btn-outline btn-sm" id="new" type="button">새 모델</button>
     <button class="btn btn-outline btn-sm" id="export" type="button"><svg class="i"><use href="#i-download"/></svg>저장</button>
@@ -59,6 +60,7 @@
   </div>
 </div>
 <div class="viz-tip" id="tip" role="status"></div>
+<dialog class="results-dlg" id="results-dlg" aria-labelledby="results-title"></dialog>
 
 <script type="module" src="assets/js/bim/editor.js"></script>
 </body>

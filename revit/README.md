@@ -53,3 +53,33 @@ IFC를 내보낼 때 **수정 설정 → 속성 세트 → 사용자 정의 속�
 - 재료가 지정되지 않았거나 재료 물량이 0인 부재(재료 미지정 벽·바닥, DirectShape 기둥·보 등)는 부재 부피(`HOST_VOLUME_COMPUTED`, 없으면 형상 솔리드 부피)에 재료를 붙여 계산합니다. 재료 이름이 있으면 그 이름으로 분류하고, 없으면 범주 기본값(벽·바닥·지붕·기둥·보·기초·계단 = 철근콘크리트, 천장 = 석고보드)을 씁니다. 출력 창에 해당 부재 수가 표시되니 도면·해체계획서로 실제 재료를 확인하세요.
 - 단가·품·밀도는 `ReClaim.extension/lib/rates.json`이며, 웹의 `assets/js/bim/catalog.js`에서 자동 생성됩니다(`node scripts/export_rates.mjs`). 웹과 Revit 계산이 같은지는 `node scripts/test_engines.mjs`로 확인합니다.
 - Revit 밖에서 계산부만 점검: `python3 revit/ReClaim.extension/lib/reclaim_engine.py`
+
+## 자동화: Revit → 결과 서버 → 사이트
+
+```
+.rvt를 C:\ReClaim\inbox에 넣음 → run_reclaim.bat (작업 스케줄러) → pyrevit run → 해체 분석
+  → 요약 JSON → Cloudflare Worker /results (KV) → 사이트 BIM 편집기 '서버 결과'
+```
+
+### 1. 결과 서버 켜기 (Cloudflare, 한 번)
+1. Cloudflare 대시보드 → **Storage & Databases → KV → Create**: 이름 `reclaim-results`
+2. **Workers & Pages → nijja-api → Settings → Bindings → Add → KV namespace**: 변수 이름 `RESULTS`, 위에서 만든 네임스페이스
+3. **Settings → Variables and Secrets → Add → Secret**: 이름 `RESULTS_TOKEN`, 값은 길고 무작위인 문자열 (팀만 알게)
+4. **Edit code**: `proxy/worker.js` 내용으로 바꾸고 **Deploy** (기존 `DATA_GO_KR_KEY`, `ANTHROPIC_API_KEY`는 그대로)
+5. 확인: 토큰 없이 `https://nijja-api.mungim5556.workers.dev/results`를 열면 `{"error":"unauthorized"}`가 나와야 합니다.
+
+wrangler를 쓰면 `proxy/wrangler.toml`의 KV id를 바꾸고 `npx wrangler deploy --config proxy/wrangler.toml`.
+
+### 2. PC 설정 (한 번)
+`revit/batch/reclaim_config.example.json`을 `C:\Users\<이름>\reclaim_config.json`으로 복사하고 값을 채웁니다.
+- `use`: 건물 용도(원단위). `materials`: 이름으로 분류되지 않는 재료 지정(예: `"논현동 외벽": "rc"`)
+- `write_params`: true면 결과 매개변수를 넣은 사본(`<모델>_ReClaim.rvt`)을 `out_dir`에 저장. 원본은 바꾸지 않습니다.
+- `upload.token`: `RESULTS_TOKEN`과 같은 값. `upload.auto`: true면 리본의 해체 분석 버튼도 끝나고 자동으로 보냅니다.
+
+### 3. 실행
+- 수동: `revit\batch\run_reclaim.bat` 실행 → inbox의 `.rvt`를 모두 분석·전송하고 `inbox\done`으로 옮깁니다. 로그: `out_dir\reclaim_batch.log`
+- 자동: Windows **작업 스케줄러 → 기본 작업 만들기** → 매일/매시간 → 프로그램 `run_reclaim.bat`. **"사용자가 로그온할 때만 실행"**으로 두세요(Revit은 로그인한 화면에서만 돕니다).
+- 이미 만든 요약 파일만 올리기: `python revit\ReClaim.extension\lib\reclaim_upload.py <요약.reclaim.json>`
+
+### 4. 사이트에서 보기
+BIM 편집기 → **서버 결과** → 토큰 입력(이 브라우저에만 저장) → 행을 누르면 불러와 공법 비교·불확실성 분석. 주소 `bim.html?result=<id>`로 바로 열 수도 있습니다.

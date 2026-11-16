@@ -1,0 +1,13 @@
+{
+  "_comment": "이 파일을 C:\\Users\\<이름>\\reclaim_config.json 으로 복사해 값을 채우세요. token은 Cloudflare Worker의 RESULTS_TOKEN과 같은 값이며, 저장소에 올리지 마세요.",
+  "use": "비주거 RC",
+  "inbox": "C:\\ReClaim\\inbox",
+  "out_dir": "C:\\ReClaim\\out",
+  "write_params": false,
+  "materials": { "논현동 외벽": "rc" },
+  "upload": {
+    "url": "https://nijja-api.mungim5556.workers.dev/results",
+    "token": "",
+    "auto": true
+  }
+}
