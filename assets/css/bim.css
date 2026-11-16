@@ -1,6 +1,6 @@
 /* BIM 편집기 */
 body.bim { height: 100vh; overflow: hidden; }
-.bim-shell { display: grid; grid-template-rows: auto minmax(0, 1fr); height: 100vh; }
+.bim-shell { display: grid; grid-template-rows: auto auto minmax(0, 1fr); height: 100vh; }
 
 .viz-root {
   --series-1: #2a78d6;

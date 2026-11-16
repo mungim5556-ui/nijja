@@ -1,0 +1,86 @@
+{
+  "note": "assumed=true 인 값은 출처가 없는 잠정값이다. 화면과 보고서에 '가정'으로 표시한다.",
+  "sources": {
+    "paper": "박지선·장경필·송태협 (2023), 한국건설순환자원학회 논문집 11(3) 251-259",
+    "meeting": "팀 조사 (회의록 2026-11-12)",
+    "pumsem": "국토교통부 2023 건설공사 표준품셈 (논문 표 6 인용)"
+  },
+  "params": {
+    "wage_carpenter": { "group": "노임", "label": "목공 노임", "value": 267639, "unit": "원/인·일", "source": "paper", "date": "2023", "min": 240000, "max": 300000 },
+    "wage_laborer": { "group": "노임", "label": "보통인부 노임", "value": 161858, "unit": "원/인·일", "source": "paper", "date": "2023", "min": 145000, "max": 180000 },
+
+    "crush_carpenter": { "group": "내장재 품", "label": "압쇄: 목공 품", "value": 0.375, "unit": "인/㎡", "source": "paper", "date": "2023" },
+    "crush_laborer": { "group": "내장재 품", "label": "압쇄: 보통인부 품", "value": 1.015, "unit": "인/㎡", "source": "paper", "date": "2023" },
+    "sel_carpenter": { "group": "내장재 품", "label": "분별: 목공 품", "value": 0.465, "unit": "인/㎡", "source": "paper", "date": "2023", "min": 0.42, "max": 0.525 },
+    "sel_laborer": { "group": "내장재 품", "label": "분별: 보통인부 품", "value": 1.04, "unit": "인/㎡", "source": "paper", "date": "2023", "min": 1.04, "max": 1.34 },
+
+    "crush_m3_per_day": { "group": "구조체 해체", "label": "굴착기+압쇄기 RC 해체량", "value": 47.5, "unit": "㎥/일", "source": "meeting", "date": "2026-11", "min": 45, "max": 50 },
+    "excavator_per_h": { "group": "구조체 해체", "label": "대형 굴착기(1.5㎥) 시간당 비용", "value": 160391, "unit": "원/h", "source": "meeting", "date": "2026-11", "min": 145000, "max": 176000 },
+    "hours_per_day": { "group": "구조체 해체", "label": "하루 작업 시간", "value": 8, "unit": "h/일", "source": "assumed", "assumed": true },
+    "structure_crew": { "group": "구조체 해체", "label": "구조체 해체 보조 인부", "value": 2, "unit": "인/일", "source": "assumed", "assumed": true },
+    "rebar_kg_per_m3": { "group": "구조체 해체", "label": "콘크리트 1㎥당 철근량", "value": 100, "unit": "kg/㎥", "source": "assumed", "assumed": true, "min": 70, "max": 140 },
+
+    "fee_concrete": { "group": "처리비", "label": "건설폐재류(폐콘크리트)", "value": 49571, "unit": "원/t", "source": "meeting", "date": "2024" },
+    "fee_concrete_selective": { "group": "처리비", "label": "분별 시 폐콘크리트", "value": 49571, "unit": "원/t", "source": "meeting", "date": "2024", "min": 31142, "max": 49571 },
+    "fee_wood": { "group": "처리비", "label": "분리된 폐목재", "value": 35000, "unit": "원/t", "source": "paper", "date": "2023" },
+    "fee_resin": { "group": "처리비", "label": "분리된 폐합성수지", "value": 49000, "unit": "원/t", "source": "paper", "date": "2023" },
+    "fee_mixed_crush": { "group": "처리비", "label": "압쇄 시 혼합건설폐기물", "value": 188715, "unit": "원/t", "source": "meeting", "date": "2024", "min": 72721, "max": 195000 },
+    "fee_mixed_selective": { "group": "처리비", "label": "분별 후 남은 혼합건설폐기물", "value": 72721, "unit": "원/t", "source": "meeting", "date": "2024", "min": 67377, "max": 110000 },
+
+    "price_scrap": { "group": "매각가", "label": "고철 (중량B)", "value": 360000, "unit": "원/t", "source": "meeting", "date": "2026-11", "min": 320000, "max": 415000 },
+    "price_copper": { "group": "매각가", "label": "구리 (상동)", "value": 16400000, "unit": "원/t", "source": "meeting", "date": "2026-11", "min": 15000000, "max": 17400000 },
+    "price_aluminum": { "group": "매각가", "label": "알루미늄 샤시", "value": 2500000, "unit": "원/t", "source": "meeting", "date": "2026-11", "min": 2000000, "max": 2800000 },
+    "price_wood": { "group": "매각가", "label": "폐목재 매각", "value": 20000, "unit": "원/t", "source": "assumed", "assumed": true, "min": 0, "max": 274000 },
+    "price_resin": { "group": "매각가", "label": "폐합성수지 매각", "value": 150000, "unit": "원/t", "source": "assumed", "assumed": true, "min": 0, "max": 850000 },
+
+    "rec_scrap_crush": { "group": "회수율", "label": "압쇄: 고철 회수율", "value": 0.9, "unit": "비율", "source": "assumed", "assumed": true },
+    "rec_scrap_sel": { "group": "회수율", "label": "분별: 고철 회수율", "value": 0.95, "unit": "비율", "source": "assumed", "assumed": true },
+    "rec_nonferrous_crush": { "group": "회수율", "label": "압쇄: 비철 회수율", "value": 0.3, "unit": "비율", "source": "assumed", "assumed": true, "min": 0, "max": 0.6 },
+    "rec_nonferrous_sel": { "group": "회수율", "label": "분별: 비철 회수율", "value": 0.9, "unit": "비율", "source": "assumed", "assumed": true, "min": 0.7, "max": 1 },
+    "rec_sel": { "group": "회수율", "label": "분별: 목재·수지·유리·보드 분리율", "value": 0.8, "unit": "비율", "source": "assumed", "assumed": true, "min": 0.5, "max": 1 },
+
+    "crew_size": { "group": "공기·간접비", "label": "내장재 작업조 규모", "value": 20, "unit": "인/일", "source": "assumed", "assumed": true, "min": 12, "max": 30 },
+    "indirect_per_day": { "group": "공기·간접비", "label": "일당 간접비", "value": 500000, "unit": "원/일", "source": "assumed", "assumed": true, "min": 300000, "max": 900000 }
+  },
+  "laborItems": [
+    { "part": "지붕", "work": "기와", "crush": [0, 0.02], "selective": [0, 0.02] },
+    { "part": "지붕", "work": "지붕틀", "crush": [0.04, 0.02], "selective": [0, 0.02] },
+    { "part": "지붕", "work": "조적", "crush": [0, 0.02], "selective": [0, 0.02] },
+    { "part": "천장", "work": "반자틀", "crush": [0.05, 0.025], "selective": [0.05, 0.025] },
+    { "part": "천장", "work": "텍스·합판", "crush": [0.015, 0.03], "selective": [0.05, 0.03] },
+    { "part": "천장", "work": "모르타르·회반죽", "crush": [0, 0.12], "selective": [0, 0] },
+    { "part": "벽", "work": "목공사·칸막이", "crush": [0.06, 0.03], "selective": [0.05, 0.03] },
+    { "part": "벽", "work": "텍스·합판", "crush": [0.01, 0.02], "selective": [0.025, 0.02] },
+    { "part": "벽", "work": "징두리판벽", "crush": [0, 0.03], "selective": [0, 0.03] },
+    { "part": "벽", "work": "회벽", "crush": [0, 0.04], "selective": [0, 0.04] },
+    { "part": "벽", "work": "타일", "crush": [0, 0.2], "selective": [0, 0.2] },
+    { "part": "벽", "work": "벽지", "crush": [0, 0.01], "selective": [0, 0.01] },
+    { "part": "바닥", "work": "장선·마루판", "crush": [0.2, 0.1], "selective": [0.1, 0.1] },
+    { "part": "바닥", "work": "모르타르", "crush": [0, 0.12], "selective": [0, 0.12] },
+    { "part": "바닥", "work": "리놀륨", "crush": [0, 0.03], "selective": [0, 0.03] },
+    { "part": "바닥", "work": "타일", "crush": [0, 0.2], "selective": [0, 0.02] },
+    { "part": "창호", "work": "유리 철거", "crush": [0, 0], "selective": [0.02, 0.05] },
+    { "part": "창호", "work": "창틀 분리", "crush": [0, 0], "selective": [0.05, 0.025] },
+    { "part": "창호", "work": "문틀 분리", "crush": [0, 0], "selective": [0.02, 0.05] },
+    { "part": "분리 보관", "work": "폐기물 선별·반출", "crush": [0, 0], "selective": [0.1, 0.2] }
+  ],
+  "wasteUnits": {
+    "단독주택": { "concrete": 1.3321, "metal": 0.001, "wood": 0.0968, "resin": 0.0263, "mixed": 0.203 },
+    "공동주택": { "concrete": 1.477, "metal": 0.0655, "wood": 0.015, "resin": 0.0261, "mixed": 0.1637 },
+    "비주거 RC": { "concrete": 1.4028, "metal": 0.073, "wood": 0.0638, "resin": 0.0215, "mixed": 0.1348 },
+    "비주거 철골": { "concrete": 0.9167, "metal": 0.055, "wood": 0.0194, "resin": 0.0261, "mixed": 0.1348 },
+    "비주거 SRC": { "concrete": 1.5861, "metal": 0.122, "wood": 0.0018, "resin": 0.0245, "mixed": 0.1452 }
+  },
+  "density": {
+    "concrete": 2.4, "masonry": 1.9, "metal": 7.85, "aluminum": 2.7, "copper": 8.9,
+    "glass": 2.5, "wood": 0.6, "board": 0.8, "resin": 1.2, "insulation": 0.03, "mixed": 1.5
+  },
+  "perArea": {
+    "note": "창호·문은 실제 두께를 알기 어려워 면적당 무게로 계산한다 (가정)",
+    "window_glass": 0.03, "window_frame": 0.01, "door": 0.025
+  },
+  "equipmentRef": {
+    "note": "참고용 시간당 비용 (원/h, 운전원 포함). 엔진은 대형 굴착기만 쓴다",
+    "대형 굴착기 1.5㎥": 160391, "소형 굴착기 0.12㎥": 82887, "타이어 크레인 25t": 137765, "덤프트럭 24t": 138158, "절단기": 54494
+  }
+}

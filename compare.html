@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 공법 비교(ReClaim Compare)는 compare/ 폴더에 있다. base로 상대 경로(CSS·JS·데이터)를 그 폴더 기준으로 맞춘다. -->
+  <base href="compare/">
+  <title>ReClaim 공법 비교</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+  <link rel="stylesheet" href="../assets/css/site-nav.css">
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    // 로그인하지 않았으면 로그인 페이지로 (base 때문에 auth.require 대신 직접 경로를 쓴다)
+    if (!window.auth?.get()) location.replace(new URL("../login.html?next=compare.html", document.baseURI).href);
+    try { const t = localStorage.getItem("reclaim.theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
+  </script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+<nav class="site-nav" aria-label="ReClaim 화면">
+  <a class="site-logo" href="../index.html">ReClaim</a>
+  <a href="../app.html">해체 계획</a>
+  <a href="../bim.html">BIM 편집기</a>
+  <a href="../compare.html" aria-current="page">공법 비교</a>
+</nav>
+<header class="top">
+  <div class="brand"><strong>공법 비교</strong><span class="muted">BIM·해체계획서 기반 분별해체 vs 일괄 압쇄 경제성 비교</span></div>
+  <nav class="tabs" id="tabs" aria-label="단계"></nav>
+</header>
+<main class="page" id="content"></main>
+<div class="tip" id="tip" hidden></div>
+<script type="module" src="assets/js/app.js"></script>
+</body>
+</html>

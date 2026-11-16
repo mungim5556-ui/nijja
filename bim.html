@@ -6,6 +6,7 @@
   <title>ReClaim BIM 편집기</title>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/bim.css">
+  <link rel="stylesheet" href="assets/css/site-nav.css">
   <script src="assets/js/auth.js"></script>
   <script>auth.require();</script>
   <script>try { const t = localStorage.getItem("reclaim.theme"); if (t) document.documentElement.dataset.theme = t; } catch {}</script>
@@ -22,6 +23,12 @@
 <script src="assets/js/icons.js"></script>
 
 <div class="bim-shell">
+<nav class="site-nav" aria-label="ReClaim 화면">
+  <a class="site-logo" href="index.html">ReClaim</a>
+  <a href="app.html">해체 계획</a>
+  <a href="bim.html" aria-current="page">BIM 편집기</a>
+  <a href="compare.html">공법 비교</a>
+</nav>
   <header class="bim-top">
     <a class="logo" href="app.html" title="해체 계획 앱으로"><span class="logo-mark"><svg class="i"><use href="#i-recycle"/></svg></span>ReClaim BIM</a>
     <span class="name" id="model-name"></span>

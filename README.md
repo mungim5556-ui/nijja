@@ -226,6 +226,16 @@ flowchart LR
 
 설치와 사용법은 [`revit/README.md`](revit/README.md)에 있습니다.
 
+#### 공법 비교 탭 (`compare.html`, 옛 ReClaim Compare)
+
+사이트 상단 탭 **해체 계획 · BIM 편집기 · 공법 비교**로 오갑니다. 공법 비교는 [reclaim-compare](https://github.com/mungim5556-ui/reclaim-compare) 저장소(a5c3be0)를 `compare/` 폴더로 그대로 옮긴 것입니다.
+
+- **모델 → 단가 → 비교 → 내보내기** 4단계. IFC를 넣거나, IFC 없이 연면적만으로 계산합니다.
+- **해체계획서 → 구조체 모델 자동 생성**: 계획서 구조도면을 옮긴 JSON(`schema: "reclaim-plan/1"`)으로 기둥·보·벽·슬래브 IFC를 만들어 바로 분석합니다(`compare/assets/js/plan.js`). Revit 모델이 없을 때 씁니다.
+- **변수마다 출처·범위·가정 여부**를 `compare/assets/data/rates.json`에 기록합니다. BIM 편집기와 Revit 탭의 기본 단가(`팀 기준`)도 이 값과 같습니다.
+- 테스트: `cd compare && node --test test/*.test.js`
+- Revit 반영은 BIM 편집기 쪽 Revit 탭(`revit/ReClaim.extension`)이 실제 Revit 2027에서 확인된 방법입니다. `compare/revit/write_results.py`는 옛 Compare의 스크립트로, Revit에서 아직 시험하지 않았습니다.
+
 - **비용 항목**: 인건비(논문 표 3·4 품) + 장비비(압쇄 대형 굴착기) + 처리비 + 공기 간접비(50만원/일) − 매각 수익(콘크리트 속 철근 100kg/㎥·고철·알루미늄·동, 분리한 목재·수지). 공기 = 내장 공정(작업조 20인) + 압쇄(47.5㎥/일). 반출(덤프)·분별 소형 장비·조적 분리는 설정에서 켤 수 있습니다.
 - **단가 기준** (공법 비교 → 단가·가정 바꾸기에서 전환):
   - `팀 기준 (ReClaim Compare 변수)`(기본): 팀이 [ReClaim Compare](https://github.com/mungim5556-ui/reclaim-compare)와 Obsidian(11/14 회의록)에 정리한 변수와 같은 값·같은 계산입니다. 해체계획서 간이 계산은 ReClaim Compare와 같은 결과를 냅니다(`scripts/test_scenario.mjs`에서 확인).
@@ -252,7 +262,9 @@ assets/js/app.js      화면 구성과 상태 관리
 assets/js/viewer3d.js 3D 블록 모델
 assets/js/demo.js     예시 프로젝트 데이터
 assets/js/icons.js    아이콘 (Lucide 기반)
-bim.html              BIM 편집기 · 공법 비교
+bim.html              BIM 편집기
+compare.html          공법 비교 탭 (compare/ 폴더의 옛 ReClaim Compare)
+assets/css/site-nav.css  화면 사이 상단 탭
 assets/js/bim/catalog.js   재료·부재 구성·해체 품·단가 프리셋 (단가 원본)
 assets/js/bim/cost.js      일괄 압쇄 vs 전면 분별해체 비용·공기 계산
 assets/js/bim/scenario.js  형상 → 물량, 논문 방식·계획서 간이 계산, 몬테카를로
