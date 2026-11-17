@@ -58,6 +58,8 @@ out.print_md(u"## ReClaim 해체 분석 — {}".format(doc.Title))
 out.print_md(u"연면적 {:,.0f}㎡ · 부재 {}개 · 용도 {}".format(r["gfa"], len(r["items"]), use))
 out.print_table(RUN.table_rows(res), columns=[u"항목", u"일괄 압쇄", u"전면 분별해체"])
 d = res["selective"]["total"] - res["general"]["total"]
+for w in r["summary"].get("warnings") or []:
+    out.print_md(u"**⚠ {}** 이 결과로 공법을 판단하지 마세요.".format(w))
 out.print_md(u"**결론**: 분별해체가 {} {:,.1f}백만원".format(u"더 비쌈" if d > 0 else u"더 저렴", abs(d) / 1e6))
 if r["summary"]["fallbackElements"]:
     out.print_md(u"재료가 지정되지 않았거나 재료 물량이 없는 부재 {}개는 부재 부피에 기본 재료(벽·바닥·기둥·보 = 철근콘크리트, 천장 = 석고보드)를 넣어 계산했습니다. 실제 재료는 도면·해체계획서로 확인하세요.".format(r["summary"]["fallbackElements"]))

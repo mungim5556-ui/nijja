@@ -159,6 +159,30 @@ function addInto(res, c, p) {
   res.revenueTotal += c.revenueTotal;
 }
 
+// 해체 품이 없는 구조 재료: 작업 규칙(내장 품)이 없는 부재에 들어 있으면 해체 인력·장비가 0으로 잡힌다
+export const UNCOSTED_STRUCT = ["steel", "stainless", "lumber", "plywood"];
+const UNCOSTED_LABEL = { steel: "철골", stainless: "스테인리스", lumber: "목재 골조", plywood: "합판" };
+
+export function uncostedStructure(items) {
+  const out = { count: 0, tons: {}, ids: [] };
+  for (const it of items) {
+    if ((it.work && it.work.length) || (it.hazard && it.hazard !== "none")) continue;
+    let hit = false;
+    for (const m of UNCOSTED_STRUCT) {
+      const t = it.tons[m] || 0;
+      if (t > 0) { out.tons[m] = (out.tons[m] || 0) + t; hit = true; }
+    }
+    if (hit) { out.count++; out.ids.push(it.id); }
+  }
+  return out;
+}
+
+export function uncostedWarning(u) {
+  if (!u?.count) return null;
+  const parts = Object.entries(u.tons).sort().map(([k, v]) => `${UNCOSTED_LABEL[k] || k} ${v.toFixed(1)}t`).join(", ");
+  return `구조체 해체 품 없음 — 부재 ${u.count}개(${parts})는 해체 인력·장비 비용과 공기가 0으로 잡혀 비용이 과소 산정됩니다.`;
+}
+
 export function scenarioCost(items, ctx, params, scenario) {
   const p = mergeParams(params);
   const res = {
@@ -226,6 +250,7 @@ export function scenarioCost(items, ctx, params, scenario) {
   res.days = res.interiorDays + res.structDays;
   res.indirect = res.days * (p.indirectPerDay || 0);
   res.total = res.laborCost + res.equipCost + res.disposalCost + res.haulCost + res.indirect - res.revenueTotal;
+  res.uncostedStructure = uncostedStructure(items);
   return res;
 }
 

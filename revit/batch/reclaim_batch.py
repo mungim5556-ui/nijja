@@ -105,6 +105,8 @@ for path in models:
             res["general"]["days"], res["selective"]["days"], sp))
         if r["unknown"]:
             log(u"미분류 재료: %s" % u", ".join(sorted(r["unknown"])))
+        for w in r["summary"].get("warnings") or []:
+            log(u"경고: %s" % w)
         if write_params:
             from Autodesk.Revit.DB import SaveAsOptions
             opt = SaveAsOptions()

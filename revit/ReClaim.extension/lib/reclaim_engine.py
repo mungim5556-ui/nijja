@@ -211,6 +211,36 @@ def _add_into(res, c, p):
     res["revenueTotal"] += c["revenueTotal"]
 
 
+# 해체 품이 없는 구조 재료: 작업 규칙(내장 품)이 없는 부재에 들어 있으면 해체 인력·장비가 0으로 잡힌다
+UNCOSTED_STRUCT = ("steel", "stainless", "lumber", "plywood")
+
+
+def uncosted_structure(items, rates=RATES):
+    """구조체 해체 품이 없는 부재(철골·목조 골조). {"count", "tons": {재료: t}, "ids": [...]}"""
+    out = {"count": 0, "tons": {}, "ids": []}
+    for it in items:
+        if it.get("work") or (it.get("hazard") and it["hazard"] != "none"):
+            continue
+        hit = False
+        for m in UNCOSTED_STRUCT:
+            t = it["tons"].get(m, 0)
+            if t > 0:
+                out["tons"][m] = round(out["tons"].get(m, 0) + t, 3)
+                hit = True
+        if hit:
+            out["count"] += 1
+            out["ids"].append(it["id"])
+    return out
+
+
+def uncosted_warning(u):
+    if not u["count"]:
+        return None
+    names = {"steel": u"철골", "stainless": u"스테인리스", "lumber": u"목재 골조", "plywood": u"합판"}
+    parts = u", ".join(u"%s %.1ft" % (names.get(k, k), v) for k, v in sorted(u["tons"].items()))
+    return u"구조체 해체 품 없음 — 부재 %d개(%s)는 해체 인력·장비 비용과 공기가 0으로 잡혀 비용이 과소 산정됩니다." % (u["count"], parts)
+
+
 def scenario_cost(items, ctx, params, scenario, rates=RATES):
     p = merge_params(params, rates)
     res = {"scenario": scenario, "labor": {}, "laborCost": 0.0, "interiorManDays": 0.0, "disposal": {}, "disposalCost": 0.0,
@@ -276,6 +306,7 @@ def scenario_cost(items, ctx, params, scenario, rates=RATES):
     res["days"] = res["interiorDays"] + res["structDays"]
     res["indirect"] = res["days"] * (p.get("indirectPerDay") or 0)
     res["total"] = res["laborCost"] + res["equipCost"] + res["disposalCost"] + res["haulCost"] + res["indirect"] - res["revenueTotal"]
+    res["uncostedStructure"] = uncosted_structure(items, rates)
     return res
 
 
@@ -314,7 +345,8 @@ def check_block(items, ctx, res, params=None, rates=RATES):
     gfa = ctx.get("gfa") or 0
     out = {"tonsByWaste": dict((k, round(v, 2)) for k, v in by.items()), "residualMixedT": round(rt, 2), "rebarT": round(rebar, 2),
            "totalT": round(total, 2), "tPerM2": round(total / gfa, 3) if gfa else None, "gfa": gfa,
-           "concreteM3": round(res["general"].get("crushVolume", 0.0), 2), "scenarios": {}}
+           "concreteM3": round(res["general"].get("crushVolume", 0.0), 2), "scenarios": {},
+           "uncostedStructure": dict((k, v) for k, v in uncosted_structure(items, rates).items() if k != "ids")}
     H = p["hoursPerDay"]
     for sc in ("general", "selective"):
         r = res[sc]

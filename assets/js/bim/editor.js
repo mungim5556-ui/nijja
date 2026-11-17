@@ -7,6 +7,7 @@ import {
   compare, mergeParams, takeoff, grossFloorArea, lineLength, isEligible, paperCase, simulate,
   breakEven, UNCERTAINTY, residualMixedTons, PRESETS,
 } from "./scenario.js";
+import { uncostedWarning } from "./cost.js";
 import { demoModel, emptyModel, newElement, copyLevel, uid } from "./demo-model.js";
 import { groupedBars, histogram, tornado, bindTips } from "./charts.js";
 
@@ -801,6 +802,7 @@ function comparePanel() {
     ["인건비", s.laborCost - g.laborCost], ["장비비", s.equipCost - g.equipCost], ["처리비", s.disposalCost - g.disposalCost], ["매각 수익", -(s.revenueTotal - g.revenueTotal)],
   ].sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   return `
+  ${(() => { const w = uncostedWarning(g.uncostedStructure); return w ? `<div class="callout"><b>⚠ ${esc(w)}</b> 철골·목조 골조의 해체 품이 들어가기 전까지 이 결과로 공법을 판단하지 마세요.</div>` : ""; })()}
   <div class="verdict">
     <strong>이 모델에서는 ${best.label}이 ${mw(Math.abs(d))}백만원 더 경제적입니다</strong>
     <span>가장 큰 차이: ${why[0]} ${signed(mw(why[1]))}백만원 · 공기 ${r1(g.days)} → ${r1(s.days)}일</span>
