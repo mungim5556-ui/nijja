@@ -101,6 +101,7 @@ const PAPER2023 = {
   hoursPerDay: 8,
   structCrew: 2,
   masonry: { mason: 0, laborer: 0 },
+  steel: { on: false, mhPerT: { general: 6, selective: 18 }, equipHPerT: { general: 3, selective: 6 }, reuse: { on: false, share: 1, priceFactor: 3.06 } },
   // 처리단가 (원/t)
   disposal: {
     concreteGeneral: 46374, concreteSelective: 46374, inert: 46374,
@@ -135,6 +136,13 @@ const TEAM2024 = {
   structCrew: 2, // structure_crew (가정)
   masonry: { mason: 0, laborer: 0 }, // ReClaim Compare에 없는 항목 — 끔 (팀 조사값: 조적공 0.38, 보통인부 0.252 인/㎥)
   rebarKgPerM3: 100, // rebar_kg_per_m3 (가정): 콘크리트 속 철근 → 고철
+  // 철골 부재 해체 (작업 규칙이 없는 부재의 강재 t 기준). PROGRESS (EU RFCS 747847)
+  //  - 일괄(굴착기+전단기 해체) 6 인·h/t: D2.1a §1.6.1 철골 창고 595 인·h / 고철 80.4t = 7.4(단열재·콘크리트 포함 상한)과
+  //    D2.1a 표 1.4 해체:재사용해체 = 150:472 h(약 1:3)를 재사용해체 사례 12.3~18.4 인·h/t(D7.3 런던 창고 2000~3000h/163t)에 적용한 4~6의 사이
+  //  - 분별(인력+양중 해체) 18 인·h/t: D7.3 런던 창고 3000h/163t = 18.4 (같은 건물 2000h 가능 = 12.3)
+  //  - 장비: 일괄 = 대형 굴착기(전단기) 인·h의 1/2 (작업조 2인 가정), 분별 = 그 2배 (D2.1a 표 1.4 철골 구조 32h → 64h, 크레인 단가가 없어 대형 굴착기 단가로 대신)
+  //  - 재사용: 회수 철골을 고철가 × 3.06에 판다 (D5.2 표 4 체코 사례 재사용 490 / 재활용 160 €/t). 국내 재사용 시장 단가가 없어 기본 끔
+  steel: { on: true, mhPerT: { general: 6, selective: 18 }, equipHPerT: { general: 3, selective: 6 }, reuse: { on: false, share: 1, priceFactor: 3.06 } },
   disposal: {
     concreteGeneral: 49571, // fee_concrete
     concreteSelective: 49571, // fee_concrete_selective (압쇄와 같게)

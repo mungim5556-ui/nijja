@@ -493,3 +493,25 @@ Revit처럼 부재·자재별로 그리고, 부재마다 정보를 입력하는 
 - 편집기 그리기 방식: 2D 평면에서 그리고 3D로 보기 vs 처음부터 3D?
 - 실제 현장 자료는 어떤 형식인가? (엑셀 견적서, 올바로 출력물, 도면 PDF)
 - 작업조 규모(하루 투입 인원)는 어떻게 잡을까? → 공기 계산에 필요
+
+## 철골 부재 해체·재사용 (2026-11-17 추가)
+
+국내 KCI에서 철골 해체 품을 직접 다룬 논문은 찾지 못해, EU RFCS PROGRESS 과제(Grant 747847) 공개 보고서를 근거로 썼다.
+
+| 값 | 기본값 | 근거 |
+|---|---|---|
+| 일괄(굴착기+전단기) 해체 | 6 인·h/t | D2.1a §1.6.1 독일 철골 창고: 595 인·h, 고철 80.38t → 7.4 (단열재 제거·콘크리트 포함 상한). 재사용 해체 사례 ÷3 → 4~6 |
+| 재사용(인력+양중) 해체 | 18 인·h/t | D7.3 런던 올림픽 철골 창고: 3,000 작업시간 / 163t → 18.4 (같은 건물 2,000h 가능 → 12.3) |
+| 해체 : 재사용 해체 인력 | 약 1 : 3 | D2.1a 표 1.4 (40×10×6m 철골 창고 이론 비교 150 h : 472 h), 영국 경험치 공기 3~6배 |
+| 장비 | 일괄 3 h/t, 재사용 6 h/t | 일괄 = 인·h의 1/2(작업조 2인 가정), 재사용 = 2배(D2.1a 표 1.4 철골 구조 32h → 64h). 크레인 단가가 없어 대형 굴착기 160,391원/h로 대신 |
+| 해체 비용 (참고) | 200 €/t, 재사용 해체 300 €/t | D5.2 표 11 (선별·세척 50 €/t 별도). 체코 사례 해체 350 €/t (D5.2 표 4) |
+| 재사용 판매가 | 고철가 × 3.06 | D5.2 표 4 체코: 재사용 490 / 재활용 160 €/t. 재생 강재 524 €/t vs 고철 88 €/t (D5.2 표 9) |
+
+- 프로그램 처리: 작업 규칙(내장 품)이 없는 부재의 강재 t를 구조 철골로 본다. 두 시나리오 모두 굴착기 전단 해체(콘크리트 압쇄처럼 공통)이고, **재사용을 켠 분별 시나리오만** 재사용 해체 품과 재사용 판매가를 쓴다. 재사용은 국내 시장 단가가 없어 기본 끔.
+- 계산 검증: 우리 품으로 일괄 해체 직접비 ≈ 60만원/t(≈ 400 €/t). D2.1a 사례 총비용 33,351 €를 고철 80t에 모두 붙이면 415 €/t, D5.2 모델 200 €/t → 범위 안이지만 상단.
+- 목조 골조(목재·합판 구조 부재)는 아직 품이 없어 경고만 띄운다.
+
+출처
+- Vares, Hradil, Sansom, Ungureanu, Kamrath (2019) *D5.2 Economic assessment of reusing steel-based elements*, PROGRESS (RFCS 747847). https://www.steelconstruct.com/wp-content/uploads/PROGRESS-D5.2-Economic-potential.pdf
+- Kamrath, Sansom, Ungureanu, Hradil 외 (2020) *D2.1a Safe and efficient deconstruction*, PROGRESS. https://www.steelconstruct.com/wp-content/uploads/PROGRESS-D2.1a-Deconstruction-and-audits.pdf
+- PROGRESS *D7.3 Case studies* (런던 올림픽 창고 사례는 Bioregional 2011 인용). https://www.steelconstruct.com/wp-content/uploads/PROGRESS-D7.3-Case-studies.pdf

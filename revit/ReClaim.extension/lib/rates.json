@@ -597,6 +597,22 @@
         "mason": 0,
         "laborer": 0
       },
+      "steel": {
+        "on": false,
+        "mhPerT": {
+          "general": 6,
+          "selective": 18
+        },
+        "equipHPerT": {
+          "general": 3,
+          "selective": 6
+        },
+        "reuse": {
+          "on": false,
+          "share": 1,
+          "priceFactor": 3.06
+        }
+      },
       "disposal": {
         "concreteGeneral": 46374,
         "concreteSelective": 46374,
@@ -661,6 +677,22 @@
         "laborer": 0
       },
       "rebarKgPerM3": 100,
+      "steel": {
+        "on": true,
+        "mhPerT": {
+          "general": 6,
+          "selective": 18
+        },
+        "equipHPerT": {
+          "general": 3,
+          "selective": 6
+        },
+        "reuse": {
+          "on": false,
+          "share": 1,
+          "priceFactor": 3.06
+        }
+      },
       "disposal": {
         "concreteGeneral": 49571,
         "concreteSelective": 49571,

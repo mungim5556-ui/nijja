@@ -911,6 +911,16 @@ function paramsSection(p) {
     <label class="check"><input type="checkbox" data-p="haul.on" ${p.haul.on ? "checked" : ""}> 반출(덤프) 포함</label>
     <label class="check"><input type="checkbox" data-p="selectiveEquip" ${p.selectiveEquip ? "checked" : ""}> 분별 내장 공정에 소형 굴착기·절단기</label>
     <label class="check"><input type="checkbox" data-p="residualMixed" ${p.residualMixed !== false ? "checked" : ""}> 모델 밖 혼합폐기물을 원단위로 보정</label>
+    ${p.steel ? `
+    <label class="check"><input type="checkbox" data-p="steel.on" ${p.steel.on ? "checked" : ""}> 철골 부재 해체 품 (PROGRESS 보고서)</label>
+    <div class="fgrid">
+      <div class="field"><label>일괄 해체 (인·h/t)</label>${n("steel.mhPerT.general", p.steel.mhPerT.general, 0.5)}</div>
+      <div class="field"><label>재사용 해체 (인·h/t)</label>${n("steel.mhPerT.selective", p.steel.mhPerT.selective, 0.5)}</div>
+      <div class="field"><label>굴착기 일괄 (h/t)</label>${n("steel.equipHPerT.general", p.steel.equipHPerT.general, 0.5)}</div>
+      <div class="field"><label>양중 재사용 (h/t)</label>${n("steel.equipHPerT.selective", p.steel.equipHPerT.selective, 0.5)}</div>
+    </div>
+    <label class="check"><input type="checkbox" data-p="steel.reuse.on" ${p.steel.reuse?.on ? "checked" : ""}> 분별해체에서 철골을 재사용 부재로 판매 (고철가 × ${p.steel.reuse?.priceFactor ?? 3.06})</label>
+    <p class="note">철골 품: 일괄 6 인·h/t(굴착기 전단 해체), 재사용 해체 18 인·h/t(인력+양중) — PROGRESS D2.1a·D7.3 사례. 재사용 판매가 비율 3.06은 D5.2 체코 사례(재사용 490 / 재활용 160 €/t)이며 국내 시장 단가가 아닙니다.</p>` : ""}
     <p class="note">기준: ${esc(p.basis)}. 가정값(출처 없음): 하루 8시간, 구조체 보조 2인, 철근 100kg/㎥, 폐목재·폐합성수지 매각가, 고철·비철 회수율, 분리율, 작업조 20인, 일당 간접비. 반출·소형 장비·조적 분리는 ReClaim Compare에 없어 기본값에서 꺼 두었습니다.</p>
     <button class="btn btn-outline btn-sm" type="button" data-act="reset-params" style="justify-self:start">기본값으로</button>
   </details>`;

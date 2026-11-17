@@ -35,7 +35,11 @@ def merge_params(p=None, rates=RATES):
     out = copy.deepcopy(base)
     for k, v in p.items():
         if isinstance(v, dict) and isinstance(out.get(k), dict):
-            out[k].update(v)
+            for kk, vv in v.items():  # 두 단계까지 합친다 (steel.reuse 등)
+                if isinstance(vv, dict) and isinstance(out[k].get(kk), dict):
+                    out[k][kk].update(vv)
+                else:
+                    out[k][kk] = vv
         else:
             out[k] = v
     return out
@@ -215,14 +219,30 @@ def _add_into(res, c, p):
 UNCOSTED_STRUCT = ("steel", "stainless", "lumber", "plywood")
 
 
-def uncosted_structure(items, rates=RATES):
+STEEL_STRUCT = ("steel", "stainless")
+
+
+def structural_steel_tons(items):
+    """작업 규칙이 없는 부재(구조 부재)의 강재 t"""
+    t = 0.0
+    for it in items:
+        if it.get("work") or (it.get("hazard") and it["hazard"] != "none"):
+            continue
+        for m in STEEL_STRUCT:
+            t += it["tons"].get(m, 0)
+    return t
+
+
+def uncosted_structure(items, p=None, rates=RATES):
     """구조체 해체 품이 없는 부재(철골·목조 골조). {"count", "tons": {재료: t}, "ids": [...]}"""
     out = {"count": 0, "tons": {}, "ids": []}
+    steel_on = bool(((p or {}).get("steel") or {}).get("on"))
+    mats = [m for m in UNCOSTED_STRUCT if not (steel_on and m in STEEL_STRUCT)]
     for it in items:
         if it.get("work") or (it.get("hazard") and it["hazard"] != "none"):
             continue
         hit = False
-        for m in UNCOSTED_STRUCT:
+        for m in mats:
             t = it["tons"].get(m, 0)
             if t > 0:
                 out["tons"][m] = round(out["tons"].get(m, 0) + t, 3)
@@ -291,6 +311,29 @@ def scenario_cost(items, ctx, params, scenario, rates=RATES):
         L["days"] += crew_days
         L["cost"] += crew_days * wage
         res["laborCost"] += crew_days * wage
+    # 철골 부재 해체 (PROGRESS 보고서 품). 재사용을 켠 분별 시나리오만 인력+양중 해체, 나머지는 굴착기 전단 해체
+    res["steelDays"] = 0.0
+    st = p.get("steel") or {}
+    if st.get("on"):
+        T = structural_steel_tons(items)
+        if T > 0:
+            reuse = scenario == "selective" and (st.get("reuse") or {}).get("on")
+            k = "selective" if reuse else "general"
+            md = T * st["mhPerT"][k] / H
+            wage = p["wage"]["laborer"] * (p.get("wageFactor") or 1)
+            L = res["labor"].setdefault("laborer", {"days": 0.0, "cost": 0.0})
+            L["days"] += md
+            L["cost"] += md * wage
+            res["laborCost"] += md * wage
+            eh = T * st["equipHPerT"][k]
+            res["equip"]["steelExcavator"] = eh * p["equipment"]["excavatorLarge"] * ef
+            res["steelDays"] = eh / H
+            res["steel"] = {"tons": T, "method": "deconstruct" if reuse else "demolish", "manDays": md, "equipHours": eh}
+            if reuse:
+                ru = st["reuse"]
+                extra = T * p["recScrap"]["selective"] * ru.get("share", 1) * ((ru.get("priceFactor") or 1) - 1) * (p["revenue"].get("steel") or 0)
+                res["revenue"]["steelReuse"] = res["revenue"].get("steelReuse", 0) + extra
+                res["revenueTotal"] += extra
     if scenario == "selective" and any_sel and p["selectiveEquip"]:
         res["equip"]["excavatorSmall"] = res["interiorDays"] * H * p["equipment"]["excavatorSmall"] * ef
         res["equip"]["cutter"] = res["interiorDays"] * H * p["equipment"]["cutter"] * ef
@@ -303,10 +346,10 @@ def scenario_cost(items, ctx, params, scenario, rates=RATES):
                 t += won / price
         res["trips"] = t / max(0.1, p["haul"]["truckLoad"])
         res["haulCost"] = res["trips"] * p["haul"]["hoursPerTrip"] * p["equipment"]["dump"] * ef
-    res["days"] = res["interiorDays"] + res["structDays"]
+    res["days"] = res["interiorDays"] + res["structDays"] + res["steelDays"]
     res["indirect"] = res["days"] * (p.get("indirectPerDay") or 0)
     res["total"] = res["laborCost"] + res["equipCost"] + res["disposalCost"] + res["haulCost"] + res["indirect"] - res["revenueTotal"]
-    res["uncostedStructure"] = uncosted_structure(items, rates)
+    res["uncostedStructure"] = uncosted_structure(items, p, rates)
     return res
 
 
@@ -346,7 +389,8 @@ def check_block(items, ctx, res, params=None, rates=RATES):
     out = {"tonsByWaste": dict((k, round(v, 2)) for k, v in by.items()), "residualMixedT": round(rt, 2), "rebarT": round(rebar, 2),
            "totalT": round(total, 2), "tPerM2": round(total / gfa, 3) if gfa else None, "gfa": gfa,
            "concreteM3": round(res["general"].get("crushVolume", 0.0), 2), "scenarios": {},
-           "uncostedStructure": dict((k, v) for k, v in uncosted_structure(items, rates).items() if k != "ids")}
+           "uncostedStructure": dict((k, v) for k, v in uncosted_structure(items, p, rates).items() if k != "ids"),
+           "structuralSteelT": round(structural_steel_tons(items), 2)}
     H = p["hoursPerDay"]
     for sc in ("general", "selective"):
         r = res[sc]
@@ -354,9 +398,10 @@ def check_block(items, ctx, res, params=None, rates=RATES):
         out["scenarios"][sc] = {
             "manDaysByTrade": labor, "manDays": round(sum(labor.values()), 1),
             "crewInterior": p["crewSize"], "crewStructure": p["structCrew"],
-            "peakCrew": max(p["crewSize"] if r["interiorDays"] > 0 else 0, p["structCrew"] if r["structDays"] > 0 else 0),
+            "peakCrew": max(p["crewSize"] if r["interiorDays"] > 0 else 0, p["structCrew"] if (r["structDays"] > 0 or r.get("steelDays", 0) > 0) else 0),
             "interiorDays": round(r["interiorDays"], 1), "structDays": round(r["structDays"], 1), "days": round(r["days"], 1),
-            "equipHours": dict((k, round(v / max(1, p["equipment"].get(k) or 1), 1)) for k, v in r["equip"].items()),
+            "equipHours": dict((k, round(v / max(1, p["equipment"].get(k) or p["equipment"]["excavatorLarge"]), 1)) for k, v in r["equip"].items()),
+            "steelDays": round(r.get("steelDays", 0.0), 1),
             "disposalT": dict((k, round(v["t"], 2)) for k, v in r["disposal"].items()),
             "total": round(r["total"]),
         }

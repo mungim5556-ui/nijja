@@ -24,6 +24,12 @@ export function mergeParams(p = {}) {
     masonry: { ...base.masonry, ...(p.masonry || {}) },
     recScrap: { ...base.recScrap, ...(p.recScrap || {}) },
     recNonferrous: { ...base.recNonferrous, ...(p.recNonferrous || {}) },
+    steel: base.steel || p.steel ? {
+      ...(base.steel || {}), ...(p.steel || {}),
+      mhPerT: { ...(base.steel?.mhPerT || {}), ...(p.steel?.mhPerT || {}) },
+      equipHPerT: { ...(base.steel?.equipHPerT || {}), ...(p.steel?.equipHPerT || {}) },
+      reuse: { ...(base.steel?.reuse || {}), ...(p.steel?.reuse || {}) },
+    } : undefined,
   };
 }
 
@@ -163,12 +169,25 @@ function addInto(res, c, p) {
 export const UNCOSTED_STRUCT = ["steel", "stainless", "lumber", "plywood"];
 const UNCOSTED_LABEL = { steel: "철골", stainless: "스테인리스", lumber: "목재 골조", plywood: "합판" };
 
-export function uncostedStructure(items) {
+export const STEEL_STRUCT = ["steel", "stainless"];
+
+// 작업 규칙이 없는 부재(구조 부재)의 강재 t
+export function structuralSteelTons(items) {
+  let t = 0;
+  for (const it of items) {
+    if ((it.work && it.work.length) || (it.hazard && it.hazard !== "none")) continue;
+    for (const m of STEEL_STRUCT) t += it.tons[m] || 0;
+  }
+  return t;
+}
+
+export function uncostedStructure(items, p) {
   const out = { count: 0, tons: {}, ids: [] };
+  const mats = p?.steel?.on ? UNCOSTED_STRUCT.filter((m) => !STEEL_STRUCT.includes(m)) : UNCOSTED_STRUCT;
   for (const it of items) {
     if ((it.work && it.work.length) || (it.hazard && it.hazard !== "none")) continue;
     let hit = false;
-    for (const m of UNCOSTED_STRUCT) {
+    for (const m of mats) {
       const t = it.tons[m] || 0;
       if (t > 0) { out.tons[m] = (out.tons[m] || 0) + t; hit = true; }
     }
@@ -230,6 +249,29 @@ export function scenarioCost(items, ctx, params, scenario) {
     L.cost += crewDays * p.wage.laborer * (p.wageFactor || 1);
     res.laborCost += crewDays * p.wage.laborer * (p.wageFactor || 1);
   }
+  // 철골 부재 해체 (PROGRESS 보고서 품). 재사용을 켠 분별 시나리오만 인력+양중 해체, 나머지는 굴착기 전단 해체
+  res.steelDays = 0;
+  if (p.steel?.on) {
+    const T = structuralSteelTons(items);
+    if (T > 0) {
+      const reuse = scenario === "selective" && p.steel.reuse?.on;
+      const k = reuse ? "selective" : "general";
+      const md = (T * p.steel.mhPerT[k]) / H;
+      const wage = p.wage.laborer * (p.wageFactor || 1);
+      const L = (res.labor.laborer ||= { days: 0, cost: 0 });
+      L.days += md; L.cost += md * wage; res.laborCost += md * wage;
+      const eh = T * p.steel.equipHPerT[k];
+      res.equip.steelExcavator = eh * p.equipment.excavatorLarge * (p.equipFactor || 1);
+      res.steelDays = eh / H;
+      res.steel = { tons: T, method: reuse ? "deconstruct" : "demolish", manDays: md, equipHours: eh };
+      if (reuse) {
+        const rec = p.recScrap.selective;
+        const extra = T * rec * (p.steel.reuse.share ?? 1) * ((p.steel.reuse.priceFactor || 1) - 1) * (p.revenue.steel || 0);
+        res.revenue.steelReuse = (res.revenue.steelReuse || 0) + extra;
+        res.revenueTotal += extra;
+      }
+    }
+  }
   // 분별 내장 공정 동안 소형 장비
   if (scenario === "selective" && anySelective && p.selectiveEquip) {
     res.equip.excavatorSmall = res.interiorDays * H * p.equipment.excavatorSmall * (p.equipFactor || 1);
@@ -247,10 +289,10 @@ export function scenarioCost(items, ctx, params, scenario) {
     res.trips = t / Math.max(0.1, p.haul.truckLoad);
     res.haulCost = res.trips * p.haul.hoursPerTrip * p.equipment.dump * (p.equipFactor || 1);
   }
-  res.days = res.interiorDays + res.structDays;
+  res.days = res.interiorDays + res.structDays + res.steelDays;
   res.indirect = res.days * (p.indirectPerDay || 0);
   res.total = res.laborCost + res.equipCost + res.disposalCost + res.haulCost + res.indirect - res.revenueTotal;
-  res.uncostedStructure = uncostedStructure(items);
+  res.uncostedStructure = uncostedStructure(items, p);
   return res;
 }
 
