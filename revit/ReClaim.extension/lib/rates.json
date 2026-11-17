@@ -111,6 +111,11 @@
       "density": 2.6,
       "waste": "concrete"
     },
+    "rubble": {
+      "label": "잡석 (바닥 밑·뒤채움)",
+      "density": 1.9,
+      "waste": "concrete"
+    },
     "woodDoor": {
       "label": "목재 문짝·문틀",
       "density": 0.55,
@@ -550,6 +555,10 @@
       "벽돌|조적|brick|masonry|block|블록|CMU"
     ],
     [
+      "rubble",
+      "잡석|자갈|쇄석|rubble|gravel|hardcore"
+    ],
+    [
       "stone",
       "석재|화강|대리석|stone|granite|marble"
     ],
@@ -775,7 +784,8 @@
   "inertMats": [
     "brick",
     "tile",
-    "stone"
+    "stone",
+    "rubble"
   ],
   "crushMats": [
     "rc",

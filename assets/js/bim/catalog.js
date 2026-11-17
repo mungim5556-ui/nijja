@@ -47,6 +47,7 @@ export const MATERIALS = {
   stainless: { label: "스테인리스", density: 7.9, waste: "metal" },
   glasswool: { label: "단열재(글라스울)", density: 0.024, waste: "resin" },
   stone: { label: "석재", density: 2.6, waste: "concrete" },
+  rubble: { label: "잡석 (바닥 밑·뒤채움)", density: 1.9, waste: "concrete" }, // 가정: 다짐 잡석 단위중량 1.8~2.0 t/㎥의 가운데. 압쇄 없이 굴착·상차만
   woodDoor: { label: "목재 문짝·문틀", density: 0.55, waste: "wood" },
 };
 
@@ -265,7 +266,7 @@ export const WASTE_UNIT = {
 // 금속 재료별 매각가 키
 export const METAL_PRICE_KEY = { steel: "steel", aluminum: "aluminum", copper: "copper", brass: "brass", stainless: "stainless" };
 // 분별해체에서 불연성 처리(건설폐재류 단가)로 보내는 재료
-export const INERT_MATS = ["brick", "tile", "stone"];
+export const INERT_MATS = ["brick", "tile", "stone", "rubble"];
 // 압쇄 대상 부피로 셀 재료
 export const CRUSH_MATS = ["rc", "mortar", "plaster", "brick", "stone"];
 
@@ -290,6 +291,7 @@ export const MATERIAL_KEYWORDS = [
   ["steel", "강재|철골|철근|steel|rebar|metal|SS\\d|SM\\d|SHN"],
   ["tile", "타일|tile|ceramic|도자기|porcelain"],
   ["brick", "벽돌|조적|brick|masonry|block|블록|CMU"],
+  ["rubble", "잡석|자갈|쇄석|rubble|gravel|hardcore"],
   ["stone", "석재|화강|대리석|stone|granite|marble"],
   ["plaster", "회반죽|플라스터|plaster|stucco"],
   ["mortar", "모르타르|mortar|screed|미장"],
