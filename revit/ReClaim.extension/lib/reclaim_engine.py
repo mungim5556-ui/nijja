@@ -299,6 +299,38 @@ def item_deltas(items, ctx, params=None, rates=RATES):
     return out
 
 
+def check_block(items, ctx, res, params=None, rates=RATES):
+    """해체계획서와 대조할 값: 성상별 물량(t), 콘크리트 부피, 시나리오별 인·일·인원·공기·장비시간."""
+    p = merge_params(params, rates)
+    by = {}
+    for it in items:
+        for m, t in it["tons"].items():
+            w = rates["materials"].get(m, {}).get("waste", "mixed")
+            by[w] = by.get(w, 0.0) + t
+    rt = residual_mixed_tons(items, ctx, p, rates)
+    rc_t = sum(it["tons"].get("rc", 0) for it in items)
+    rebar = rc_t / rates["materials"]["rc"]["density"] * (p.get("rebarKgPerM3") or 0) / 1000.0
+    total = sum(by.values()) + rt
+    gfa = ctx.get("gfa") or 0
+    out = {"tonsByWaste": dict((k, round(v, 2)) for k, v in by.items()), "residualMixedT": round(rt, 2), "rebarT": round(rebar, 2),
+           "totalT": round(total, 2), "tPerM2": round(total / gfa, 3) if gfa else None, "gfa": gfa,
+           "concreteM3": round(res["general"].get("crushVolume", 0.0), 2), "scenarios": {}}
+    H = p["hoursPerDay"]
+    for sc in ("general", "selective"):
+        r = res[sc]
+        labor = dict((k, round(v["days"], 1)) for k, v in r["labor"].items() if (p["wage"].get(k) or 0) > 0)
+        out["scenarios"][sc] = {
+            "manDaysByTrade": labor, "manDays": round(sum(labor.values()), 1),
+            "crewInterior": p["crewSize"], "crewStructure": p["structCrew"],
+            "peakCrew": max(p["crewSize"] if r["interiorDays"] > 0 else 0, p["structCrew"] if r["structDays"] > 0 else 0),
+            "interiorDays": round(r["interiorDays"], 1), "structDays": round(r["structDays"], 1), "days": round(r["days"], 1),
+            "equipHours": dict((k, round(v / max(1, p["equipment"].get(k) or 1), 1)) for k, v in r["equip"].items()),
+            "disposalT": dict((k, round(v["t"], 2)) for k, v in r["disposal"].items()),
+            "total": round(r["total"]),
+        }
+    return out
+
+
 def dominant_waste(tons, rates=RATES):
     best, mx = None, 0.0
     by = {}

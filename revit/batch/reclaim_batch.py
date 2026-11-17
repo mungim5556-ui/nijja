@@ -91,7 +91,12 @@ for path in models:
     try:
         log(u"열기: %s" % path)
         doc = app.OpenDocumentFile(path)
-        r = RUN.analyze(doc, app, EXT, use, mapping, cfg.get("gfa"), write_params=write_params, params=cfg.get("params"))
+        # 모델별 설정: "models": {"파일 이름 일부": {"use": "비주거 RC", "gfa": 1500}}
+        m_use, m_gfa = use, cfg.get("gfa")
+        for key, mc in (cfg.get("models") or {}).items():
+            if key in os.path.basename(path):
+                m_use, m_gfa = mc.get("use") or m_use, mc.get("gfa") or m_gfa
+        r = RUN.analyze(doc, app, EXT, m_use, mapping, m_gfa, write_params=write_params, params=cfg.get("params"))
         res = r["res"]
         sp = RUN.summary_path(doc, out_dir)
         IO.write_json(sp, r["summary"])

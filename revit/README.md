@@ -83,3 +83,14 @@ wrangler를 쓰면 `proxy/wrangler.toml`의 KV id를 바꾸고 `npx wrangler dep
 
 ### 4. 사이트에서 보기
 BIM 편집기 → **서버 결과** → 토큰 입력(이 브라우저에만 저장) → 행을 누르면 불러와 공법 비교·불확실성 분석. 주소 `bim.html?result=<id>`로 바로 열 수도 있습니다.
+
+## 해체계획서 대조 (여러 모델 검증)
+
+1. 모델 복사본을 `inbox`에 넣고 `run_reclaim.bat` 실행 → `out_dir`에 모델마다 `.reclaim.json`이 생긴다 (`check` 항목: 성상별 t, 철근 t, 콘크리트 ㎥, 시나리오별 연인원·인원·공기·굴착기 시간).
+2. 모델마다 용도·연면적이 다르면 `reclaim_config.json`의 `"models": {"파일 이름 일부": {"use": "...", "gfa": ...}}`로 준다.
+3. 계획서 값을 `scripts/fixtures/plans.example.json` 형식으로 옮겨 적는다 (모르는 항목은 뺀다).
+4. 대조:
+   ```
+   python scripts\validate_plan.py C:\ReClaim\out C:\ReClaim\plans.json --out C:\ReClaim\out\계획서대조.md
+   ```
+   ±20%를 넘는 항목에 ⚠가 붙는다. 계획서의 고철은 철근 + 철물, 혼합은 모델 밖 원단위 잔여 + 마감재로 비교한다.

@@ -1,0 +1,16 @@
+{
+  "_comment": "해체계획서에서 옮겨 적는 값. match는 Revit 파일 이름의 일부. 모르는 항목은 빼면 된다. tons의 키는 계획서의 성상 이름(콘크리트·혼합·고철·목재·합성수지 등) 그대로 써도 된다. scenario는 계획서가 가정한 공법(대개 general = 일괄 압쇄).",
+  "models": [
+    {
+      "match": "예시",
+      "scenario": "general",
+      "gfa": 2400,
+      "tons": { "콘크리트": 2700, "혼합": 420, "고철": 100, "목재": 55 },
+      "concreteM3": 1100,
+      "manDays": 1200,
+      "peakCrew": 20,
+      "days": 80,
+      "excavatorHours": 190
+    }
+  ]
+}

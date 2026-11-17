@@ -5,6 +5,7 @@
   "out_dir": "C:\\ReClaim\\out",
   "write_params": false,
   "materials": { "논현동 외벽": "rc" },
+  "models": { "논현동": { "use": "비주거 RC", "gfa": 1500 } },
   "upload": {
     "url": "https://nijja-api.mungim5556.workers.dev/results",
     "token": "",

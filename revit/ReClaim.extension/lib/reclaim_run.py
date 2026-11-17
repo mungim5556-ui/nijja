@@ -75,6 +75,7 @@ def analyze(doc, app, ext_folder, use, mapping=None, gfa_fallback=None, write_pa
     summary["source"] = "revit"
     summary["unknownMaterials"] = dict((k, round(v, 3)) for k, v in unknown.items())
     summary["fallbackElements"] = len([it for it in items if it.get("fallback")])
+    summary["check"] = E.check_block(items, ctx, res, params)
     return {"items": items, "unknown": unknown, "gfa": gfa, "ctx": ctx, "res": res, "deltas": deltas, "view": view, "summary": summary}
 
 
