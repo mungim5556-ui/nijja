@@ -1,12 +1,16 @@
 // JS 엔진(cost.js)과 Revit용 Python 엔진(reclaim_engine.py)이 같은 결과를 내는지 확인한다.
 // 사용: node scripts/test_engines.mjs   (python3 필요)
-import { writeFileSync } from "node:fs";
+import { writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { compare, toItems, grossFloorArea } from "../assets/js/bim/scenario.js";
 import { demoModel } from "../assets/js/bim/demo-model.js";
 
-const fixture = fileURLToPath(new URL("./fixtures/takeoff.json", import.meta.url));
+// 비교용 입력은 임시 폴더에 쓴다 (scripts/fixtures/takeoff.json은 손으로 확인할 때 쓰는 고정본이라 건드리지 않음)
+const tmp = mkdtempSync(join(tmpdir(), "reclaim-engines-"));
+const fixture = join(tmp, "takeoff.json");
 const engine = fileURLToPath(new URL("../revit/ReClaim.extension/lib/reclaim_engine.py", import.meta.url));
 let failed = 0;
 const check = (ok, msg) => { if (!ok) failed++; console.log(`${ok ? "ok  " : "FAIL"} ${msg}`); };
@@ -36,6 +40,6 @@ for (const c of cases) {
   }
   check(true, `${c.name}: JS·Python 일치 (일괄 ${Math.round(js.general.total / 1e6)} / 분별 ${Math.round(js.selective.total / 1e6)} 백만원)`);
 }
-writeFileSync(fixture, JSON.stringify({ items, ctx, params: {} }, null, 1));
+rmSync(tmp, { recursive: true, force: true });
 execFileSync("python3", [engine], { stdio: "inherit" });
 process.exitCode = failed ? 1 : 0;
