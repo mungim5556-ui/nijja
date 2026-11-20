@@ -346,7 +346,18 @@ def scenario_cost(items, ctx, params, scenario, rates=RATES):
                 t += won / price
         res["trips"] = t / max(0.1, p["haul"]["truckLoad"])
         res["haulCost"] = res["trips"] * p["haul"]["hoursPerTrip"] * p["equipment"]["dump"] * ef
-    res["days"] = res["interiorDays"] + res["structDays"] + res["steelDays"]
+    # 물량과 상관없이 구조체 해체 공사마다 드는 공정(가설·비계, 장비 반입, 반출·부지정리)과 현장 지원 인원(신호수·안전요원·살수).
+    # 고정 공정은 구조체 압쇄가 주 공정일 때만 (철골 차양막처럼 철골 해체가 주인 공사는 비계가 필요 없어 제외)
+    res["setupDays"] = (p.get("setupDays") or 0) if res["structDays"] > res["steelDays"] else 0
+    res["days"] = res["interiorDays"] + res["structDays"] + res["steelDays"] + res["setupDays"]
+    sup = (p.get("supportCrew") or 0) * res["days"]
+    if sup > 0:
+        wage = p["wage"]["laborer"] * (p.get("wageFactor") or 1)
+        L = res["labor"].setdefault("laborer", {"days": 0.0, "cost": 0.0})
+        L["days"] += sup
+        L["cost"] += sup * wage
+        res["laborCost"] += sup * wage
+    res["supportManDays"] = sup
     res["indirect"] = res["days"] * (p.get("indirectPerDay") or 0)
     res["total"] = res["laborCost"] + res["equipCost"] + res["disposalCost"] + res["haulCost"] + res["indirect"] - res["revenueTotal"]
     res["uncostedStructure"] = uncosted_structure(items, p, rates)
@@ -398,8 +409,10 @@ def check_block(items, ctx, res, params=None, rates=RATES):
         out["scenarios"][sc] = {
             "manDaysByTrade": labor, "manDays": round(sum(labor.values()), 1),
             "crewInterior": p["crewSize"], "crewStructure": p["structCrew"],
-            "peakCrew": max(p["crewSize"] if r["interiorDays"] > 0 else 0, p["structCrew"] if (r["structDays"] > 0 or r.get("steelDays", 0) > 0) else 0),
+            "peakCrew": max(p["crewSize"] if r["interiorDays"] > 0 else 0, p["structCrew"] if (r["structDays"] > 0 or r.get("steelDays", 0) > 0) else 0)
+                        + (p.get("supportCrew") or 0),
             "interiorDays": round(r["interiorDays"], 1), "structDays": round(r["structDays"], 1), "days": round(r["days"], 1),
+            "setupDays": round(r.get("setupDays", 0.0), 1), "supportManDays": round(r.get("supportManDays", 0.0), 1),
             "equipHours": dict((k, round(v / max(1, p["equipment"].get(k) or p["equipment"]["excavatorLarge"]), 1)) for k, v in r["equip"].items()),
             "steelDays": round(r.get("steelDays", 0.0), 1),
             "disposalT": dict((k, round(v["t"], 2)) for k, v in r["disposal"].items()),

@@ -118,6 +118,8 @@ const PAPER2023 = {
   table4: "paper",
   crewSize: 20,
   indirectPerDay: 0,
+  setupDays: 0,
+  supportCrew: 0,
   residualMixed: true,
 };
 
@@ -160,6 +162,10 @@ const TEAM2024 = {
   table4: "paper",
   crewSize: 20, // crew_size (가정)
   indirectPerDay: 500000, // indirect_per_day (가정)
+  // 물량과 무관한 고정 공정(가설·비계, 장비 반입, 반출·부지정리) 일수와 현장 지원 인원(신호수·안전요원·살수, 인/일).
+  // 기본 0 = 끔. 해체계획서 대조(2026-11-20)에서 모델 공기가 계획서보다 7~17일 짧게 나온 원인 후보.
+  setupDays: 0,
+  supportCrew: 0,
   residualMixed: true,
 };
 

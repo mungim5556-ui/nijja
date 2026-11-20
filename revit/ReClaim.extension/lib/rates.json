@@ -667,6 +667,8 @@
       "table4": "paper",
       "crewSize": 20,
       "indirectPerDay": 0,
+      "setupDays": 0,
+      "supportCrew": 0,
       "residualMixed": true
     },
     "team2024": {
@@ -746,6 +748,8 @@
       "table4": "paper",
       "crewSize": 20,
       "indirectPerDay": 500000,
+      "setupDays": 0,
+      "supportCrew": 0,
       "residualMixed": true
     }
   },

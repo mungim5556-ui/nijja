@@ -24,7 +24,7 @@ const m = demoModel();
 const items = toItems(m);
 items[5] = { ...items[5], hazard: "suspected" };
 const ctx = { gfa: grossFloorArea(m), use: m.use };
-const cases = [{ name: "팀 2024", params: {} }, { name: "논문 2023", params: { preset: "paper2023" } }, { name: "표 4 보정 + 간접비", params: { table4: "aligned", indirectPerDay: 800000, recovery: 0.7 } }];
+const cases = [{ name: "팀 2024", params: {} }, { name: "고정 공정 + 지원 인원", params: { setupDays: 8, supportCrew: 4 } }, { name: "논문 2023", params: { preset: "paper2023" } }, { name: "표 4 보정 + 간접비", params: { table4: "aligned", indirectPerDay: 800000, recovery: 0.7 } }];
 
 const { compareItems } = await import("../assets/js/bim/cost.js");
 for (const c of cases) {
