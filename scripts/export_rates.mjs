@@ -13,6 +13,7 @@ const data = {
   workItems: C.WORK_ITEMS,
   workRules: C.WORK_RULES,
   materialKeywords: C.MATERIAL_KEYWORDS,
+  categoryDefault: C.CATEGORY_DEFAULT,
   presets: C.PRESETS,
   defaultPreset: C.DEFAULT_PARAMS.key,
   separableMin: C.SEPARABLE_MIN,

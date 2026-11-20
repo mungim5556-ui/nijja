@@ -1,6 +1,6 @@
 // IFC → BIM 편집기 부재(source: "ifc"). 부재마다 재료별 톤·면적·해체 작업을 자동으로 정한다.
 // 브라우저(web-ifc CDN)와 Node(npm web-ifc, scripts/batch_ifc.mjs) 양쪽에서 쓴다.
-import { MATERIALS, MATERIAL_KEYWORDS } from "./catalog.js";
+import { MATERIALS, MATERIAL_KEYWORDS, CATEGORY_DEFAULT } from "./catalog.js";
 import { workFor } from "./cost.js";
 
 export const WEB_IFC_CDN = "https://cdn.jsdelivr.net/npm/web-ifc@0.0.78/";
@@ -31,6 +31,60 @@ const OPENING = {
   door: (keys) => (keys.includes("steel") ? { steel: 45 } : { woodDoor: 18 }),
 };
 const STRUCTURAL = ["column", "beam", "foundation", "stair"];
+
+// 부재 하나의 재료별 톤. 파일을 다시 읽지 않고 재료 지정(mapping)만 바꿔 다시 계산할 수 있게 순수 함수로 둔다.
+// 미분류 층은 부재 기본재료(CATEGORY_DEFAULT: 벽·바닥·지붕·구조 = 철근콘크리트, 천장 = 석고보드)로 채우고 '추정'으로 남긴다.
+// 기본재료가 없는 범주(난간·배관·기타)의 미분류 몫만 계산에서 빠진다(unknownVolume).
+export function elementMaterials({ category, layers = [], volume = 0, area = 0 }, mapping = {}) {
+  const keys = layers.map((l) => classifyMaterial(l.name, mapping));
+  const mats = {};
+  const estimated = { volume: 0, names: [] };
+  let unknownVolume = 0;
+  if (category === "window" || category === "door") {
+    for (const [m, kg] of Object.entries(OPENING[category](keys.filter(Boolean)))) mats[m] = (area * kg) / 1000;
+    return { mats, keys, estimated, unknownVolume };
+  }
+  const fallback = CATEGORY_DEFAULT[category] || null;
+  const parts = layers.length ? layers.map((l, i) => ({ key: keys[i], t: l.t, name: l.name })) : [{ key: null, t: 1, name: "" }];
+  const sumT = parts.every((p) => p.t != null && p.t > 0) ? parts.reduce((s, p) => s + p.t, 0) : 0;
+  for (const p of parts) {
+    const vol = volume * (sumT > 0 ? p.t / sumT : 1 / parts.length);
+    let key = p.key;
+    if (!key && fallback) {
+      key = fallback;
+      estimated.volume += vol;
+      estimated.names.push(p.name || "(재료 없음)");
+    }
+    if (key) mats[key] = (mats[key] || 0) + vol * MATERIALS[key].density;
+    else unknownVolume += vol;
+  }
+  return { mats, keys, estimated, unknownVolume };
+}
+
+// IFC에서 읽은 모델의 재료 지정을 바꿔 부재별 톤·작업을 다시 계산한다 (새 모델 객체를 돌려준다)
+export function applyMapping(model, mapping = {}) {
+  const elements = model.elements.map((el) => {
+    if (el.source !== "ifc" || !el.layers) return el;
+    const r = elementMaterials(el, mapping);
+    return { ...el, mats: r.mats, unknownVolume: r.unknownVolume, estimated: r.estimated, work: workFor(el.category, r.mats) };
+  });
+  return { ...model, elements, materialMap: { ...mapping } };
+}
+
+// 분류하지 못한 재료 이름 → 부피(㎥) 합 (지정 표에 쓴다)
+export function unknownMaterials(model, mapping = model.materialMap || {}) {
+  const out = {};
+  for (const el of model.elements) {
+    if (el.source !== "ifc" || !el.layers || el.category === "window" || el.category === "door") continue;
+    const sumT = el.layers.every((l) => l.t != null && l.t > 0) ? el.layers.reduce((s, l) => s + l.t, 0) : 0;
+    el.layers.forEach((l) => {
+      if (!l.name || classifyMaterial(l.name, mapping)) return;
+      const v = el.volume * (sumT > 0 ? l.t / sumT : 1 / el.layers.length);
+      out[l.name] = (out[l.name] || 0) + v;
+    });
+  }
+  return out;
+}
 
 function typeTable(W) {
   return [
@@ -149,12 +203,12 @@ export function extractModel(api, W, modelID, { name = "IFC 모델", mapping = {
     }
   });
 
-  const unknown = {};
   const elements = [];
   let gfa = 0;
   for (const [eid, a] of acc) {
     const line = api.GetLine(modelID, eid);
     let category = TYPES.get(api.GetLineType(modelID, eid));
+    const ifcType = category === "floor" ? "floor-slab" : category;
     const pre = line.PredefinedType?.value;
     if (category === "covering") category = pre === "CEILING" ? "ceiling" : pre === "FLOORING" ? "floor" : "wall";
     if (category === "floor" && pre === "BASESLAB") category = "foundation";
@@ -174,33 +228,19 @@ export function extractModel(api, W, modelID, { name = "IFC 모델", mapping = {
       area = qto || (thick > 0 ? a.vol / thick : category === "wall" ? Math.max(dims[0], dims[2]) * dims[1] : dims[0] * dims[2]);
     }
 
-    // 재료별 톤
-    const mats = {};
-    let unknownVolume = 0;
-    const keys = layers.map((l) => classifyMaterial(l.name, mapping));
-    layers.forEach((l, i) => { if (!keys[i] && l.name) unknown[l.name] = (unknown[l.name] || 0) + 1; });
-    if (category === "window" || category === "door") {
-      for (const [m, kg] of Object.entries(OPENING[category](keys.filter(Boolean)))) mats[m] = (area * kg) / 1000;
-    } else {
-      // 몫은 모든 층(미분류 포함) 기준으로 나누고, 미분류 층의 몫은 빼 둔다(unknownVolume)
-      const fallback = ["wall", "floor", "roof", ...STRUCTURAL].includes(category) ? "rc" : null;
-      const all = layers.length ? layers.map((l, i) => ({ key: keys[i], t: l.t })) : fallback ? [{ key: fallback, t: 1 }] : [];
-      const sumT = all.length && all.every((p) => p.t != null) ? all.reduce((s, p) => s + p.t, 0) : 0;
-      for (const p of all) {
-        const share = sumT > 0 ? p.t / sumT : 1 / all.length;
-        if (p.key) mats[p.key] = (mats[p.key] || 0) + a.vol * share * MATERIALS[p.key].density;
-        else unknownVolume += a.vol * share;
-      }
-      if (all.length && all.every((p) => !p.key) && fallback) mats[fallback] = a.vol * MATERIALS[fallback].density;
-    }
-    if (category === "floor" && (mats.rc || 0) > 0) gfa += area;
+    // 재료별 톤 (미분류 층은 부재 기본재료로 채운다 — elementMaterials)
+    const layerList = layers.map((l) => ({ name: l.name, t: l.t }));
+    const { mats, estimated, unknownVolume } = elementMaterials({ category, layers: layerList, volume: a.vol, area }, mapping);
+    // 연면적: 바닥 슬래브(마감 IfcCovering 제외)의 면적. 재료 분류와 무관하게 정해진다
+    const isSlab = ifcType === "floor-slab";
+    if (category === "floor" && isSlab) gfa += area;
     const hz = String(pr.Hazard || "");
     elements.push({
       id: `ifc${eid}`, source: "ifc", expressID: eid,
       ifcGuid: line.GlobalId?.value || "", revitId: /^\d+$/.test(line.Tag?.value || "") ? Number(line.Tag.value) : null,
       name: line.Name?.value || "", ifcType: api.GetNameFromTypeCode ? api.GetNameFromTypeCode(api.GetLineType(modelID, eid)) : "",
       category, levelId: levelOf.get(eid) || "L1", area, volume: a.vol, mats,
-      materialNames: layers.map((l) => l.name), unknownVolume,
+      layers: layerList, materialNames: layers.map((l) => l.name), unknownVolume, estimated, slab: isSlab || undefined,
       work: workFor(category, mats),
       separable: Number(pr.Separable) || (STRUCTURAL.includes(category) ? 2 : 5),
       hazard: /확인|confirmed/i.test(hz) ? "confirmed" : /의심|suspected/i.test(hz) ? "suspected" : "none",
@@ -209,9 +249,10 @@ export function extractModel(api, W, modelID, { name = "IFC 모델", mapping = {
   const levels = storeys.length
     ? storeys.map((s, i) => ({ id: `L${i + 1}`, name: s.name, elevation: Math.round(s.elev * 100) / 100, height: Math.round(((storeys[i + 1]?.elev ?? s.elev + 3) - s.elev) * 100) / 100 || 3 }))
     : [{ id: "L1", name: "1층", elevation: 0, height: 3 }];
+  const model = { version: 1, name, use, levels, elements, params: {}, gfa: Math.round(gfa) || undefined, source: "ifc", materialMap: { ...mapping } };
+  const unknown = unknownMaterials(model, mapping);
   return {
-    model: { version: 1, name, use, levels, elements, params: {}, gfa: Math.round(gfa) || undefined, source: "ifc" },
-    meshes, unknown,
+    model, meshes, unknown,
     stats: { elements: elements.length, unknownMaterials: Object.keys(unknown).length, lengthScale: scale },
   };
 }

@@ -76,10 +76,19 @@ export function takeoff(model) {
   return out;
 }
 
+// 연면적: 사용자가 직접 넣은 값 → IFC 바닥 슬래브 합(불러올 때 정함) → 그린 슬래브·바닥 마감 → IFC 바닥 부재 합
 export function grossFloorArea(model) {
+  if (Number(model.gfaOverride) > 0) return Number(model.gfaOverride);
   if (model.gfa) return Number(model.gfa);
   const sum = (t) => model.elements.filter((e) => e.type === t && e.source !== "ifc").reduce((s, e) => s + Math.abs(e.w * e.d), 0);
-  return sum("slab") || sum("floorFinish") || model.elements.filter((e) => e.source === "ifc" && e.category === "slab").reduce((s, e) => s + (e.area || 0), 0);
+  return sum("slab") || sum("floorFinish") || model.elements.filter((e) => e.source === "ifc" && e.category === "floor" && e.slab !== false).reduce((s, e) => s + (e.area || 0), 0);
+}
+
+// 연면적을 어디서 가져왔는지 (계산 조건 표시용)
+export function gfaSource(model) {
+  if (Number(model.gfaOverride) > 0) return "직접 입력";
+  if (model.gfa) return model.source === "ifc" ? "IFC 바닥 슬래브" : "저장값";
+  return model.elements.some((e) => e.source === "ifc") ? "IFC 바닥 부재" : "그린 슬래브";
 }
 
 // 계산 엔진 입력

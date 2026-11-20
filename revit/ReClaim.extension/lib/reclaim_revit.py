@@ -112,7 +112,8 @@ def _level_name(doc, el):
 
 
 # 재료가 지정되지 않은 부재의 기본 재료 (도면·해체계획서 확인 전 가정)
-CATEGORY_DEFAULT = {"wall": "rc", "floor": "rc", "roof": "rc", "column": "rc", "beam": "rc", "foundation": "rc", "stair": "rc", "ceiling": "gypsum"}
+# 재료를 알 수 없을 때의 범주 기본재료 (웹 IFC와 공통, catalog.js → rates.json)
+CATEGORY_DEFAULT = E.RATES.get("categoryDefault") or {"wall": "rc", "floor": "rc", "roof": "rc", "column": "rc", "beam": "rc", "foundation": "rc", "stair": "rc", "ceiling": "gypsum"}
 
 
 def _solid_volume(el):
@@ -180,7 +181,7 @@ def collect_items(doc, mapping=None):
                     key = E.classify_material(getattr(mat, "MaterialClass", "") or "", extra=mapping)
                 if not key:
                     unknown[name] = unknown.get(name, 0) + vol
-                    key = "rc" if cat in STRUCTURAL + ("wall", "floor", "roof") else None
+                    key = CATEGORY_DEFAULT.get(cat)
                 if key:
                     tons[key] = tons.get(key, 0) + vol * E.RATES["materials"][key]["density"]
             # 재료가 없거나 재료 물량이 0이면 부재 부피 × (지정 재료 또는 범주 기본 재료)
