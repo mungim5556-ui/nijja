@@ -1,0 +1,6 @@
+# Revit IFC 내보내기 → 수정 설정 → 속성 세트 → "사용자 정의 속성 세트 내보내기"에 이 파일을 지정하면
+# Revit에 입력한 해체 정보가 IFC의 Pset_ReClaim으로 나가 웹 BIM 편집기가 읽습니다.
+# 형식: PropertySet: <이름> I[nstance] <IFC 대상>  /  <IFC 속성 이름> <형식> <Revit 매개변수 이름>
+PropertySet:	Pset_ReClaim	I	IfcElement
+	Separable	Integer	RC_시공성
+	Hazard	Text	RC_유해물질

@@ -213,6 +213,43 @@ flowchart LR
 
 앱 화면의 **예시 프로젝트 불러오기**로 샘플 데이터를 볼 수 있습니다.
 
+### BIM 기반 해체 시나리오 비교 — 일괄 압쇄 vs 전면 분별해체 (`bim.html`, Revit 확장)
+
+팀 회의(11/11~11/12)에서 정한 흐름: **해체계획서 → Revit 모델 → 물량 자동 산출 → 일괄 압쇄 vs 전면 분별해체 비용·공기 비교 → 결과를 Revit에 넣어 .rvt 제출**.
+
+| 입력 | 도구 | 결과 |
+|---|---|---|
+| Revit 모델 | **Revit ReClaim 탭 → 해체 분석** (`revit/ReClaim.extension`) | 부재마다 `RC_*` 매개변수, 'ReClaim 결과' 색 3D 뷰, 비용 표, `.reclaim.json` |
+| IFC 파일 | **`bim.html` → IFC 불러오기** | 2안 비교·불확실성 분석, **Revit용 CSV** → Revit **CSV 적용** |
+| 해체계획서만 | `bim.html` → 공법 비교 → 해체계획서 간이 계산 | 연면적·용도(·계획서 물량)로 2안 비교 |
+| 여러 IFC | `node scripts/batch_ifc.mjs <폴더>` | 모델별 물량·2안 결과 CSV (검증용) |
+
+설치와 사용법은 [`revit/README.md`](revit/README.md)에 있습니다.
+
+#### 공법 비교 탭 (`compare.html`, 옛 ReClaim Compare)
+
+사이트 상단 탭 **해체 계획 · BIM 편집기 · 공법 비교**로 오갑니다. 공법 비교는 [reclaim-compare](https://github.com/mungim5556-ui/reclaim-compare) 저장소(a5c3be0)를 `compare/` 폴더로 그대로 옮긴 것입니다.
+
+- **모델 → 단가 → 비교 → 내보내기** 4단계. IFC를 넣거나, IFC 없이 연면적만으로 계산합니다.
+- **해체계획서 → 구조체 모델 자동 생성**: 계획서 구조도면을 옮긴 JSON(`schema: "reclaim-plan/1"`)으로 기둥·보·벽·슬래브 IFC를 만들어 바로 분석합니다(`compare/assets/js/plan.js`). Revit 모델이 없을 때 씁니다.
+- **변수마다 출처·범위·가정 여부**를 `compare/assets/data/rates.json`에 기록합니다. BIM 편집기와 Revit 탭의 기본 단가(`팀 기준`)도 이 값과 같습니다.
+- 테스트: `cd compare && node --test test/*.test.js`
+- Revit 반영은 BIM 편집기 쪽 Revit 탭(`revit/ReClaim.extension`)이 실제 Revit 2027에서 확인된 방법입니다. `compare/revit/write_results.py`는 옛 Compare의 스크립트로, Revit에서 아직 시험하지 않았습니다.
+
+- **비용 항목**: 인건비(논문 표 3·4 품) + 장비비(압쇄 대형 굴착기) + 처리비 + 공기 간접비(50만원/일) − 매각 수익(콘크리트 속 철근 100kg/㎥·고철·알루미늄·동, 분리한 목재·수지). 공기 = 내장 공정(작업조 20인) + 압쇄(47.5㎥/일). 반출(덤프)·분별 소형 장비·조적 분리는 설정에서 켤 수 있습니다.
+- **단가 기준** (공법 비교 → 단가·가정 바꾸기에서 전환):
+  - `팀 기준 (ReClaim Compare 변수)`(기본): 팀이 [ReClaim Compare](https://github.com/mungim5556-ui/reclaim-compare)와 Obsidian(11/14 회의록)에 정리한 변수와 같은 값·같은 계산입니다. 해체계획서 간이 계산은 ReClaim Compare와 같은 결과를 냅니다(`scripts/test_scenario.mjs`에서 확인).
+  - `논문 2023`: 박지선 외(2023) 재현용.
+- **IFC 자동 물량**: 재료 층(IfcMaterialLayerSet) 두께 비율로 부피를 나누고, 재료 이름을 자동 분류합니다. 분류하지 못한 이름은 한 번 지정하면 기억합니다. `Pset_ReClaim`(해체 시공성·유해물질)과 Revit ElementId(Tag)도 읽습니다.
+- **불확실성 분석**: 처리단가·품·장비비·매각가·회수율을 범위 안에서 2,000번 바꿔, 분별해체가 더 경제적일 확률·토네이도·손익분기를 보여줍니다.
+- **손으로 그리기**: 모델에 없는 마감·칸막이를 보정하거나 예시를 만들 때 씁니다.
+- **검증**:
+  - `node scripts/test_scenario.mjs`: 논문 재현(Δ −34,727천원 ±1%) 등
+  - `node scripts/test_engines.mjs`: 웹(JS)과 Revit(Python) 계산 일치, `rates.json` 최신 여부
+  - `python3 revit/ReClaim.extension/lib/reclaim_engine.py`: Python 계산부 자체 점검
+
+> 단가의 원본은 `assets/js/bim/catalog.js`입니다. 바꾼 뒤 `node scripts/export_rates.mjs`로 Revit용 `rates.json`을 다시 만드세요. 출처 없는 가정값(`ASSUMED`): 하루 8시간, 구조체 보조 2인, 철근 100kg/㎥, 폐목재 20,000·폐합성수지 150,000원/t, 고철 회수율 0.9/0.95, 비철 0.3/0.9, 분리율 0.8, 작업조 20인, 간접비 50만원/일.
+
 **파일 구성**
 
 ```
@@ -225,6 +262,20 @@ assets/js/app.js      화면 구성과 상태 관리
 assets/js/viewer3d.js 3D 블록 모델
 assets/js/demo.js     예시 프로젝트 데이터
 assets/js/icons.js    아이콘 (Lucide 기반)
+bim.html              BIM 편집기
+compare.html          공법 비교 탭 (compare/ 폴더의 옛 ReClaim Compare)
+assets/css/site-nav.css  화면 사이 상단 탭
+assets/js/bim/catalog.js   재료·부재 구성·해체 품·단가 프리셋 (단가 원본)
+assets/js/bim/cost.js      일괄 압쇄 vs 전면 분별해체 비용·공기 계산
+assets/js/bim/scenario.js  형상 → 물량, 논문 방식·계획서 간이 계산, 몬테카를로
+assets/js/bim/ifc-import.js IFC → 부재별 재료 톤·면적·작업 (브라우저·Node 공용)
+assets/js/bim/editor.js    평면 그리기·속성·물량·비교 화면
+assets/js/bim/view3d.js    3D 보기
+scripts/test_scenario.mjs  계산 엔진 검증
+scripts/test_engines.mjs   웹·Revit 계산 일치 검증
+scripts/export_rates.mjs   catalog.js → revit/.../rates.json
+scripts/batch_ifc.mjs      IFC 여러 개 일괄 계산
+revit/ReClaim.extension/   pyRevit 확장 (해체 분석, CSV 적용)
 ```
 
 **아직 연동되지 않은 부분**

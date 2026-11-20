@@ -1,0 +1,24 @@
+{
+  "source": "Park, Jang, Song (2023) JRCR 11(3) 251-259, doi:10.14190/JRCR.2023.11.3.251",
+  "area_m2": 2400,
+  "wage": { "carpenter": 267639, "laborer": 161858 },
+  "productivity_per_m2": {
+    "general": { "carpenter": 0.375, "laborer": 1.015 },
+    "selective": { "carpenter": 0.465, "laborer": 1.040 }
+  },
+  "waste_t_per_m2": { "concrete": 1.4770, "wood": 0.0150, "resin": 0.0261, "mixed": 0.1637 },
+  "disposal_won_per_t": {
+    "concrete": 46374, "wood": 35000, "resin": 49000,
+    "mixed_general": 166193, "mixed_selective": 67377
+  },
+  "revenue": {
+    "wood": { "sheet_m": [0.9, 1.8, 0.01], "density": 0.9, "won_per_sheet": 4000 },
+    "resin": { "won_per_t": 850000 }
+  },
+  "expected": {
+    "construction": [635161, 702683],
+    "disposal": [234010, 195187],
+    "revenue": 63426,
+    "delta": -34727
+  }
+}
