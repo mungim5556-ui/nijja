@@ -4,8 +4,9 @@
 import { readdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join, basename } from "node:path";
 import { createRequire } from "node:module";
+import { createHash } from "node:crypto";
 import { extractModel } from "../assets/js/bim/ifc-import.js";
-import { compare, grossFloorArea } from "../assets/js/bim/scenario.js";
+import { compare, grossFloorArea, gfaSource } from "../assets/js/bim/scenario.js";
 import { MATERIALS } from "../assets/js/bim/catalog.js";
 
 const args = process.argv.slice(2);
@@ -18,15 +19,22 @@ if (!dir || !existsSync(dir)) { console.error("사용: node scripts/batch_ifc.mj
 let W;
 try { W = createRequire(join(process.cwd(), "package.json"))("web-ifc"); }
 catch { console.error("web-ifc가 없습니다. 먼저 실행하세요: npm install --no-save web-ifc@0.0.78"); process.exit(2); }
+// 브라우저와 같은 판(0.0.78)·같은 단일 스레드로 읽는다 (판이 다르면 형상 분할이 달라 부피가 조금 달라질 수 있다)
+try {
+  const ver = createRequire(join(process.cwd(), "package.json"))("web-ifc/package.json").version;
+  if (ver !== "0.0.78") console.warn(`주의: web-ifc ${ver} — 웹 편집기(0.0.78)와 결과가 조금 다를 수 있습니다. npm install --no-save web-ifc@0.0.78`);
+} catch { /* 판 확인 불가 */ }
 const api = new W.IfcAPI();
-await api.Init();
+await api.Init(undefined, true);
 
 const wastes = ["concrete", "metal", "wood", "resin", "glass", "board", "tile", "wallpaper"];
-const head = ["file", "elements", "unknown_materials", "gfa_m2", ...wastes.map((w) => `${w}_t`), "t_per_m2",
+const head = ["file", "sha256_8", "use", "elements", "unknown_materials", "estimated_m3", "gfa_m2", "gfa_source", ...wastes.map((w) => `${w}_t`), "t_per_m2",
   "general_total_won", "selective_total_won", "delta_won", "general_days", "selective_days", "cheaper"];
 const rows = [head.join(",")];
 for (const f of readdirSync(dir).filter((n) => /\.ifc$/i.test(n)).sort()) {
-  const id = api.OpenModel(new Uint8Array(readFileSync(join(dir, f))));
+  const buf = readFileSync(join(dir, f));
+  const sha = createHash("sha256").update(buf).digest("hex").slice(0, 8);
+  const id = api.OpenModel(new Uint8Array(buf));
   try {
     const { model, stats } = extractModel(api, W, id, { name: basename(f), use, keepMeshes: false });
     const c = compare(model, { preset });
@@ -35,12 +43,13 @@ for (const f of readdirSync(dir).filter((n) => /\.ifc$/i.test(n)).sort()) {
     for (const e of model.elements) for (const [m, t] of Object.entries(e.mats)) { const w = MATERIALS[m].waste; if (w in tons) tons[w] += t; }
     const total = Object.values(tons).reduce((s, v) => s + v, 0);
     const d = c.selective.total - c.general.total;
-    rows.push([JSON.stringify(f), stats.elements, stats.unknownMaterials, Math.round(gfa), ...wastes.map((w) => tons[w].toFixed(2)),
+    const est = model.elements.reduce((s, e) => s + (e.estimated?.volume || 0), 0);
+    rows.push([JSON.stringify(f), sha, JSON.stringify(use), stats.elements, stats.unknownMaterials, est.toFixed(2), Math.round(gfa), JSON.stringify(gfaSource(model)), ...wastes.map((w) => tons[w].toFixed(2)),
       gfa ? (total / gfa).toFixed(4) : "", Math.round(c.general.total), Math.round(c.selective.total), Math.round(d),
       c.general.days.toFixed(1), c.selective.days.toFixed(1), d < 0 ? "selective" : "general"].join(","));
     console.log(`${f}: 부재 ${stats.elements}, 연면적 ${Math.round(gfa)}㎡, 일괄 ${Math.round(c.general.total / 1e6)} / 분별 ${Math.round(c.selective.total / 1e6)} 백만원`);
   } catch (e) {
-    rows.push([JSON.stringify(f), "", "", "", ...wastes.map(() => ""), "", "", "", "", "", "", JSON.stringify("error: " + e.message)].join(","));
+    rows.push([JSON.stringify(f), sha, JSON.stringify(use), "", "", "", "", "", ...wastes.map(() => ""), "", "", "", "", "", "", JSON.stringify("error: " + e.message)].join(","));
     console.log(`${f}: 오류 ${e.message}`);
   } finally { api.CloseModel(id); }
 }

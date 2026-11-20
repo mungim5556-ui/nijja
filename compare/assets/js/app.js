@@ -21,6 +21,9 @@ const state = {
   p: { ...defaults, ...saved.p }, seed: 1, colorMode: "stream", busy: "", error: "",
 };
 let viewer = null, sim = null;
+// 계산에 쓰는 단가: 저장된 단가 + (계획서를 열었을 때만) 그 계획서의 철근량. 계획서 값은 저장하지 않아 다음 IFC에 섞이지 않는다.
+const effP = () => (state.planP ? { ...state.p, ...state.planP } : state.p);
+const changedParams = () => Object.keys(defaults).filter((k) => state.p[k] !== defaults[k]);
 const save = () => { try { localStorage.setItem("rc.state", JSON.stringify({ area: state.area, usage: state.usage, p: state.p })); } catch { /* 저장 불가여도 계산은 된다 */ } };
 
 function derive() {
@@ -32,7 +35,7 @@ function derive() {
     q = state.supplement ? supplement(raw, state.usage, rates) : { ...raw, added: {} };
     q.raw = raw;
   } else q = { ...quantitiesFromArea(state.area, state.usage, rates), added: {} };
-  return { classified, q, cmp: compare(q, state.p) };
+  return { classified, q, cmp: compare(q, effP()) };
 }
 
 /* ---------------- 모델 ---------------- */
@@ -43,25 +46,57 @@ async function loadPlan(plan, name) {
     const { planToIfc } = await import("./plan.js");
     const b = plan.building || {};
     if (rates.wasteUnits[b.wasteUnit]) state.usage = b.wasteUnit;
-    if (plan.rebar_kg_per_m3?.value) state.p.rebar_kg_per_m3 = plan.rebar_kg_per_m3.value;
+    state.planP = plan.rebar_kg_per_m3?.value ? { rebar_kg_per_m3: plan.rebar_kg_per_m3.value } : null;
     await loadIfc(new TextEncoder().encode(planToIfc(plan)).buffer, `${name} → 자동 생성 구조체 모델`, b.demolition_area_m2 || b.area_m2, plan);
   } catch (e) {
     state.error = `계획서 데이터를 읽지 못했습니다: ${e.message}`; render();
   }
 }
 
+async function fileHash(buf) {
+  try { return [...new Uint8Array(await crypto.subtle.digest("SHA-256", buf))].map((b) => b.toString(16).padStart(2, "0")).join(""); }
+  catch { return ""; }
+}
+// IFC를 열 때 용도를 묻는다 (같은 파일에서 마지막으로 고른 값을 기본으로, 매번 확인)
+function askUsage(hash, name) {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem("rc.useByFile") || "{}"); } catch { /* 없으면 기본값 */ }
+  const def = (hash && saved[hash]) || "공동주택";
+  const dlg = $("#use-dlg");
+  dlg.innerHTML = `<form method="dialog" class="use-form">
+      <h2 id="use-title">건물 용도·구조</h2>
+      <p class="caption muted"><strong>${esc(name)}</strong>의 용도를 골라 주세요. 원단위 보충과 검산 기준이 됩니다.${hash && saved[hash] ? " 이 파일에서 지난번에 고른 값을 미리 골라 두었습니다." : ""}</p>
+      <select class="select">${Object.keys(rates.wasteUnits).map((u) => `<option ${u === def ? "selected" : ""}>${esc(u)}</option>`).join("")}</select>
+      <div class="row" style="justify-content:flex-end"><button class="btn btn-primary" value="ok">확인</button></div>
+    </form>`;
+  return new Promise((resolve) => {
+    dlg.onclose = () => {
+      const u = dlg.querySelector("select").value;
+      if (hash) { saved[hash] = u; try { localStorage.setItem("rc.useByFile", JSON.stringify(saved)); } catch { /* 저장 불가 */ } }
+      resolve(u);
+    };
+    dlg.showModal();
+  });
+}
+
+let loading = false;
 async function loadIfc(buffer, name, area, plan = null) {
+  if (loading) return;
+  loading = true;
   state.plan = plan;
+  if (!plan) state.planP = null;
   state.busy = "IFC를 읽는 중입니다…"; state.error = ""; render();
   try {
     const { parseIfc } = await import("./ifc.js");
+    const hash = await fileHash(buffer.slice(0));
     const model = await parseIfc(buffer);
-    Object.assign(state, { source: "ifc", model, elements: model.elements, fileName: name, overrides: {},
+    if (!plan) { state.busy = "용도를 골라 주세요"; render(); state.usage = await askUsage(hash, name); }
+    Object.assign(state, { source: "ifc", model, elements: model.elements, fileName: name, fileHash: hash, overrides: {},
       area: area || Math.round(model.size[0] * model.size[2] * model.floors) });
   } catch (e) {
     state.error = `IFC를 읽지 못했습니다: ${e.message}`;
   }
-  state.busy = ""; sim = null; save(); render();
+  state.busy = ""; loading = false; sim = null; save(); render();
 }
 
 function modelTab(d) {
@@ -136,7 +171,7 @@ function modelTab(d) {
     <section class="card"><h2>성상별 물량</h2>
       <div class="table-wrap"><table class="tbl"><thead><tr><th>성상</th><th class="r">${state.source === "ifc" ? "모델 (t)" : "원단위 (t)"}</th><th class="r">보충 (t)</th><th class="r">합계 (t)</th><th class="r">t/㎡</th><th class="r">표준품셈 원단위</th><th></th></tr></thead>
       <tbody>${streamRows}</tbody><tfoot><tr><td>합계</td><td></td><td></td><td class="r">${num(total, 1)}</td><td class="r">${num(total / q.area_m2, 4)}</td><td></td><td></td></tr></tfoot></table></div>
-      ${q.rebarFromConcrete ? `<p class="caption muted" style="margin-top:8px">철근은 모델에 없어 콘크리트 1㎥당 ${num(state.p.rebar_kg_per_m3)}kg으로 추정해 고철 수익에 넣습니다 (약 ${num((q.concrete_m3 * state.p.rebar_kg_per_m3) / 1000, 1)} t).</p>` : ""}
+      ${q.rebarFromConcrete ? `<p class="caption muted" style="margin-top:8px">철근은 모델에 없어 콘크리트 1㎥당 ${num(effP().rebar_kg_per_m3)}kg으로 추정해 고철 수익에 넣습니다 (약 ${num((q.concrete_m3 * effP().rebar_kg_per_m3) / 1000, 1)} t).</p>` : ""}
     </section>
     ${groups}`;
 }
@@ -212,7 +247,7 @@ function ratesTab() {
 /* ---------------- 비교 ---------------- */
 function compareTab(d) {
   if (!d) return empty();
-  const { q, cmp } = d, { crush, selective, delta } = cmp, p = state.p;
+  const { q, cmp } = d, { crush, selective, delta } = cmp, p = effP();
   const vars = variables(rates);
   sim ||= simulate(q, p, vars, { n: 5000, seed: state.seed });
   const better = delta < 0 ? "전면 분별해체" : "일괄 압쇄";
@@ -272,8 +307,9 @@ const empty = () => `<section class="card"><p>먼저 <strong>모델</strong> 단
 /* ---------------- 내보내기 ---------------- */
 function summary(d) {
   const { crush, selective, delta, deltaDays } = d.cmp;
-  sim ||= simulate(d.q, state.p, variables(rates), { n: 5000, seed: state.seed });
-  return { source: state.source === "ifc" ? state.fileName : "area", area_m2: state.area, usage: state.usage,
+  sim ||= simulate(d.q, effP(), variables(rates), { n: 5000, seed: state.seed });
+  return { source: state.source === "ifc" ? state.fileName : "area", file_sha256: state.fileHash || null, area_m2: state.area, usage: state.usage,
+    changed_params: Object.fromEntries(changedParams().map((k) => [k, state.p[k]])), plan_params: state.planP || null,
     crush_total_won: Math.round(crush.total), selective_total_won: Math.round(selective.total), delta_won: Math.round(delta),
     crush_days: +crush.days.toFixed(1), selective_days: +selective.days.toFixed(1), delta_days: +deltaDays.toFixed(1),
     p_selective_cheaper: +sim.pSelective.toFixed(4), seed: state.seed, recommended: delta < 0 ? "selective" : "crush" };
@@ -281,7 +317,7 @@ function summary(d) {
 
 function exportTab(d) {
   if (!d) return empty();
-  const res = elementResults(d.classified, state.p);
+  const res = elementResults(d.classified, effP());
   return `<section class="card"><h2>결과 내보내기</h2>
       <div class="row no-print">
         ${state.source === "ifc" ? `<button class="btn btn-primary" data-act="csv">부재별 결과 CSV</button>` : ""}
@@ -318,11 +354,25 @@ const HEAD = {
   export: ["내보내기", "부재별 결과를 CSV로 내보내 Revit 모델에 기록합니다."],
 };
 
+// 이 결과를 만든 입력. 같은 줄이면 같은 결과다.
+function calcLine(d) {
+  if (!d) return "";
+  const ch = changedParams();
+  const parts = [
+    state.source === "ifc" ? `${esc(state.fileName)}${state.fileHash ? ` · ${state.fileHash.slice(0, 8)}` : ""}` : "면적만 (간이 계산)",
+    esc(state.usage), `연면적 ${num(state.area)}㎡`,
+    ch.length ? `<strong>기본값과 다른 단가 ${ch.length}개</strong> <button class="btn btn-outline" style="min-height:28px;padding:0 10px;font-size:13px" data-act="reset">되돌리기</button>` : "단가 기본값",
+    state.planP ? `계획서 철근량 ${num(state.planP.rebar_kg_per_m3)}kg/㎥ (이 계획서에만)` : "",
+    state.source === "ifc" ? `내장재 보충 ${state.supplement ? "켬" : "끔"}` : "",
+  ].filter(Boolean);
+  return `<p class="caption calc-line" aria-label="계산 조건">계산 조건: ${parts.join(" · ")}</p>`;
+}
+
 function render() {
   const d = derive();
   $("#tabs").innerHTML = TABS.map(([k, l], i) => `<button data-tab="${k}" ${k === state.tab ? 'aria-current="step"' : ""}><span>${i + 1}</span>${l}</button>`).join("");
   const body = { model: modelTab, rates: ratesTab, compare: compareTab, export: exportTab }[state.tab](d);
-  $("#content").innerHTML = `<div><h1>${HEAD[state.tab][0]}</h1><p class="lead">${HEAD[state.tab][1]}</p></div>${body}`;
+  $("#content").innerHTML = `<div><h1>${HEAD[state.tab][0]}</h1><p class="lead">${HEAD[state.tab][1]}</p></div>${calcLine(d)}${body}`;
   if (d) mountViewer(d);
 }
 
@@ -336,7 +386,7 @@ document.addEventListener("click", async (e) => {
   if (act === "plan-sample") return loadPlan(await json("plans/example.json"), "계획서 예시");
   if (act === "area") { Object.assign(state, { source: "area", model: null, elements: [], error: "" }); sim = null; return render(); }
   if (act === "reset") { state.p = { ...defaults }; sim = null; save(); return render(); }
-  if (act === "csv") return download("reclaim_elements.csv", "﻿" + toCsv(elementResults(d.classified, state.p)), "text/csv");
+  if (act === "csv") return download("reclaim_elements.csv", "﻿" + toCsv(elementResults(d.classified, effP())), "text/csv");
   if (act === "json") return download("reclaim_summary.json", JSON.stringify(summary(d), null, 2), "application/json");
   if (act === "print") return window.print();
 });

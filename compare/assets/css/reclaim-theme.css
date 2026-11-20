@@ -41,3 +41,10 @@ body { background: var(--bg); }
   .page h1 { font-size: 24px; }
   .tabs { overflow-x: auto; max-width: 100%; }
 }
+
+/* IFC 용도 선택 대화상자 · 계산 조건 줄 */
+.use-dlg { border: 1px solid var(--border); border-radius: 12px; padding: 0; width: min(440px, calc(100vw - 32px)); background: var(--surface); color: var(--text); }
+.use-dlg::backdrop { background: rgba(22, 23, 27, .45); }
+.use-form { display: grid; gap: 12px; padding: 20px; }
+.use-form h2 { font-size: 17px; margin: 0; }
+.calc-line { margin: -4px 0 12px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }

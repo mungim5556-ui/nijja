@@ -479,6 +479,10 @@
   ],
   "materialKeywords": [
     [
+      "rc",
+      "철근 ?콘크리트|reinforced ?concrete|\\bRC\\b"
+    ],
+    [
       "wallpaper",
       "벽지|wallpaper|wall ?covering"
     ],
@@ -492,7 +496,7 @@
     ],
     [
       "plywood",
-      "합판|plywood|OSB|MDF|particle"
+      "합판|plywood|\\bOSB\\b|\\bMDF\\b|particle"
     ],
     [
       "flooring",
@@ -512,7 +516,7 @@
     ],
     [
       "eps",
-      "단열|스티로폼|EPS|XPS|insulation|polystyrene|PIR|우레탄"
+      "단열|스티로폼|\\bEPS\\b|\\bXPS\\b|insulation|polystyrene|\\bPIR\\b|우레탄"
     ],
     [
       "glass",
@@ -532,7 +536,7 @@
     ],
     [
       "stainless",
-      "스테인|stainless|STS"
+      "스테인|stainless|\\bSTS\\d*\\b"
     ],
     [
       "brass",
@@ -572,9 +576,19 @@
     ],
     [
       "rc",
-      "콘크리트|concrete|RC|cement|시멘트"
+      "콘크리트|concrete|cement|시멘트"
     ]
   ],
+  "categoryDefault": {
+    "wall": "rc",
+    "floor": "rc",
+    "roof": "rc",
+    "column": "rc",
+    "beam": "rc",
+    "foundation": "rc",
+    "stair": "rc",
+    "ceiling": "gypsum"
+  },
   "presets": {
     "paper2023": {
       "key": "paper2023",

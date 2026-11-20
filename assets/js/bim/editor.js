@@ -5,9 +5,10 @@ import {
 } from "./catalog.js";
 import {
   compare, mergeParams, takeoff, grossFloorArea, lineLength, isEligible, paperCase, simulate,
-  breakEven, UNCERTAINTY, residualMixedTons, PRESETS,
+  breakEven, UNCERTAINTY, residualMixedTons, PRESETS, gfaSource,
 } from "./scenario.js";
 import { uncostedWarning } from "./cost.js";
+import { applyMapping, unknownMaterials } from "./ifc-import.js";
 import { demoModel, emptyModel, newElement, copyLevel, uid } from "./demo-model.js";
 import { groupedBars, histogram, tornado, bindTips } from "./charts.js";
 
@@ -28,7 +29,12 @@ function load() {
 let saveTimer = 0;
 function save() {
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => { try { localStorage.setItem(STORE, JSON.stringify(model)); } catch {} }, 200);
+  saveTimer = setTimeout(() => {
+    let ok = true;
+    try { localStorage.setItem(STORE, JSON.stringify(model)); } catch { ok = false; }
+    const n = document.getElementById("save-warn");
+    if (n) n.hidden = ok;
+  }, 200);
 }
 
 let model = load() || demoModel();
@@ -680,7 +686,7 @@ function ifcElementPanel(e) {
       ${q.area ? `<dt>해체 면적</dt><dd>${r1(q.area)} ㎡</dd>` : ""}
       <dt>부피</dt><dd>${r2(e.volume || 0)} ㎥</dd>
     </dl>
-    <p class="sub">IFC 재료: ${esc((e.materialNames || []).join(" / ") || "없음")}${e.unknownVolume ? ` · 미분류 ${r2(e.unknownVolume)} ㎥ 제외` : ""}</p>
+    <p class="sub">IFC 재료: ${esc((e.materialNames || []).join(" / ") || "없음")}${e.estimated?.volume ? ` · 재료 추정 ${r2(e.estimated.volume)} ㎥ (기본재료)` : ""}${e.unknownVolume ? ` · 미분류 ${r2(e.unknownVolume)} ㎥ 제외` : ""}</p>
   </div>
   <div class="section">
     <h4>해체 정보</h4>
@@ -707,6 +713,26 @@ function totalsByWaste(q) {
 }
 
 const PLAN_KEYS = [["concrete", "폐콘크리트"], ["metal", "폐금속"], ["wood", "폐목재"], ["resin", "폐합성수지"], ["mixed", "혼합폐기물"]];
+
+// IFC 재료 지정 표: 이름으로 분류하지 못한 재료(기본재료로 추정 중)와 직접 지정한 재료. 지정은 이 모델 안에서만 쓴다.
+function materialTable(ifcEls) {
+  if (!ifcEls.length) return "";
+  const map = model.materialMap || {};
+  const all = unknownMaterials(model, {}); // 이름으로 분류하지 못한 재료 전체 (지정과 무관하게 부피를 보여 준다)
+  const names = Object.keys(all).sort((a, b) => all[b] - all[a]);
+  if (!names.length) return `<p class="note">IFC 재료 이름을 모두 자동으로 분류했습니다.</p>`;
+  const left = names.filter((n) => !map[n]);
+  const est = ifcEls.reduce((s, e) => s + (e.estimated?.volume || 0), 0);
+  const keyOpts = (cur) => `<option value="">자동 · 부재 기본재료로 추정</option>` + Object.entries(MATERIALS).map(([k, m]) => `<option value="${k}" ${cur === k ? "selected" : ""}>${esc(m.label)}</option>`).join("");
+  const msg = left.length
+    ? `이름으로 분류하지 못한 재료 ${left.length}개는 부재 기본재료(벽·바닥·지붕·구조 = 철근콘크리트, 천장 = 석고보드)로 <b>추정</b>했습니다 (${r2(est)} ㎥). 실제 재료를 알면 아래에서 고르세요.`
+    : `분류하지 못한 재료 ${names.length}개를 모두 직접 지정했습니다.`;
+  return `
+    <div class="callout info">${msg} 지정은 이 모델에만 쓰이고, 파일을 다시 불러오면 처음 상태로 돌아갑니다.</div>
+    <div class="table-wrap"><table class="tbl compact"><thead><tr><th>IFC 재료 이름</th><th class="r">부피</th><th>재료</th></tr></thead><tbody>
+      ${names.map((n) => `<tr><td>${esc(n)}</td><td class="r">${r2(all[n])} ㎥</td><td><select class="select" data-map="${esc(n)}">${keyOpts(map[n])}</select></td></tr>`).join("")}
+    </tbody></table></div>`;
+}
 
 function qtyPanel() {
   const r = results();
@@ -735,8 +761,10 @@ function qtyPanel() {
   return `
   <div class="section">
     <h4>폐기물 발생량</h4>
-    <dl class="kv"><dt>연면적</dt><dd>${r1(gfa)} ㎡${model.gfa ? "" : " (슬래브 합)"}</dd><dt>층수</dt><dd>${model.levels.length}개 층</dd><dt>부재</dt><dd>${model.elements.length}개${ifcEls.length ? ` (IFC ${ifcEls.length})` : ""}</dd></dl>
-    ${unknownVol ? `<div class="callout">재료 이름을 분류하지 못한 부피 <b>${r2(unknownVol)} ㎥</b>가 계산에서 빠졌습니다. IFC를 다시 불러올 때 재료를 지정하세요.</div>` : ""}
+    <dl class="kv"><dt>연면적</dt><dd>${r1(gfa)} ㎡ <span class="muted">(${esc(gfaSource(model))})</span></dd><dt>층수</dt><dd>${model.levels.length}개 층</dd><dt>부재</dt><dd>${model.elements.length}개${ifcEls.length ? ` (IFC ${ifcEls.length})` : ""}</dd></dl>
+    <div class="field"><label>연면적 직접 입력 (㎡, 비우면 모델 값)</label><input class="input" type="number" min="0" step="0.1" data-gfa="1" value="${model.gfaOverride ?? ""}" placeholder="${r1(model.gfa || 0)}"></div>
+    ${materialTable(ifcEls)}
+    ${unknownVol ? `<div class="callout">기본재료가 없는 부재(난간·배관·기타)의 미분류 부피 <b>${r2(unknownVol)} ㎥</b>는 계산에서 빠졌습니다. 위 표에서 재료를 지정하면 들어갑니다.</div>` : ""}
     <div class="table-wrap"><table class="tbl compact"><thead><tr><th>성상</th><th class="r">t</th><th class="r">t/㎡</th><th class="r">원단위</th></tr></thead><tbody>
       ${rows || '<tr><td colspan="4" class="muted">부재가 없습니다</td></tr>'}
       <tr><td><span class="swatch" style="background:${WASTE.mixed.color}"></span>모델 밖 혼합폐기물 (보정)</td><td class="r">${r1(residual)}</td><td class="r">${gfa ? (residual / gfa).toFixed(4) : "–"}</td><td class="r">${unit.mixed?.toFixed(4) ?? "–"}</td></tr>
@@ -776,6 +804,32 @@ const ITEMS = [
   ["매각 수익", (x) => x.revenueTotal],
 ];
 
+// 이 결과를 만든 입력 (같은 칩이면 같은 결과). 화면·저장 파일에 같이 남긴다.
+function calcInfo() {
+  const p = mergeParams(model.params);
+  const overrides = Object.keys(model.params || {}).filter((k) => k !== "preset").length;
+  const ifcEls = model.elements.filter((e) => e.source === "ifc");
+  return {
+    file: model.fileName || "", fileHash: (model.fileHash || "").slice(0, 8), use: model.use,
+    gfa: Math.round(grossFloorArea(model) * 10) / 10, gfaSource: gfaSource(model),
+    preset: p.label || p.key, paramOverrides: overrides,
+    estimatedM3: Math.round(ifcEls.reduce((s, e) => s + (e.estimated?.volume || 0), 0) * 100) / 100,
+    materialMap: Object.keys(model.materialMap || {}).length,
+  };
+}
+function calcChips() {
+  const c = calcInfo();
+  const chip = (t, title = "") => `<span class="hud-chip" title="${esc(title)}">${esc(t)}</span>`;
+  return `<div class="calc-chips" aria-label="계산 조건">
+    ${c.file ? chip(`${c.file}${c.fileHash ? " · " + c.fileHash : ""}`, "불러온 IFC 파일과 내용 지문(SHA-256 앞 8자리). 같으면 같은 파일입니다") : ""}
+    ${chip(c.use, "용도·구조 (원단위 기준)")}
+    ${chip(`연면적 ${r1(c.gfa)}㎡ · ${c.gfaSource}`)}
+    ${chip(`${c.preset}${c.paramOverrides ? ` · 바꾼 값 ${c.paramOverrides}` : ""}`, "단가 기준")}
+    ${c.estimatedM3 ? chip(`재료 추정 ${r2(c.estimatedM3)}㎥`, "이름으로 분류하지 못해 부재 기본재료로 넣은 부피") : ""}
+    ${c.materialMap ? chip(`재료 지정 ${c.materialMap}개`, "물량 탭에서 직접 고른 재료") : ""}
+  </div>`;
+}
+
 function comparePanel() {
   const r = results();
   const p = mergeParams(model.params);
@@ -802,6 +856,7 @@ function comparePanel() {
     ["인건비", s.laborCost - g.laborCost], ["장비비", s.equipCost - g.equipCost], ["처리비", s.disposalCost - g.disposalCost], ["매각 수익", -(s.revenueTotal - g.revenueTotal)],
   ].sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))[0];
   return `
+  ${calcChips()}
   ${(() => { const w = uncostedWarning(g.uncostedStructure); return w ? `<div class="callout"><b>⚠ ${esc(w)}</b> 철골·목조 골조의 해체 품이 들어가기 전까지 이 결과로 공법을 판단하지 마세요.</div>` : ""; })()}
   <div class="verdict">
     <strong>이 모델에서는 ${best.label}이 ${mw(Math.abs(d))}백만원 더 경제적입니다</strong>
@@ -975,6 +1030,18 @@ $("#panel").addEventListener("change", (ev) => {
     return;
   }
   if (t.dataset.mk) { mutate((m) => { m[t.dataset.mk] = t.value; }); $("#model-name").textContent = model.name; renderPanel(); return; }
+  if (t.dataset.map != null) {
+    const map = { ...(model.materialMap || {}) };
+    if (t.value) map[t.dataset.map] = t.value; else delete map[t.dataset.map];
+    mutate(() => { model = applyMapping(model, map); });
+    renderPanel(); renderStage();
+    return;
+  }
+  if (t.dataset.gfa) {
+    mutate((m) => { m.gfaOverride = t.value === "" ? undefined : Number(t.value); });
+    renderPanel();
+    return;
+  }
   if (t.dataset.level) {
     mutate((m) => { const l = m.levels.find((x) => x.id === t.dataset.level); l[t.dataset.lk] = t.type === "number" ? Number(t.value) : t.value; });
     renderLevels(); renderPanel(); renderStage();
@@ -1069,34 +1136,64 @@ function exportCsv() {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
-const MAP_KEY = "reclaim.materialMap";
-function loadMap() { try { return JSON.parse(localStorage.getItem(MAP_KEY) || "{}"); } catch { return {}; } }
+// 예전 판의 브라우저 공용 재료 지정은 다음 불러오기 결과를 바꿨다 → 지운다 (재료 지정은 열린 모델 안에서만 쓴다)
+try { localStorage.removeItem("reclaim.materialMap"); } catch {}
+
+const USE_KEY = "reclaim.useByFile";
+async function fileHash(buf) {
+  try {
+    const d = await crypto.subtle.digest("SHA-256", buf);
+    return [...new Uint8Array(d)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  } catch { return ""; }
+}
+// 불러올 때 용도를 묻는다. 같은 파일에서 마지막으로 고른 값을 기본으로 보여 주되 매번 확인받는다.
+function askUse(hash, fileName) {
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(USE_KEY) || "{}"); } catch {}
+  const def = (hash && saved[hash]) || "주거 공동주택";
+  const dlg = $("#use-dlg");
+  dlg.innerHTML = `<form method="dialog" class="dlg-body" style="max-height:none">
+      <h3 id="use-title" style="font-size:17px">건물 용도·구조</h3>
+      <p class="note"><b>${esc(fileName)}</b>의 용도를 골라 주세요. 모델에 없는 혼합폐기물(표준품셈 원단위)과 원단위 검산 기준이 됩니다.${hash && saved[hash] ? " 이 파일에서 지난번에 고른 값을 미리 골라 두었습니다." : ""}</p>
+      <select class="select" name="use">${Object.keys(WASTE_UNIT).map((k) => `<option ${k === def ? "selected" : ""}>${esc(k)}</option>`).join("")}</select>
+      <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn btn-primary btn-sm" value="ok">확인</button></div>
+    </form>`;
+  return new Promise((resolve) => {
+    dlg.onclose = () => {
+      const use = dlg.querySelector("select").value;
+      if (hash) { saved[hash] = use; try { localStorage.setItem(USE_KEY, JSON.stringify(saved)); } catch {} }
+      resolve(use);
+    };
+    dlg.showModal();
+  });
+}
+
+let importing = false;
 async function importIfcFile(file) {
+  if (importing) return;
+  importing = true;
   const btn = $("#ifc-label");
   const old = btn.innerHTML;
   btn.textContent = "IFC 읽는 중…";
   try {
     const { importIfcBuffer } = await import("./ifc-import.js");
-    let mapping = loadMap();
-    let res = await importIfcBuffer(await file.arrayBuffer(), { name: file.name.replace(/\.ifc$/i, ""), mapping, use: model.use });
-    const unknown = Object.keys(res.unknown);
-    if (unknown.length) {
-      const keys = Object.keys(MATERIALS);
-      const ask = unknown.slice(0, 12).map((n) => `${n}`).join("\n");
-      const answer = prompt(`이름으로 분류하지 못한 재료가 ${unknown.length}개 있습니다:\n${ask}\n\n같은 순서로 재료 키를 쉼표로 적어 주세요 (비우면 건너뜀).\n사용 가능한 키: ${keys.join(", ")}`, "");
-      if (answer) {
-        answer.split(",").map((x) => x.trim()).forEach((k, i) => { if (k && MATERIALS[k] && unknown[i]) mapping[unknown[i]] = k; });
-        try { localStorage.setItem(MAP_KEY, JSON.stringify(mapping)); } catch {}
-        res = await importIfcBuffer(await file.arrayBuffer(), { name: file.name.replace(/\.ifc$/i, ""), mapping, use: model.use });
-      }
-    }
+    const buf = await file.arrayBuffer();
+    const hash = await fileHash(buf);
+    const name = file.name.replace(/\.ifc$/i, "");
+    // 계산 입력은 파일과 이 화면에서 고른 값뿐이다: 직전 모델의 용도·재료 지정·단가를 물려받지 않는다
+    const res = await importIfcBuffer(buf, { name, mapping: {} });
+    btn.textContent = "용도 선택…";
+    const use = await askUse(hash, file.name);
+    res.model.use = use;
+    res.model.fileName = file.name;
+    res.model.fileHash = hash;
     mutate(() => {}); model = res.model; resetUi(); ui.ifcMeshes = res.meshes; save();
-    ui.tab = "compare";
+    ui.tab = Object.keys(res.unknown).length ? "qty" : "compare";
     renderAll();
     setMode("3d");
   } catch (err) {
     alert("IFC를 읽지 못했습니다: " + err.message);
-  } finally { btn.innerHTML = old; }
+  } finally { btn.innerHTML = old; importing = false; }
 }
 
 /* ---------------- 서버 결과 (Revit → Worker → 여기) ---------------- */
@@ -1184,7 +1281,7 @@ $("#new").addEventListener("click", () => {
   mutate(() => {}); model = emptyModel(); resetUi(); save(); renderAll();
 });
 $("#export").addEventListener("click", () => {
-  const blob = new Blob([JSON.stringify(model, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify({ ...model, calc: calcInfo() }, null, 2)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
   a.download = `${(model.name || "model").replace(/[\\/:*?"<>|]/g, "_")}.reclaim.json`;

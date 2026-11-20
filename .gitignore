@@ -5,3 +5,5 @@ scripts/*.csv
 __pycache__/
 reclaim_config.json
 revit/batch/models.txt
+node_modules/
+package-lock.json

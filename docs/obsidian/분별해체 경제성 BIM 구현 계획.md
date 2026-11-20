@@ -515,3 +515,19 @@ Revit처럼 부재·자재별로 그리고, 부재마다 정보를 입력하는 
 - Vares, Hradil, Sansom, Ungureanu, Kamrath (2019) *D5.2 Economic assessment of reusing steel-based elements*, PROGRESS (RFCS 747847). https://www.steelconstruct.com/wp-content/uploads/PROGRESS-D5.2-Economic-potential.pdf
 - Kamrath, Sansom, Ungureanu, Hradil 외 (2020) *D2.1a Safe and efficient deconstruction*, PROGRESS. https://www.steelconstruct.com/wp-content/uploads/PROGRESS-D2.1a-Deconstruction-and-audits.pdf
 - PROGRESS *D7.3 Case studies* (런던 올림픽 창고 사례는 Bioregional 2011 인용). https://www.steelconstruct.com/wp-content/uploads/PROGRESS-D7.3-Case-studies.pdf
+
+## 같은 IFC → 같은 결과 (2026-11-20)
+
+같은 IFC를 다시 열면 결과(총비용·톤·연면적·공기)가 바뀌던 문제를 고쳤다. 원인은 브라우저에 남은 상태였다.
+
+| 원인 | 대책 |
+|---|---|
+| 재료 지정이 브라우저 전체에 누적(`reclaim.materialMap`), 12개씩만 물어 맵이 계속 커짐 | 공용 지정 삭제. 물량 탭 표에서 전체를 보여 주고, 지정은 열린 모델에만 쓴다 |
+| 미분류 층: 전부 미분류면 RC, 일부면 제외 → 하나 지정하면 톤이 줄어듦 | 항상 부재 기본재료로 추정(벽·바닥·지붕·구조 = RC, 천장 = 석고보드). Revit과 같은 `CATEGORY_DEFAULT` |
+| 용도를 직전 모델에서 물려받음 | 열 때마다 용도 선택(파일 SHA-256별 기본값) |
+| 연면적이 RC 분류에 의존, 대체 경로 버그 | 바닥 슬래브 면적 합(재료 무관), 직접 입력 칸 추가 |
+| 공법 비교 탭: 계획서 철근량·용도가 저장돼 다음 IFC에 섞임 | 계획서 값은 그 계산에만. 바꾼 단가 배너 |
+| 짧은 키워드(RC·EPS·STS·OSB·PIR)가 낱말 속에서 맞음, '철근콘크리트'가 강재로 분류 | 단어 경계, 철근콘크리트 규칙을 강재보다 먼저 |
+
+- 결과 위 **계산 조건** 칩이 같으면 결과도 같다.
+- 검증: `scripts/test_ifc_repeat.mjs`, 브라우저에서 다른 상태(예시 모델·옛 지정 키·계획서) 뒤 다시 불러오기 → 같은 값.

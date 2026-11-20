@@ -270,22 +270,27 @@ export const INERT_MATS = ["brick", "tile", "stone", "rubble"];
 // 압쇄 대상 부피로 셀 재료
 export const CRUSH_MATS = ["rc", "mortar", "plaster", "brick", "stone"];
 
+// 재료를 알 수 없는 층·부재의 기본재료 (IFC·Revit 공통). 여기 없는 범주(난간·배관·기타)의 미분류 몫은 계산에서 빠진다.
+export const CATEGORY_DEFAULT = { wall: "rc", floor: "rc", roof: "rc", column: "rc", beam: "rc", foundation: "rc", stair: "rc", ceiling: "gypsum" };
+
 // 재료 이름 → 재료 키. Revit·IFC 재료 이름을 자동 분류할 때 위에서부터 처음 맞는 것을 쓴다.
+// 짧은 영문 약어(RC·EPS·PIR·STS·OSB 등)는 단어 경계(\b)를 붙여 'Birch'·'Steps'·'Posts' 같은 낱말 속에서 맞지 않게 한다.
 export const MATERIAL_KEYWORDS = [
+  ["rc", "철근 ?콘크리트|reinforced ?concrete|\\bRC\\b"], // '철근'·'steel'보다 먼저 (철근콘크리트가 강재로 분류되지 않게)
   ["wallpaper", "벽지|wallpaper|wall ?covering"],
   ["gypsum", "석고|gypsum|plasterboard|drywall|GWB"],
   ["tex", "텍스|mineral ?fib|acoustic ?tile|ceiling ?tile"],
-  ["plywood", "합판|plywood|OSB|MDF|particle"],
+  ["plywood", "합판|plywood|\\bOSB\\b|\\bMDF\\b|particle"],
   ["flooring", "마루|flooring|parquet|hardwood"],
   ["woodDoor", "목재 ?문|wood ?door"],
   ["lumber", "목재|각재|wood|timber|lumber"],
   ["glasswool", "글라스 ?울|glass ?wool|mineral ?wool|rock ?wool|암면"],
-  ["eps", "단열|스티로폼|EPS|XPS|insulation|polystyrene|PIR|우레탄"],
+  ["eps", "단열|스티로폼|\\bEPS\\b|\\bXPS\\b|insulation|polystyrene|\\bPIR\\b|우레탄"],
   ["glass", "유리|glass|glazing"],
   ["pvcFrame", "PVC ?창|uPVC|PVC frame"],
   ["pvcSheet", "장판|리놀륨|linoleum|vinyl|PVC|비닐|데코타일"],
   ["aluminum", "알루미늄|aluminium|aluminum|\\bAL\\b"],
-  ["stainless", "스테인|stainless|STS"],
+  ["stainless", "스테인|stainless|\\bSTS\\d*\\b"],
   ["brass", "황동|brass"],
   ["copper", "동관|구리|copper"],
   ["steel", "강재|철골|철근|steel|rebar|metal|SS\\d|SM\\d|SHN"],
@@ -295,7 +300,7 @@ export const MATERIAL_KEYWORDS = [
   ["stone", "석재|화강|대리석|stone|granite|marble"],
   ["plaster", "회반죽|플라스터|plaster|stucco"],
   ["mortar", "모르타르|mortar|screed|미장"],
-  ["rc", "콘크리트|concrete|RC|cement|시멘트"],
+  ["rc", "콘크리트|concrete|cement|시멘트"],
 ];
 
 // 부재 종류 + 들어 있는 재료 → 해체 작업(품 항목). 손으로 그린 부재는 구성(ASSEMBLIES)의 work를 쓰고,
