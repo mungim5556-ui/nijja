@@ -163,14 +163,15 @@ const TEAM2024 = {
   crewSize: 20, // crew_size (가정)
   indirectPerDay: 500000, // indirect_per_day (가정)
   // 물량과 무관한 고정 공정(가설·비계, 장비 반입, 반출·부지정리) 일수와 현장 지원 인원(신호수·안전요원·살수, 인/일).
-  // 기본 0 = 끔. 해체계획서 대조(2026-11-20)에서 모델 공기가 계획서보다 7~17일 짧게 나온 원인 후보.
-  setupDays: 0,
+  // setupDays 8 (가정): 해체계획서 7건 대조(2026-11-20)에서 공기 ±20% 안이 2→4건이 되는 값. 출처 있는 품이 아니라 계획서 4건에 맞춘 값.
+  // supportCrew는 비용이 크게 오르므로(4명이면 +9%) 기본 끔.
+  setupDays: 8,
   supportCrew: 0,
   residualMixed: true,
 };
 
 // 출처 없는 잠정값 (ReClaim Compare에서 assumed: true)
-export const ASSUMED = ["hoursPerDay", "structCrew", "rebarKgPerM3", "revenue.wood", "revenue.resin", "recScrap", "recNonferrous", "recovery", "crewSize", "indirectPerDay"];
+export const ASSUMED = ["hoursPerDay", "structCrew", "rebarKgPerM3", "revenue.wood", "revenue.resin", "recScrap", "recNonferrous", "recovery", "crewSize", "indirectPerDay", "setupDays"];
 
 export const PRESETS = { paper2023: PAPER2023, team2024: TEAM2024 };
 export const DEFAULT_PARAMS = TEAM2024;

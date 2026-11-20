@@ -748,7 +748,7 @@
       "table4": "paper",
       "crewSize": 20,
       "indirectPerDay": 500000,
-      "setupDays": 0,
+      "setupDays": 8,
       "supportCrew": 0,
       "residualMixed": true
     }
