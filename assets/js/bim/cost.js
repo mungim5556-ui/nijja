@@ -289,7 +289,17 @@ export function scenarioCost(items, ctx, params, scenario) {
     res.trips = t / Math.max(0.1, p.haul.truckLoad);
     res.haulCost = res.trips * p.haul.hoursPerTrip * p.equipment.dump * (p.equipFactor || 1);
   }
-  res.days = res.interiorDays + res.structDays + res.steelDays;
+  // 물량과 상관없이 구조체 해체 공사마다 드는 공정(가설·비계, 장비 반입, 반출·부지정리)과 현장 지원 인원(신호수·안전요원·살수).
+  // 고정 공정은 구조체 압쇄가 주 공정일 때만 (철골 차양막처럼 철골 해체가 주인 공사는 비계가 필요 없어 제외)
+  res.setupDays = res.structDays > res.steelDays ? p.setupDays || 0 : 0;
+  res.days = res.interiorDays + res.structDays + res.steelDays + res.setupDays;
+  const sup = (p.supportCrew || 0) * res.days;
+  if (sup > 0) {
+    const wage = p.wage.laborer * (p.wageFactor || 1);
+    const L = (res.labor.laborer ||= { days: 0, cost: 0 });
+    L.days += sup; L.cost += sup * wage; res.laborCost += sup * wage;
+  }
+  res.supportManDays = sup;
   res.indirect = res.days * (p.indirectPerDay || 0);
   res.total = res.laborCost + res.equipCost + res.disposalCost + res.haulCost + res.indirect - res.revenueTotal;
   res.uncostedStructure = uncostedStructure(items, p);
