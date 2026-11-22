@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>IFC 물량 추출 검사</title>
+<style>
+  body { font: 14px/1.5 system-ui, sans-serif; margin: 24px; }
+  table { border-collapse: collapse; } td, th { border: 1px solid #ccc; padding: 4px 8px; } td.r { text-align: right; }
+  .ok { color: #1a7f37; } .bad { color: #c62828; font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>IFC 물량 추출 검사</h1>
+<p>정답을 아는 시험 IFC(<code>test/fixtures/robust.ifc</code>, <code>node scripts/make_test_ifc.mjs</code>로 생성)를 사이트와 같은 코드로 읽어,
+부재별 성상·톤수가 기대값과 1% 안에서 맞는지 확인합니다. 사이트를 띄운 주소에서 <code>/test/check-ifc.html</code>을 여세요.</p>
+<p id="summary">검사 중…</p>
+<table id="out"><thead><tr><th>부재</th><th>IFC 종류</th><th>기대</th><th>결과</th><th>부피 출처</th><th>판정</th></tr></thead><tbody></tbody></table>
+<script type="module">
+const v = Date.now();
+const { parseIfc } = await import(`../assets/js/ifc.js?v=${v}`);
+const { classify } = await import(`../assets/js/classify.js?v=${v}`);
+const rates = await (await fetch(`../assets/data/rates.json?v=${v}`)).json();
+const expected = await (await fetch(`fixtures/robust.expected.json?v=${v}`)).json();
+const model = await parseIfc(await (await fetch(`fixtures/robust.ifc?v=${v}`)).arrayBuffer());
+const classified = model.elements.map((el) => classify(el, rates));
+let fail = 0;
+const rows = expected.map((ex) => {
+  const el = classified.find((c) => c.tag === ex.tag);
+  const tons = el && el.stream !== "excluded" ? el.tons : 0;
+  const ok = el && el.stream === ex.stream && Math.abs(tons - ex.tons) <= Math.max(1e-6, ex.tons * 0.01);
+  if (!ok) fail++;
+  return `<tr><td>${ex.name} (${ex.tag})</td><td>${el?.category ?? "–"}</td><td>${ex.stream} ${ex.tons.toFixed(3)} t</td>
+    <td>${el ? `${el.stream} ${tons.toFixed(3)} t` : "없음"}</td><td>${el?.volumeSource ?? "–"}</td><td class="${ok ? "ok" : "bad"}">${ok ? "통과" : "불일치"}</td></tr>`;
+});
+const extra = classified.filter((el) => !expected.some((ex) => ex.tag === el.tag));
+if (extra.length) fail += extra.length;
+document.querySelector("#out tbody").innerHTML = rows.join("")
+  + extra.map((el) => `<tr><td>${el.name} (${el.tag})</td><td>${el.category}</td><td>–</td><td>${el.stream} ${el.tons.toFixed(3)} t</td><td>${el.volumeSource}</td><td class="bad">기대에 없는 부재 (이중 계상)</td></tr>`).join("");
+document.querySelector("#summary").innerHTML = fail
+  ? `<span class="bad">${fail}건 불일치</span> · 부재 ${classified.length}개 / 기대 ${expected.length}개`
+  : `<span class="ok">모두 통과</span> · 부재 ${classified.length}개 · Qto 부피 ${model.volumeCheck.qto}개`;
+</script>
+</body>
+</html>

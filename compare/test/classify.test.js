@@ -1,8 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { classify, materialClass, quantitiesFromElements, supplement, elementResults, toCsv, groupKey } from "../assets/js/classify.js";
-import { meshVolume, meshSurface } from "../assets/js/ifc.js";
+import { classify, materialClass, isOpenSteelFrame, quantitiesFromElements, supplement, elementResults, toCsv, groupKey } from "../assets/js/classify.js";
+import { meshVolume, meshSurface, massUnitTons } from "../assets/js/ifc.js";
 import { paramValues } from "../assets/js/scenario.js";
 
 const rates = JSON.parse(readFileSync(new URL("../assets/data/rates.json", import.meta.url)));
@@ -18,8 +18,20 @@ test("단위 정육면체: 부피 1, 겉넓이 6", () => {
 
 test("재료 이름 → 분류", () => {
   const cases = { "Concrete": "concrete", "콘크리트 24MPa": "concrete", "Gypsum Board": "board", "석고보드": "board", "Plywood": "wood", "Wood Stud": "wood",
-    "Steel Stud": "metal", "EPS Insulation": "insulation", "PVC Flooring": "resin", "Copper Pipe": "copper", "Aluminum": "aluminum", "벽돌": "masonry", "Ceramic Tile": "mixed", "Generic": null };
+    "Steel Stud": "metal", "EPS Insulation": "insulation", "PVC Flooring": "resin", "Copper Pipe": "copper", "Aluminum": "aluminum", "벽돌": "masonry", "Ceramic Tile": "tile", "Generic": null };
   for (const [name, cls] of Object.entries(cases)) assert.equal(materialClass(name), cls, name);
+});
+
+test("강관·강봉의 수량표 중량과 IFC 재료 분류", () => {
+  for (const layer of [{name:"강관(STK400)"}, {name:"강봉"}, {name:"STK400"}, {name:"Generic",category:"Steel"}]) {
+    const member = {...el("beam", [layer]), weightTons:0.873};
+    const result = classify(member, rates);
+    assert.equal(result.stream, "metal");
+    near(result.tons, 0.873);
+  }
+  near(massUnitTons({UnitType:"MASSUNIT",Name:"GRAM",Prefix:"KILO"}), 0.001);
+  assert.ok(Number.isNaN(massUnitTons(null)));
+  assert.equal(materialClass("철근콘크리트"), "concrete");
 });
 
 test("복합벽은 층 두께 비율로 나눈다", () => {
@@ -62,4 +74,14 @@ test("물량 합산, 원단위 보충, 부재별 결과 CSV", () => {
   const csv = toCsv(res).trim().split("\n");
   assert.equal(csv.length, 4);
   assert.ok(csv[0].startsWith("GlobalId,ElementId") && csv[1].startsWith("G,42,slab,1,concrete,압쇄,240.0000"));
+});
+
+test("개방형 철골과 바닥이 있는 철골 건물 구분", () => {
+  const members = [
+    el("column", [{name:"강관(STK400)"}]),
+    el("beam", [{name:"강관(STK400)"}]),
+    el("footing", [{name:"콘크리트"}]),
+  ].map(member => classify(member, rates));
+  assert.equal(isOpenSteelFrame(members), true);
+  assert.equal(isOpenSteelFrame([...members, classify(el("slab", [{name:"콘크리트"}]), rates)]), false);
 });

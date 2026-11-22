@@ -1,0 +1,161 @@
+{
+ "source": "국토안전관리원 해체계획서 사례(익명화 공개본) 7건 — 구조도면을 판독해 옮긴 데이터",
+ "items": [
+  {
+   "file": "plans/kalis/01-house.json",
+   "label": "01. 주택",
+   "name": "00동 단독주택(연와조)",
+   "usage": "단독주택",
+   "structure": "연와조(벽돌 내력벽 + RC 슬래브)",
+   "floors": "지하0/지상2",
+   "area_m2": 296.84,
+   "wasteUnit": "단독주택",
+   "scope": "전체 해체(지상 2층)",
+   "model": {
+    "concrete_m3": 44.3,
+    "steel_m3": 0,
+    "masonry_m3": 55,
+    "finish_m3": 7.7,
+    "members": 20
+   },
+   "inputs": {
+    "structure": "other",
+    "scope": "full"
+   },
+   "costNote": "벽돌 내력벽 해체에 RC 공기·장비식을 사용한 참고 비교입니다."
+  },
+  {
+   "file": "plans/kalis/02-shops.json",
+   "label": "02. 상가",
+   "name": "M동 상가",
+   "usage": "근린생활시설(상가)",
+   "structure": "철근콘크리트조",
+   "floors": "지하1/지상5",
+   "area_m2": 4785,
+   "wasteUnit": "비주거 RC",
+   "scope": "지상층 해체(지하층 일부 존치·잔재 채움)",
+   "model": {
+    "concrete_m3": 1496.7,
+    "steel_m3": 0,
+    "masonry_m3": 0,
+    "finish_m3": 143.5,
+    "members": 602
+   },
+   "inputs": {
+    "scope": "above"
+   },
+   "costNote": "존치하는 지하층과 잔재 채움 작업의 비용은 포함되지 않습니다."
+  },
+  {
+   "file": "plans/kalis/03-multifamily-transfer.json",
+   "label": "03. 다세대 주택 전이 구조",
+   "name": "00동 다세대주택(전이구조)",
+   "usage": "공동주택(다세대)·근린생활시설",
+   "structure": "철근콘크리트조(저층 라멘 + 전이보 + 상부 벽식)",
+   "floors": "지하1/지상9",
+   "area_m2": 5617,
+   "wasteUnit": "공동주택",
+   "scope": "전체 해체(지상 상부층 우선, 지하층은 흙막이 후 해체)",
+   "model": {
+    "concrete_m3": 3125.4,
+    "steel_m3": 0,
+    "masonry_m3": 0,
+    "finish_m3": 241.3,
+    "members": 349
+   },
+   "inputs": {
+    "scope": "full"
+   },
+   "costNote": "지하 해체 전 흙막이 공사 비용은 비교 합계에 포함되지 않습니다."
+  },
+  {
+   "file": "plans/kalis/04-apartment.json",
+   "label": "04. 아파트",
+   "name": "00아파트 51동",
+   "usage": "공동주택",
+   "structure": "철근콘크리트조(벽식)",
+   "floors": "지하1/지상15",
+   "area_m2": 8130.22,
+   "wasteUnit": "공동주택",
+   "scope": "전체 해체(지하1층~지상15층)",
+   "model": {
+    "concrete_m3": 2938.8,
+    "steel_m3": 0,
+    "masonry_m3": 0,
+    "finish_m3": 381.4,
+    "members": 799
+   },
+   "inputs": {
+    "scope": "full"
+   }
+  },
+  {
+   "file": "plans/kalis/05-office-above.json",
+   "label": "05. 사무용 건축물 지상층",
+   "name": "00빌딩(사무용 건축물)",
+   "usage": "업무시설",
+   "structure": "철골철근콘크리트조(SRC 기둥 + 철골보 + 데크 슬래브)",
+   "floors": "지하4/지상18",
+   "area_m2": 17100,
+   "wasteUnit": "비주거 SRC",
+   "scope": "지상층 해체(지상1층~18층)",
+   "model": {
+    "concrete_m3": 4747.3,
+    "steel_m3": 115.8,
+    "masonry_m3": 0,
+    "finish_m3": 487.2,
+    "members": 1705
+   },
+   "inputs": {
+    "structure": "other",
+    "scope": "above"
+   },
+   "costNote": "지상 타워 범위입니다. 철골 절단·인양 견적이 없으면 비용 차이에서 제외합니다. 구조체 해체 공기는 참고값입니다."
+  },
+  {
+   "file": "plans/kalis/06-office-below.json",
+   "label": "06. 사무용 건축물 지하층",
+   "name": "000000 지하층(사무용 건축물)",
+   "usage": "업무시설(지하주차장)",
+   "structure": "철근콘크리트 무량판 구조",
+   "floors": "지하4/지상0",
+   "area_m2": 6279.78,
+   "wasteUnit": "비주거 RC",
+   "scope": "지하층 해체(지하1층 상부 슬래브~지하4층)",
+   "model": {
+    "concrete_m3": 4654.2,
+    "steel_m3": 0,
+    "masonry_m3": 0,
+    "finish_m3": 198,
+    "members": 153
+   },
+   "inputs": {
+    "scope": "partial"
+   },
+   "comparisonLimit": "지하 4개 층만 집계했습니다. 흙막이·기초 해체와 지하 반출의 작업량과 단가가 필요합니다."
+  },
+  {
+   "file": "plans/kalis/07-factory.json",
+   "label": "07. 공장",
+   "name": "00리 00번지 공장",
+   "usage": "공장·창고",
+   "structure": "철근콘크리트(기둥) + 철골조(트러스 지붕)",
+   "floors": "지하0/지상1",
+   "area_m2": 23191.57,
+   "wasteUnit": "비주거 철골",
+   "scope": "전체 해체(지상 1층, 높이 10.2m)",
+   "model": {
+    "concrete_m3": 303.8,
+    "steel_m3": 119.8,
+    "masonry_m3": 356.1,
+    "finish_m3": 0,
+    "members": 265
+   },
+   "inputs": {
+    "structure": "other",
+    "scope": "full"
+   },
+   "comparisonLimit": "지붕 트러스는 등가 형강으로 환산했습니다. 지붕·벽 패널과 바닥 슬래브가 빠져 있고, 철골 절단·인양 견적이 필요합니다."
+  }
+ ]
+}

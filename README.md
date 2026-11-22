@@ -230,7 +230,14 @@ flowchart LR
 
 #### 공법 비교 탭 (`compare.html`, 옛 ReClaim Compare)
 
-사이트 상단 탭 **해체 계획 · BIM 편집기 · 공법 비교**로 오갑니다. 공법 비교는 [reclaim-compare](https://github.com/mungim5556-ui/reclaim-compare) 저장소(a5c3be0)를 `compare/` 폴더로 그대로 옮긴 것입니다.
+사이트 상단 탭 **해체 계획 · BIM 편집기 · 공법 비교**로 오갑니다. 공법 비교는 [reclaim-compare](https://github.com/mungim5556-ui/reclaim-compare) 저장소를 `compare/` 폴더로 그대로 옮긴 것입니다.
+
+- **자동 동기화:** GitHub Actions `sync-compare`(`.github/workflows/sync-compare.yml`)가 매일 reclaim-compare main을 확인해, 바뀌었으면 `compare/`를 맞추는 PR을 엽니다. Actions 탭의 "Run workflow"로 바로 돌릴 수도 있습니다.
+  - 원본 테스트가 통과해야 PR이 열리고, 합치는 것은 사람이 확인한 뒤에 합니다.
+  - 지금 들어 있는 원본 커밋은 `compare/UPSTREAM.json`에 있습니다.
+- **원본 코드는 nijja에서 고치지 않습니다.** 다음 동기화 때 덮어써집니다. 공법 비교 계산·화면 수정은 reclaim-compare에 하세요.
+  - nijja 전용은 두 가지뿐입니다: `compare.html`(원본 `index.html`에 상단 탭·로그인·다크 모드를 덧입혀 `scripts/sync_compare.mjs`가 만듦)과 `compare/assets/css/reclaim-theme.css`(사이트 톤).
+  - 손으로 동기화하려면: `node scripts/sync_compare.mjs <reclaim-compare 체크아웃 폴더>`
 
 - **모델 → 단가 → 비교 → 내보내기** 4단계. IFC를 넣거나, IFC 없이 연면적만으로 계산합니다.
 - **해체계획서 → 구조체 모델 자동 생성**: 계획서 구조도면을 옮긴 JSON(`schema: "reclaim-plan/1"`)으로 기둥·보·벽·슬래브 IFC를 만들어 바로 분석합니다(`compare/assets/js/plan.js`). Revit 모델이 없을 때 씁니다.
@@ -249,7 +256,6 @@ flowchart LR
 - **같은 IFC → 같은 결과**: 결과는 파일 내용과 화면에서 고른 값(용도, 연면적 직접 입력, 단가, 재료 지정)으로만 정해집니다.
   - IFC를 열 때마다 용도를 묻습니다. 같은 파일(SHA-256)에서 지난번에 고른 값을 기본으로 보여 줍니다.
   - 공법 비교 결과 위의 **계산 조건** 칩(파일 지문 8자리, 용도, 연면적과 출처, 단가 기준과 바꾼 값 수, 재료 추정 ㎥, 재료 지정 수)이 같으면 결과도 같습니다. `저장` 파일에도 `calc`로 남습니다.
-  - 공법 비교 탭도 같은 방식으로 용도를 묻습니다. 계획서 JSON의 철근량은 그 계획서 계산에만 쓰이고, 바꾼 단가가 있으면 "기본값과 다른 단가 n개 · 되돌리기"를 보여 줍니다.
   - 확인: `node scripts/test_ifc_repeat.mjs` (`npm install --no-save web-ifc@0.0.78` 필요)
 - **불확실성 분석**: 처리단가·품·장비비·매각가·회수율을 범위 안에서 2,000번 바꿔, 분별해체가 더 경제적일 확률·토네이도·손익분기를 보여줍니다.
 - **손으로 그리기**: 모델에 없는 마감·칸막이를 보정하거나 예시를 만들 때 씁니다.

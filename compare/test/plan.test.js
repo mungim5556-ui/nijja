@@ -54,3 +54,37 @@ test("IFC 텍스트: 부재 수가 맞고 한글이 들어가지 않는다", () 
   assert.ok(/^[\x00-\x7F]*$/.test(text));
   assert.ok(text.includes("IFCMATERIAL('Concrete 21MPa')") && text.includes("IFCMATERIAL('Mortar')"));
 });
+
+test("계획서의 현장·장비 조건: 명시한 값이 우선하고, 없으면 해체공법 문구로 탑재를 추정한다", async () => {
+  const { planConditions } = await import("../assets/js/plan.js");
+  const { SITES, EQUIPMENT } = await import("../assets/js/scenario.js");
+  const opts = { sites: SITES, equipments: EQUIPMENT };
+  assert.deepEqual(planConditions({ demolition: { site: "restricted", equipment: "small", crane_days: 3, ground_floors: 1 } }, opts).values,
+    { site: "restricted", equipment: "small", craneDays: 3, groundFloors: 1 });
+  const smallMounted = planConditions({ demolition: { method: "압쇄기(소형장비 탑재, 크레인 양중) + 인력" } }, opts);
+  assert.deepEqual(smallMounted.values, { equipment: "mounted" });
+  assert.equal(smallMounted.needsMountedProduction, false);
+  const mounted = planConditions({ demolition: { method: "32톤 굴착기 탑재" } }, opts);
+  assert.deepEqual(mounted.values, { equipment: "mounted", mountedLarge: true });
+  assert.equal(mounted.needsMountedProduction, true);
+  assert.deepEqual(planConditions({ demolition: { method: "부재 절단 후 크레인 인양" } }, opts).values, {});
+  assert.deepEqual(planConditions(example, opts).values, { structure: "rc", scope: "full" }); // 조건이 없으면 기존 기본값(보통·자동)을 쓴다
+  assert.deepEqual(planConditions({ demolition: { site: "wide", method: "장비 탑재" } }, opts).values, { equipment: "mounted", site: "wide" });
+});
+
+test("공개 계획서 7건: IFC 부재 수와 재료별 부피가 예시 목록과 일치한다", () => {
+  const { items } = load("kalis/index.json");
+  assert.equal(items.length, 7);
+  for (const row of items) {
+    const plan = load(row.file.replace(/^plans\//, ""));
+    const members = planMembers(plan), v = planVolumes(members), ifc = planToIfc(plan);
+    assert.equal(members.length, row.model.members, row.label);
+    assert.equal((ifc.match(/=IFC(COLUMN|BEAM|SLAB|WALLSTANDARDCASE|COVERING)\(/g) || []).length, members.length);
+    assert.ok(members.every(b => [b.dx, b.dy, b.dz].every(n => Number.isFinite(n) && n > 0)), row.label);
+    near(v.structure, row.model.concrete_m3, 0.051);
+    near(v.steel, row.model.steel_m3, 0.051);
+    near(v.masonry, row.model.masonry_m3, 0.051);
+    if (row.inputs.scope === "above") assert.ok(members.every(b => !/^B\d/.test(b.level)), row.label);
+    if (plan.building.floors_above === 0) assert.ok(members.every(b => b.z + b.dz <= 1e-8), row.label);
+  }
+});

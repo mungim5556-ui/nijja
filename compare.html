@@ -2,20 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- 공법 비교(ReClaim Compare)는 compare/ 폴더에 있다. base로 상대 경로(CSS·JS·데이터)를 그 폴더 기준으로 맞춘다. -->
+  <!-- 자동 생성: scripts/sync_compare.mjs가 reclaim-compare의 index.html로 만든다. 직접 고치지 마세요. -->
+  <!-- 공법 비교 원본은 compare/ 폴더에 있다. base로 상대 경로(CSS·JS·데이터)를 그 폴더 기준으로 맞춘다. -->
   <base href="compare/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ReClaim 공법 비교</title>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/app.css">
-  <link rel="stylesheet" href="../assets/css/site-nav.css">
-  <link rel="stylesheet" href="assets/css/reclaim-theme.css">
-  <script src="../assets/js/auth.js"></script>
-  <script>
-    // 로그인하지 않았으면 로그인 페이지로 (base 때문에 auth.require 대신 직접 경로를 쓴다)
-    if (!window.auth?.get()) location.replace(new URL("../login.html?next=compare.html", document.baseURI).href);
-    try { const t = localStorage.getItem("reclaim.theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
-  </script>
   <script type="importmap">
     {
       "imports": {
@@ -23,6 +16,14 @@
         "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
       }
     }
+  </script>
+  <link rel="stylesheet" href="../assets/css/site-nav.css">
+  <link rel="stylesheet" href="assets/css/reclaim-theme.css">
+  <script src="../assets/js/auth.js"></script>
+  <script>
+    // 로그인하지 않았으면 로그인 페이지로 (base 때문에 auth.require 대신 직접 경로를 쓴다)
+    if (!window.auth?.get()) location.replace(new URL("../login.html?next=compare.html", document.baseURI).href);
+    try { const t = localStorage.getItem("reclaim.theme"); if (t) document.documentElement.dataset.theme = t; } catch {}
   </script>
 </head>
 <body>
@@ -42,8 +43,8 @@
   <nav class="tabs" id="tabs" aria-label="단계"></nav>
 </header>
 <main class="page" id="content"></main>
-<dialog class="use-dlg" id="use-dlg" aria-labelledby="use-title"></dialog>
 <div class="tip" id="tip" hidden></div>
+<script type="module" src="assets/js/app.js?v=ifc-comparison-guidance-1"></script>
 <script>
   document.getElementById("site-theme").addEventListener("click", () => {
     const el = document.documentElement;
@@ -52,6 +53,5 @@
     try { localStorage.setItem("reclaim.theme", el.dataset.theme); } catch {}
   });
 </script>
-<script type="module" src="assets/js/app.js"></script>
 </body>
 </html>

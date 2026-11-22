@@ -1,0 +1,163 @@
+[
+ {
+  "tag": "500001",
+  "name": "기둥",
+  "stream": "concrete",
+  "m3": 0.75,
+  "tons": 1.7999999999999998
+ },
+ {
+  "tag": "500002",
+  "name": "기둥",
+  "stream": "concrete",
+  "m3": 0.75,
+  "tons": 1.7999999999999998
+ },
+ {
+  "tag": "500003",
+  "name": "기둥",
+  "stream": "concrete",
+  "m3": 0.75,
+  "tons": 1.7999999999999998
+ },
+ {
+  "tag": "500004",
+  "name": "기둥",
+  "stream": "concrete",
+  "m3": 0.75,
+  "tons": 1.7999999999999998
+ },
+ {
+  "tag": "500005",
+  "name": "강재 보",
+  "stream": "metal",
+  "m3": 0.48,
+  "tons": 3.768
+ },
+ {
+  "tag": "500006",
+  "name": "재료 없는 보",
+  "stream": "metal",
+  "m3": 0.48,
+  "tons": 3.7
+ },
+ {
+  "tag": "500007",
+  "name": "슬래브",
+  "stream": "concrete",
+  "m3": 7.5,
+  "tons": 18
+ },
+ {
+  "tag": "500008",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500009",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500010",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500011",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500012",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500013",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500014",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500015",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500016",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500017",
+  "name": "철근 D25",
+  "stream": "metal",
+  "m3": 0.00375,
+  "tons": 0.0294375
+ },
+ {
+  "tag": "500019",
+  "name": "벽 파트",
+  "stream": "masonry",
+  "m3": 0.9,
+  "tons": 1.71
+ },
+ {
+  "tag": "500020",
+  "name": "벽 파트",
+  "stream": "masonry",
+  "m3": 0.9,
+  "tons": 1.71
+ },
+ {
+  "tag": "500022",
+  "name": "System Panel: Glazed",
+  "stream": "glass",
+  "m3": 0.09,
+  "tons": 0.22499999999999998
+ },
+ {
+  "tag": "500023",
+  "name": "System Panel: Glazed",
+  "stream": "glass",
+  "m3": 0.09,
+  "tons": 0.22499999999999998
+ },
+ {
+  "tag": "500024",
+  "name": "프록시 기초보",
+  "stream": "concrete",
+  "m3": 1,
+  "tons": 2.4
+ },
+ {
+  "tag": "500025",
+  "name": "가구",
+  "stream": "excluded",
+  "m3": 1,
+  "tons": 0
+ }
+]

@@ -71,6 +71,8 @@ def run_in_revit():
 
         done, missing = 0, 0
         for r in rows:
+            if r.get("Category") == "adjustment":
+                continue
             el = doc.GetElement(DB.ElementId(int(r["ElementId"]))) if r["ElementId"].isdigit() else None
             if el is None:
                 missing += 1
