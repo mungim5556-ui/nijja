@@ -140,6 +140,61 @@ def _solid_volume(el):
     return total[0]
 
 
+def _solids(geo, out):
+    if geo is None:
+        return out
+    for g in geo:
+        if isinstance(g, Solid):
+            try:
+                if abs(g.Volume) > 1e-9:
+                    out.append(g)
+            except Exception:
+                pass
+        elif isinstance(g, GeometryInstance):
+            _solids(g.GetInstanceGeometry(), out)
+    return out
+
+
+def join_residual(doc, el):
+    """결합(join)으로 깎여 부피가 0이 된 부재의 '어디에도 세지 않은 부피'(㎥).
+
+    깎이기 전 형상(GetOriginalGeometry)에서 결합된 상대 부재의 현재 형상을 모두 빼고 남은 부피.
+    상대 부재(벽·기둥)에 이미 들어간 부분은 빠지므로 중복 계상이 없다.
+    돌려주는 값: (원래 부피 ㎥, 남은 부피 ㎥, 결합 상대 수). 읽지 못하면 None."""
+    from Autodesk.Revit.DB import JoinGeometryUtils, BooleanOperationsUtils, BooleanOperationsType
+    try:
+        others = list(JoinGeometryUtils.GetJoinedElements(doc, el))
+    except Exception:
+        others = []
+    try:
+        original = _solids(el.GetOriginalGeometry(Options()), [])
+    except Exception:
+        return None
+    if not original:
+        return None
+    before = sum(abs(s.Volume) for s in original)
+    rest = list(original)
+    for oid in others:
+        other = doc.GetElement(oid)
+        if other is None:
+            continue
+        cutters = _solids(other.get_Geometry(Options()), [])
+        nxt = []
+        for s in rest:
+            for c in cutters:
+                if s is None:
+                    break
+                try:
+                    s = BooleanOperationsUtils.ExecuteBooleanOperation(s, c, BooleanOperationsType.Difference)
+                except Exception:
+                    pass  # 불리언이 실패하면 그 상대는 빼지 못한 채 둔다 (보수적으로 남은 부피가 커짐)
+            if s is not None and abs(s.Volume) > 1e-9:
+                nxt.append(s)
+        rest = nxt
+    after = sum(abs(s.Volume) for s in rest)
+    return before * FT3, after * FT3, len(others)
+
+
 def _element_volume(el):
     """부재 부피 (m³): 매개변수 → 형상 순으로 읽는다."""
     for bip in (BuiltInParameter.HOST_VOLUME_COMPUTED,):
@@ -301,15 +356,28 @@ def collect_raw(doc):
                                "thickness": max(vol, 0.0)})
                 total += max(vol, 0.0)
             volume = total if total > 0 else _element_volume(el)
-            joined = False
-            if volume <= 0:
-                # 결합(join)된 벽·기둥에 완전히 깎이면 부피가 0이 된다. 그 콘크리트는 상대 부재 부피에 이미 들어 있으므로
-                # 길이×단면으로 되살리지 않는다 (중복 계상). 안내만 한다.
+            joined, residual = False, None
+            if (volume <= 0 and cat not in ("window", "door")) or cat in ("beam", "column"):
+                # 결합(join)된 벽·기둥에 깎여 부피가 0이 된 부재: 상대 부재에 들어간 부분은 그대로 두고(중복 방지),
+                # 깎이기 전 형상에서 상대 부재를 모두 뺀 '어디에도 안 들어간 부분'만 물량으로 되살린다.
                 try:
                     from Autodesk.Revit.DB import JoinGeometryUtils
                     joined = JoinGeometryUtils.GetJoinedElements(doc, el).Count > 0
                 except Exception:
                     joined = False
+                if joined:
+                    jr = join_residual(doc, el)  # (원래, 상대를 뺀 나머지, 상대 수)
+                    if jr:
+                        residual = {"original": round(jr[0], 4), "residual": round(jr[1], 4), "joined": jr[2]}
+                        # 남은 부피가 지금 부피보다 크면 그 차이는 벽·기둥 어디에도 없는 콘크리트 → 되살린다
+                        if jr[1] > volume + 1e-3:
+                            if layers and total > 0:
+                                layers = [dict(l, thickness=l["thickness"] * jr[1] / total) for l in layers]
+                            elif layers:
+                                layers = [dict(layers[0], thickness=jr[1])]
+                            volume = jr[1]
+                        else:
+                            residual = None  # 되살릴 것 없음 (정상 결합)
             if cat in ("window", "door"):
                 area = _opening_area(doc, el)
             elif cat in STRUCTURAL:
@@ -320,7 +388,7 @@ def collect_raw(doc):
             raw.append({
                 "globalId": _global_id(el), "tag": eid, "name": el.Name, "category": cat,
                 "level": _level_of(doc, el, levels), "volume": volume, "area": area, "layers": layers,
-                "top": bb.Max.Z * FT if bb else None, "joined": joined,
+                "top": bb.Max.Z * FT if bb else None, "joined": joined, "joinResidual": residual,
             })
     return raw, levels
 

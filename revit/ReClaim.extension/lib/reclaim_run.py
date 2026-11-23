@@ -106,6 +106,11 @@ def material_notes(result, top=5):
         items = sorted(unknown.items(), key=lambda kv: -kv[1])
         lines.append(u"미분류 재료 %d종 (부재 기본 재료로 계산): " % len(items) +
                      u", ".join(u"%s %.1f㎥" % kv for kv in items[:top]) + (u" 외" if len(items) > top else u""))
+    rec = (result or {}).get("joinRecovered") or []
+    if rec:
+        lines.append(u"결합으로 깎였지만 어디에도 세지 않은 부피를 되살린 부재 %d개 (%.2f㎥): " % (len(rec), sum(e.get("residual") or 0 for e in rec)) +
+                     u", ".join(u"%s(%s) %.2f/%.2f㎥" % (e.get("tag"), e.get("category"), e.get("residual") or 0, e.get("original") or 0) for e in rec[:top]) +
+                     (u" 외" if len(rec) > top else u""))
     empty = (result or {}).get("emptyElements") or []
     cut = [e for e in empty if e.get("joinedCut")]
     lost = [e for e in empty if not e.get("joinedCut")]

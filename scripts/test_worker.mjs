@@ -74,6 +74,10 @@ check(qe.engine && qe.result.engine.repo === "mungim5556-ui/reclaim-compare", `�
   const oe = await (await call("/results", { method: "POST", body: JSON.stringify(odd), headers: auth })).json();
   check(oe.result.unknownMaterials["Mystery 123"] === 1.5 && !("Concrete" in oe.result.unknownMaterials), "미분류 재료 이름·부피 기록");
   check(oe.result.emptyElements.length === 1 && oe.result.emptyElements[0].tag === "901", "부피 0 부재 기록");
+  const rec = { ...bundle, name: "결합 복원", model: { ...bundle.model, elements: [...elements,
+    { globalId: "Y", tag: "902", name: "Beam", category: "beam", floor: 1, volume: 0.4, area: 0, joinedCut: true, joinResidual: { original: 1.035, residual: 0.4, joined: 6 }, layers: [layer("Concrete", 0.4)] }] } };
+  const re = await (await call("/results", { method: "POST", body: JSON.stringify(rec), headers: auth })).json();
+  check(re.result.joinRecovered.length === 1 && re.result.joinRecovered[0].residual === 0.4 && re.general > qe.general, "결합 잔여 부피 되살린 부재 기록·물량 반영");
 }
 // 엔진이 바뀐 것처럼 만들면 GET할 때 다시 계산한다
 const key = "r:" + qe.id;
