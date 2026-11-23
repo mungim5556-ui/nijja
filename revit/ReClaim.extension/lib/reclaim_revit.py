@@ -172,6 +172,14 @@ def join_residual(doc, el):
         return None
     if not original:
         return None
+    # GetOriginalGeometry는 패밀리 좌표(인스턴스 변환 전)다. 프로젝트 좌표로 옮기지 않으면 상대 부재와 겹치지 않아
+    # 아무것도 빠지지 않고 원래 부피가 통째로 '되살아나' 중복 계상된다.
+    try:
+        from Autodesk.Revit.DB import SolidUtils
+        tf = el.GetTransform()
+        original = [SolidUtils.CreateTransformed(s, tf) for s in original]
+    except Exception:
+        return None
     before = sum(abs(s.Volume) for s in original)
     rest = list(original)
     for oid in others:
