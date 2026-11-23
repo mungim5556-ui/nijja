@@ -123,7 +123,14 @@ def main(argv):
     if out:
         with io.open(out, "w", encoding="utf-8") as f:
             f.write(text)
-    sys.stdout.write(text if sys.version_info[0] >= 3 else text.encode("utf-8"))
+    if sys.version_info[0] >= 3:
+        try:  # Windows 콘솔(cp949)에서 '–'·'⚠'로 멈추지 않게
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        except (AttributeError, ValueError):
+            pass
+        sys.stdout.write(text)
+    else:
+        sys.stdout.write(text.encode("utf-8"))
     return 0
 
 

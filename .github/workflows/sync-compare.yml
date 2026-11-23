@@ -1,0 +1,67 @@
+# reclaim-compare(공법 비교 원본)가 바뀌면 compare/ 폴더를 따라 맞추는 PR을 연다.
+# 매일 한 번 확인하고, Actions 탭에서 "Run workflow"로 바로 돌릴 수도 있다.
+# 원본 테스트(compare/test)가 통과해야 PR을 연다. 합치는 것은 사람이 확인한 뒤에 한다.
+name: Sync compare tab from reclaim-compare
+
+on:
+  schedule:
+    - cron: "17 18 * * *" # 매일 03:17 (한국 시간)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-compare
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 원본 받기
+        uses: actions/checkout@v4
+        with:
+          repository: mungim5556-ui/reclaim-compare
+          ref: main
+          path: _upstream
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: compare/ 동기화
+        id: sync
+        run: |
+          SHA=$(git -C _upstream rev-parse HEAD)
+          DATE=$(git -C _upstream log -1 --format=%cI)
+          SUBJECT=$(git -C _upstream log -1 --format=%s)
+          node scripts/sync_compare.mjs _upstream --commit "$SHA" --date "$DATE"
+          rm -rf _upstream
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          echo "short=${SHA:0:7}" >> "$GITHUB_OUTPUT"
+          echo "subject=$SUBJECT" >> "$GITHUB_OUTPUT"
+
+      - name: 원본 테스트
+        working-directory: compare
+        run: node --test
+
+      - name: PR 열기 (바뀐 것이 있을 때만)
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: sync/reclaim-compare
+          delete-branch: true
+          commit-message: "Sync the compare tab with reclaim-compare ${{ steps.sync.outputs.short }}"
+          title: "공법 비교 탭 동기화: reclaim-compare ${{ steps.sync.outputs.short }}"
+          body: |
+            reclaim-compare main의 최신 커밋(${{ steps.sync.outputs.short }}: ${{ steps.sync.outputs.subject }})을 `compare/` 폴더로 옮겼습니다.
+
+            - 원본 코드는 그대로 복사했습니다. `compare.html`은 원본 `index.html`에 nijja의 상단 탭·로그인·다크 모드를 덧입혀 다시 만들었습니다(`scripts/sync_compare.mjs`).
+            - 원본 테스트(`compare/test`)는 통과했습니다.
+            - 계산 방식이 바뀌었으면 BIM 편집기·Revit 엔진(`assets/js/bim`, `revit/`)과 결과가 달라질 수 있으니, 합치기 전에 원본 커밋 내용을 확인하세요.
+
+            _GitHub Actions `sync-compare`가 자동으로 연 PR입니다._
+          labels: sync

@@ -1,11 +1,11 @@
 // 손익분기, 토네이도(민감도), 몬테카를로. Δ = 분별 총비용 − 압쇄 총비용 (음수면 분별이 유리)
-import { compare } from "./scenario.js";
+import { compare } from "./scenario.js?v=ifc-equipment-days-1";
 
 export const delta = (q, p) => compare(q, p).delta;
 
 // 범위(min·max)가 있는 단가만 불확실 변수로 쓴다
 export const variables = (rates) =>
-  Object.entries(rates.params).filter(([, v]) => v.min != null && v.max != null && v.max > v.min)
+  Object.entries(rates.params).filter(([, v]) => v.sample !== false && v.min != null && v.max != null && v.max > v.min)
     .map(([key, v]) => ({ key, label: v.label, unit: v.unit, min: v.min, max: v.max }));
 
 export function tornado(q, p, vars) {
@@ -20,12 +20,15 @@ export function breakEven(q, p, key, lo, hi) {
   const f = (x) => delta(q, { ...p, [key]: x });
   let a = lo, b = hi, fa = f(a);
   if (fa === 0) return a;
-  if (fa * f(b) > 0) return null;
+  const fb = f(b);
+  if (fb === 0) return b;
+  if (fa * fb > 0) return null;
   for (let i = 0; i < 60; i++) {
     const m = (a + b) / 2, fm = f(m);
     if (fa * fm <= 0) b = m; else { a = m; fa = fm; }
   }
-  return (a + b) / 2;
+  const root = (a + b) / 2;
+  return Math.abs(f(root)) < 1 ? root : null; // 구간 분류가 바뀌는 불연속점은 비용이 같은 지점이 아니다.
 }
 
 export function mulberry32(seed) {

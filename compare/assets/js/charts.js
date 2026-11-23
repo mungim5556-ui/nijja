@@ -6,7 +6,7 @@ export const num = (x, digits = 0) => Number(x).toLocaleString("ko-KR", { minimu
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
 export const COST_PARTS = [
-  ["labor", "인건비", "var(--s1)"], ["equipment", "장비비", "var(--s2)"], ["disposal", "처리비", "var(--s3)"], ["indirect", "간접비", "var(--s4)"],
+  ["labor", "인건비", "var(--s1)"], ["equipment", "장비비", "var(--s2)"], ["disposal", "처리비", "var(--s3)"], ["transport", "운반비", "var(--s5)"], ["indirect", "간접비", "var(--s4)"],
 ];
 export const REVENUE_COLOR = "var(--s6)";
 
@@ -15,7 +15,7 @@ export const legend = (items) => `<div class="legend">${items.map(([label, color
 // 두 안의 비용 구성: 0의 오른쪽에 비용을 쌓고, 왼쪽에 매각수익을 둔다
 export function stackedBars(scenarios) {
   const W = 760, L = 96, R = 150, rowH = 44, gap = 22, top = 8;
-  const maxCost = Math.max(...scenarios.map((s) => s.labor + s.equipment + s.disposal + s.indirect));
+  const maxCost = Math.max(...scenarios.map((s) => COST_PARTS.reduce((sum, [key]) => sum + (s[key] ?? 0), 0)));
   const maxRev = Math.max(...scenarios.map((s) => s.revenue));
   const k = (W - L - R) / (maxCost + maxRev), x0 = L + maxRev * k;
   const H = top + scenarios.length * (rowH + gap);
@@ -24,7 +24,7 @@ export function stackedBars(scenarios) {
     const y = top + i * (rowH + gap);
     let x = x0;
     for (const [key, label, color] of COST_PARTS) {
-      const w = s[key] * k;
+      const w = (s[key] ?? 0) * k;
       if (w > 0.5) out += `<rect x="${x + 1}" y="${y}" width="${Math.max(0, w - 2)}" height="${rowH}" rx="3" fill="${color}" data-tip="${esc(`${s.name} · ${label}: ${mil(s[key])}백만원`)}"/>`;
       x += w;
     }
