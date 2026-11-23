@@ -6,17 +6,18 @@
 .brand { display: flex; flex-direction: column; padding-bottom: 12px; }
 .brand strong { font-family: var(--font-display); font-size: 18px; }
 .brand span { font-size: 13px; }
-.tabs { display: flex; gap: 4px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; max-width: 100%; }
 .tabs button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; }
 .tabs button[aria-current] { color: var(--text); border-color: var(--color-primary); }
 .tabs button span { display: inline-block; width: 22px; height: 22px; line-height: 22px; text-align: center; border-radius: 50%; background: var(--surface-2); font-size: 12px; margin-right: 6px; }
 
 .page { max-width: 1120px; margin: 0 auto; padding: 28px 24px 80px; display: flex; flex-direction: column; gap: 20px; }
+.page > * { min-width: 0; }
 .page h1 { font-size: 26px; }
 .page h2 { font-size: 18px; margin-bottom: 12px; }
 .lead { color: var(--text-muted); max-width: 70ch; }
 .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 20px; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
 .kpi .v { font-family: var(--font-display); font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .kpi .l { font-size: 13px; color: var(--text-muted); }
@@ -44,6 +45,18 @@ svg rect[data-tip]:hover { filter: brightness(1.12); }
 .drop { border: 2px dashed var(--border); border-radius: var(--radius-lg); padding: 28px; text-align: center; display: flex; flex-direction: column; gap: 12px; align-items: center; }
 .drop.over { border-color: var(--color-primary); background: var(--color-primary-soft); }
 details summary { cursor: pointer; font-weight: 600; }
+@media (max-width: 640px) {
+  .top { position: static; padding: 12px 16px; gap: 9px; }
+  .tabs { width: 100%; gap: 3px; }
+  .tabs button { flex: 1 1 auto; padding-inline: 6px; }
+  .tabs button span { display: none; }
+  .page { padding: 24px 14px 54px; gap: 14px; }
+  .page .card { padding: 16px; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .kpi .v { font-size: 25px; }
+  .drop { padding: 18px 12px; }
+  .drop .btn { white-space: normal; }
+}
 @media print {
   .top, .no-print, .tip { display: none !important; }
   .page { padding: 0; max-width: none; }

@@ -41,8 +41,9 @@ STRUCTURAL = ("column", "beam", "foundation", "stair")
 # 재료 물량이 없을 때 개구부 면적당 질량 (kg/㎡) — 편집기 ASSEMBLIES와 같은 가정값
 OPENING_DEFAULT = {"window": {"pvcFrame": 9.0, "glass": 20.0}, "door": {"woodDoor": 18.0}}
 
-OUT_PARAMS = [  # 이름, 숫자 여부
+OUT_PARAMS = [  # 이름, 숫자 여부. RC_비용차는 예전 Python 엔진 결과(CSV 적용 버튼이 계속 쓴다)
     (u"RC_성상", False), (u"RC_톤", True), (u"RC_처리", False), (u"RC_재활용", False), (u"RC_비용차", True),
+    (u"RC_처리비", True), (u"RC_매각", True),
 ]
 IN_PARAMS = [(u"RC_시공성", True), (u"RC_유해물질", False)]
 HAZARD_TEXT = {u"석면 의심": "suspected", u"석면 확인": "confirmed", u"suspected": "suspected", u"confirmed": "confirmed"}
@@ -219,6 +220,117 @@ def collect_items(doc, mapping=None):
                 "name": el.Name, "level": _level_name(doc, el), "fallback": fallback,
             })
     return items, unknown, gfa
+
+
+# ---------- 물량만 읽기 (비용은 결과 서버가 공법 비교 엔진으로 계산) ----------
+
+def _levels(doc):
+    from Autodesk.Revit.DB import Level
+    return [{"name": l.Name, "elevation": l.Elevation * FT} for l in FilteredElementCollector(doc).OfClass(Level)]
+
+
+def _level_of(doc, el, levels):
+    """부재의 기준 레벨 이름. 레벨 매개변수가 없으면 형상 바닥 높이 아래의 가장 가까운 레벨."""
+    names = []
+    lid = getattr(el, "LevelId", None)
+    if lid and lid != ElementId.InvalidElementId:
+        names.append(lid)
+    for bip_name in ("FAMILY_BASE_LEVEL_PARAM", "INSTANCE_REFERENCE_LEVEL_PARAM", "WALL_BASE_CONSTRAINT", "STAIRS_BASE_LEVEL_PARAM", "SCHEDULE_LEVEL_PARAM"):
+        bip = getattr(BuiltInParameter, bip_name, None)
+        if bip is None:
+            continue
+        try:
+            p = el.get_Parameter(bip)
+        except Exception:
+            p = None
+        if p and p.HasValue:
+            try:
+                names.append(p.AsElementId())
+            except Exception:
+                pass
+    for i in names:
+        if i and i != ElementId.InvalidElementId:
+            lv = doc.GetElement(i)
+            if lv is not None and hasattr(lv, "Elevation"):
+                return lv.Name
+    bb = el.get_BoundingBox(None)
+    if bb and levels:
+        z = bb.Min.Z * FT + 0.05
+        below = [l for l in levels if l["elevation"] <= z]
+        pick = max(below, key=lambda l: l["elevation"]) if below else min(levels, key=lambda l: l["elevation"])
+        return pick["name"]
+    return None
+
+
+def _global_id(el):
+    try:
+        p = el.get_Parameter(BuiltInParameter.IFC_GUID)
+        if p and p.HasValue and p.AsString():
+            return p.AsString()
+    except Exception:
+        pass
+    return el.UniqueId or u""
+
+
+def collect_raw(doc):
+    """모델 → (부재 원자료 목록, 레벨 목록). reclaim_quantities.build_bundle의 입력.
+
+    재료 이름과 재료별 부피를 그대로 넘긴다 (분류·톤 환산은 서버의 공법 비교 엔진이 한다).
+    재료 물량이 없는 부재는 재료 이름만(부피 0) 넘기고 부재 부피를 쓴다."""
+    levels = _levels(doc)
+    raw = []
+    seen = set()
+    for bic, cat in CATEGORIES:
+        for el in FilteredElementCollector(doc).OfCategory(bic).WhereElementIsNotElementType():
+            eid = el.Id.IntegerValue if hasattr(el.Id, "IntegerValue") else el.Id.Value
+            if eid in seen:
+                continue
+            seen.add(eid)
+            try:
+                mids = list(el.GetMaterialIds(False))
+            except Exception:
+                mids = []
+            layers, total = [], 0.0
+            for mid in mids:
+                mat = doc.GetElement(mid)
+                try:
+                    vol = el.GetMaterialVolume(mid) * FT3
+                except Exception:
+                    vol = 0.0
+                layers.append({"name": mat.Name if mat else u"", "category": (getattr(mat, "MaterialClass", u"") or u"") if mat else u"",
+                               "thickness": max(vol, 0.0)})
+                total += max(vol, 0.0)
+            volume = total if total > 0 else _element_volume(el)
+            if cat in ("window", "door"):
+                area = _opening_area(doc, el)
+            elif cat in STRUCTURAL:
+                area = 0.0
+            else:
+                area = _host_area(el)
+            bb = el.get_BoundingBox(None)
+            raw.append({
+                "globalId": _global_id(el), "tag": eid, "name": el.Name, "category": cat,
+                "level": _level_of(doc, el, levels), "volume": volume, "area": area, "layers": layers,
+                "top": bb.Max.Z * FT if bb else None,
+            })
+    return raw, levels
+
+
+def write_rows(doc, rows):
+    """서버 결과(reclaim_quantities.param_rows) → 부재마다 RC_* 매개변수 (트랜잭션 안에서 호출). 쓴 부재 수를 돌려준다."""
+    n = 0
+    for tag, v in rows.items():
+        el = doc.GetElement(element_id(tag))
+        if el is None:
+            continue
+        set_param(el, u"RC_성상", v["waste"])
+        set_param(el, u"RC_톤", round(v["tons"], 3))
+        set_param(el, u"RC_처리", method_label(v["method"]))
+        set_param(el, u"RC_재활용", u"예" if v["method"] == "selective" else u"아니오")
+        set_param(el, u"RC_처리비", round(v["disposal"]))
+        set_param(el, u"RC_매각", round(v["revenue"]))
+        n += 1
+    return n
 
 
 # ---------- 공유 매개변수 ----------

@@ -16,6 +16,14 @@ Revit 기본 재료(Generic 등)도 콘크리트로 처리되므로, 정확하�
 
 열린 Revit 모델에서 **일괄 압쇄 vs 전면 분별해체**의 비용·공기를 계산하고, 결과를 부재 매개변수와 색 뷰로 모델에 넣습니다. 결과를 넣은 뒤 저장하면 그대로 제출용 `.rvt`가 됩니다.
 
+> **2026-11-23부터: Revit은 물량만 뽑고, 비용은 결과 서버가 계산합니다.**
+> - '해체 분석' 버튼과 무인 일괄 실행은 부재마다 재료 이름·재료별 부피·면적·레벨을 묶음(`reclaim-quantities/1`)으로 만들어 결과 서버(Cloudflare Worker)에 올립니다 (`lib/reclaim_quantities.py`, `reclaim_revit.collect_raw`).
+> - 서버가 **공법 비교 탭과 같은 엔진**(reclaim-compare `pipeline.js`)으로 계산해 돌려주면, 부재마다 `RC_성상`·`RC_톤`·`RC_처리`·`RC_재활용`·`RC_처리비`·`RC_매각`(원)을 쓰고 색 뷰를 만듭니다.
+> - 그래서 인터넷 연결과 `~/reclaim_config.json`의 `upload.token`이 필요합니다. 토큰이 없으면 물량 묶음만 저장합니다.
+> - 공법 비교 엔진이 바뀌면 서버는 저장된 물량을 다시 계산합니다(사이트에서 열 때). Revit 쪽은 고칠 것이 없습니다.
+> - 확인: `node scripts/test_revit_quantities.mjs` (가짜 Revit 자료 → Python 묶음 → Worker 계산 → RC_* 값)
+> - 아래 '계산 기준' 절과 `reclaim_engine.py`(Python 엔진)는 예전 방식이며, 'CSV 적용' 버튼만 아직 씁니다.
+
 ## 설치 (처음 한 번)
 
 1. [pyRevit](https://github.com/pyrevitlabs/pyRevit/releases)의 최신 설치 파일(`pyRevit_..._signed.exe`)을 받아 설치하고 Revit을 다시 켭니다. 리본에 **pyRevit** 탭이 생깁니다.

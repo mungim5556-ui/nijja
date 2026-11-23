@@ -46,6 +46,34 @@ node --test
 
 논문과 다른 점: 구조체·장비비·간접비·비철 매각을 넣었고, 재활용 수익은 제품 판매가가 아닌 **폐자재 매각가**를 기본으로 씁니다.
 
+### IFC의 해체 범위와 공정표
+
+모델 탭의 현장 조건에서 지상부·지하부·전체·부분해체를 선택합니다. 부분해체에는 대상 부재 IFC를 사용합니다. 지상·지하를 나눠 집계할 때 경계 슬래브·지붕 후보는 기본적으로 지하부에 귀속합니다. 계획서나 모델 탭에서 귀속 범위를 지정할 수 있고, 지하부의 기초 포함 여부도 조정할 수 있습니다. 전체 프로젝트의 비용은 공통 가설비와 간접비를 고려해 전체 범위에서 비교합니다.
+
+임의의 IFC에도 `reclaim-plan/1` JSON을 연결할 수 있습니다. `building.demolition_area_m2`에는 해당 범위 면적을, `demolition.scope`에는 `above`, `below`, `full`, `partial` 중 실제 범위를 기록합니다. 경계 슬래브·지붕의 귀속은 `demolition.basement_cap_owner`에 `above` 또는 `below`로 지정합니다. 지상 높이는 현장 입력, 계획서의 `building.height_m`, IFC에서 추정한 지상 높이 순으로 적용합니다.
+
+`demolition.work_schedule`은 `crush`와 `selective` 객체에 `totalDays`, `structureDays`, `setupDays`, `interiorDays`, `finishDays`, `excavatorHours`, `equipmentQuote`, `extraWorksCost`를 담을 수 있습니다. 모델 탭의 ‘공정표 입력값 반영’으로 기입한 항목을 적용합니다. 철골 작업이 있는 경우 전체 작업일의 근거와 절단·인양 공기의 확인 상태를 공법별로 표시합니다.
+
+### 콘크리트 특수절단·인양
+
+모델의 `콘크리트 절단·인양`에서 해체 범위 안의 지상·지하 경계, 외곽, 옥상, 코어 등 검토 후보를 확인합니다. 현장의 존치부, 낙하 통제, 인양 조건에 따라 실제 절단면을 등록합니다. 후보와 IFC 참고 치수는 자동으로 비용에 반영하지 않습니다. 두 공법에서 동일한 절단은 공통으로 등록합니다.
+
+절단량은 새 절단선의 길이와 두께의 곱 또는 절단 단면의 넓이로 산정합니다. 견적은 절단과 인양으로 구분하고, 절단 견적에 인양이 들어 있다면 별도 인양비를 합산하지 않습니다. 와이어쏘의 작업시간 참고값은 [서울시 도시철도 적산](https://news.seoul.go.kr/citybuild/archives/235864?listPage=2)과 [건식 와이어쏘 신기술 품셈](https://www.codil.or.kr/filebank/files/201806/helpdesk/BBS_201806211120111581.pdf?atchFileId=FILE_000000000006598&fileSn=1)의 서로 다른 조건을 사용합니다. [성남시 교량 계약 단가](https://www.seongnam.go.kr/contents/down/public_works/10478_71_2.pdf)는 선택한 경우에만 와이어쏘 절단비의 참고값으로 적용합니다.
+
+기본 공기에는 실제로 늘어나는 작업일을, 기본 굴착기 산정에는 실제로 줄어드는 시간만 반영합니다. 직접 입력한 전체·구조체 공정표와 기본 장비의 현장 시간·견적을 우선합니다. 절단 대상 범위나 일부 견적이 미확정이면 포함 비용을 비교할 수 있고 최종 판단은 보류합니다.
+
+분별 선철거·선별에 추가로 쓰는 소형 장비는 추가 작업일당 1.2시간을 잠정 적용합니다. [거제 공동주택 시험시공](https://kscejournal.or.kr/jksce/XmlViewer/f406455)의 장비 운용 사례를 참고한 비교 가정입니다. 모델에서 해당 현장의 추가 가동시간이나 견적을 입력하면 추정을 대체합니다. 추정과 무상·미사용을 구분하려면 추가 투입이 없을 때 0을 입력합니다.
+
+### 동관·폐전선 매각
+
+설치량은 현장 입력, IFC의 확인 가능한 설비 수량, 해체 대상 연면적의 순으로 적용합니다. 해체 면적의 비교 원단위는 피복 포함 전선이 주택 0.35·일반 비주거 0.60kg/㎡, 동관이 주택 0.10·일반 비주거 0.25kg/㎡입니다. 부분해체·지하부·개방형 골조와 공장 등 특수 용도는 IFC 수량이나 입력값을 사용합니다. 품목의 설치가 없으면 설치 중량에 0을 입력합니다. 계근 매각량 입력은 회수 추정보다 우선합니다.
+
+IFC를 불러오면 모델 안의 용도 정보와 확인된 해체계획을 사용합니다. 용도 근거가 없으면 공동주택을 기본으로 선택하며, 모델 탭에서 변경할 수 있습니다. 첨부 파일명은 표시와 내보내기에 사용합니다.
+
+접근 가능한 설비는 양 공법에서 85%, 접근이 어려운 설비는 압쇄 15%·분별 65%를 비교 가정으로 적용합니다. 노출 비중은 폐전선 50%, 동관 70%입니다. 따라서 전체 가정 회수율은 폐전선 50%·75%, 동관 64%·79%입니다. [Yale 구리 회수 연구](https://elischolar.library.yale.edu/fes-pubs/12/)의 노출 구리 회수 사례와 [Curtis Plaza 분별 철거](https://en.echo.com.pl/preview%2C2060%2Cecho-investment-capital-group-sustainability-report-for-2025.pdf)의 전선 회수 사례를 참고했습니다. 국내 공법별 계근 자료가 확보되면 단가 탭의 원단위와 회수 가정을 교체할 수 있습니다.
+
+면적 원단위는 해외의 [주택·업무시설 전선 설치 자료](https://www.dflca.ch/inventories/Baumaterial/BfU_2011-GraueEnergie_Sanitaer_Elektro.pdf), [사무소 동관 설치 자료](https://www.pankowfoundation.org/site/assets/files/2034/4lcaofmechanicalelectricalandplumbinginofficebuildingsfinalreport.pdf#page=28), [상업시설 부분해체 계근](https://www.scielo.br/j/esa/a/NzFzz4DRN3p4K6FfXqSYfGv/?format=html&lang=en), [주택 동관 시스템 모델](https://help.oneclicklca.com/en/articles/275986-one-click-lca-generic-data-updates-2025)을 낮춰 적용한 잠정 추정입니다. 설비 설치량과 인수가는 비교 화면에 근거와 함께 표시합니다.
+
 ## 파일
 
 ```
@@ -56,11 +84,22 @@ assets/data/paper2023_case.json   논문 사례 (검증 정답지)
 assets/data/sample.ifc      예시 모델 (scripts/make_sample_ifc.mjs 로 생성)
 assets/js/scenario.js       두 안의 비용 엔진, 논문 재현
 assets/js/sensitivity.js    손익분기, 토네이도, 몬테카를로
+assets/js/pipeline.js       계산 흐름 (입력값 → 분류 → 물량 → 비교 결과). 화면과 서버가 같이 쓴다
 assets/js/ifc.js            IFC 읽기 (web-ifc)
 assets/js/classify.js       부재 → 폐기물 성상·톤수, 부재별 결과 CSV
 assets/js/viewer3d.js, charts.js, app.js
 revit/                      공유 매개변수 파일, pyRevit 되쓰기 스크립트
 ```
+
+## 계산 흐름 모듈 (`assets/js/pipeline.js`)
+
+화면(`app.js`)의 계산은 모두 `pipeline.js`의 `derive(state, { rates, defaults })`가 합니다. DOM·fetch·localStorage를 쓰지 않아, 브라우저 밖(서버·Node)에서도 화면과 같은 결과를 냅니다.
+
+- **계산 방식을 바꿀 때는 `pipeline.js`(와 scenario.js·classify.js 등 엔진 모듈)를 고치세요.** `app.js`는 화면과 입력값만 다룹니다.
+- 서버·일괄 처리용 입구:
+  - `computeModel(model, inputs, { rates, defaults, p })`: IFC를 화면에 처음 올렸을 때와 같은 기본 조건으로 계산합니다. `model`은 `ifc.js parseIfc()`와 같은 모양이고, `inputs`로 용도·면적·범위 같은 화면 입력값을 덮어쓸 수 있습니다. 반환값은 `{ cmp, q, classified, state, elementRows, comparisonLimit, ... }`입니다.
+  - `computeQuantities(bundle, { rates, defaults })`: 물량 묶음 `{ schema: "reclaim-quantities/1", model, inputs?, p? }`을 계산합니다.
+- [nijja](https://github.com/mungim5556-ui/nijja)는 이 모듈로 Revit이 올린 물량을 서버(Cloudflare Worker)에서 계산합니다. 그래서 공법 비교 화면과 Revit 결과가 같은 엔진에서 나옵니다.
 
 ## 알려진 한계
 

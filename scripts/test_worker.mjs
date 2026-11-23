@@ -46,4 +46,38 @@ check((await call("/results/" + encodeURIComponent(entry.id), { method: "DELETE"
 check((await (await call("/results", { headers: auth })).json()).length === 0, "삭제 후 목록 비어 있음");
 check((await call("/1613000/unknown")).status === 404, "기존 공공데이터 프록시 경로 규칙 유지");
 
+// ---- 물량 묶음 → Worker가 공법 비교 엔진으로 계산 ----
+const { computeQuantities, QUANTITIES_SCHEMA } = await import("../compare/assets/js/pipeline.js");
+const { paramValues } = await import("../compare/assets/js/scenario.js");
+const { readFileSync } = await import("node:fs");
+const rates = JSON.parse(readFileSync(new URL("../compare/assets/data/rates.json", import.meta.url)));
+const layer = (name, thickness = 0.2) => ({ name, category: "", thickness });
+const elements = [];
+for (const floor of [1, 2]) {
+  elements.push({ globalId: `S${floor}`, tag: `${100 + floor}`, name: "Slab", category: "slab", floor, volume: 20, area: 100, layers: [layer("Concrete")] });
+  for (let i = 0; i < 4; i++) elements.push({ globalId: `W${floor}${i}`, tag: `${200 + floor * 10 + i}`, name: "Wall", category: "wall", floor, volume: 6, area: 30, layers: [layer("Concrete"), layer("Gypsum Board", 0.0125)] });
+}
+const bundle = { schema: QUANTITIES_SCHEMA, name: "시험 RC 2층", source: "revit",
+  model: { name: "시험 RC 2층", elements, gross: { area: 200, basis: "slab" }, floors: 2, aboveFloors: 2, usage: "비주거 RC" }, inputs: { usage: "비주거 RC" } };
+const direct = computeQuantities(bundle, { rates, defaults: paramValues(rates) });
+const qr = await call("/results", { method: "POST", body: JSON.stringify(bundle), headers: { ...auth, "Content-Type": "application/json" } });
+const qe = await qr.json();
+check(qr.status === 201 && qe.schema === QUANTITIES_SCHEMA, `물량 묶음 올리기 → 201 (${qe.id})`);
+check(qe.result && qe.general === direct.cmp.crush.total && qe.selective === direct.cmp.selective.total, `Worker 계산 = 엔진 직접 호출 (압쇄 ${Math.round(qe.general)} / 분별 ${Math.round(qe.selective)}원)`);
+check(Array.isArray(qe.days) && qe.days[0] === direct.cmp.crush.days, "목록 항목에 공기");
+check(qe.result.elementRows.some((row) => row.tag === "101" && row.method), "부재별 결과(ElementId·처리 방식)가 있음");
+check(qe.engine && qe.result.engine.repo === "mungim5556-ui/reclaim-compare", `계산 엔진 기록 (${String(qe.engine).slice(0, 7)})`);
+// 엔진이 바뀐 것처럼 만들면 GET할 때 다시 계산한다
+const key = "r:" + qe.id;
+const stored = JSON.parse(kv.get(key));
+stored.result.engine.commit = "old-engine"; stored.result.crush.total = 1;
+kv.set(key, JSON.stringify(stored));
+const again = await (await call("/results/" + encodeURIComponent(qe.id), { headers: auth })).json();
+check(again.result.crush.total === direct.cmp.crush.total && again.result.engine.commit !== "old-engine", "엔진이 바뀌면 GET할 때 다시 계산해 갱신");
+// 계산할 수 없는 물량(면적 미확인)도 물량은 저장되고 이유가 남는다
+const bbox = { ...bundle, name: "외곽 치수", model: { ...bundle.model, gross: { area: 250, basis: "bbox" } } };
+const be = await (await call("/results", { method: "POST", body: JSON.stringify(bbox), headers: auth })).json();
+check(be.general === null && /외곽 치수/.test(be.error || ""), "면적이 확인되지 않으면 계산 대신 이유를 남김");
+check((await call("/results", { method: "POST", body: JSON.stringify({ schema: QUANTITIES_SCHEMA, model: {} }), headers: auth })).status === 400, "model.elements 없으면 400");
+
 process.exitCode = failed ? 1 : 0;

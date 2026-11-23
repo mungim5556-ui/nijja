@@ -2,7 +2,7 @@
 // 계획서의 구조도면(그리드, 부재 목록, 배치)을 옮긴 JSON만 있으면 Revit 없이 구조체 모델이 만들어진다.
 // 좌표는 mm, y는 도면처럼 아래로 증가. 보·벽은 축에 나란한 선분만 지원한다.
 
-import { materialClass } from "./classify.js";
+import { materialClass } from "./classify.js?v=scope-report-20261123";
 
 const m = (mm) => mm / 1000;
 // 부재 재료: section.material이 있으면 그 이름(예: "Brick masonry", "Steel SS400"), 없으면 콘크리트
@@ -121,7 +121,7 @@ export function planToIfc(plan, opts) {
 
 // 계획서의 현장·장비 조건 → 모델 입력값. 명시한 값을 우선하고, 없으면 해체공법 문구로 탑재 여부를 추정한다.
 // demolition: { site: "wide"|"normal"|"tight"|"restricted", equipment: "large"|"small"|"mounted",
-//               crane_days: 숫자, ground_floors: 지상 장비가 해체하는 하부 층수 }
+//               crane_days: 숫자, ground_floors: 지상 장비가 해체하는 하부 층수, basement_cap_owner: "above"|"below" }
 export function planConditions(plan, { sites = {}, equipments = {} } = {}) {
   const d = plan?.demolition || {}, out = {}, notes = [];
   const number = (x) => Number.isFinite(x) && x >= 0 ? x : undefined;
@@ -131,11 +131,16 @@ export function planConditions(plan, { sites = {}, equipments = {} } = {}) {
     else out.structure = /^(rc$|철근콘크리트)/i.test(structure) && !/조적|복합/.test(structure) ? "rc" : "other";
   }
   const scope = d.scope?.trim() || "";
-  if (["above", "partial", "full", "unknown"].includes(scope)) out.scope = scope;
+  if (["above", "below", "partial", "full", "unknown"].includes(scope)) out.scope = scope;
   else if (/^지상/.test(scope)) out.scope = "above";
+  else if (/^지하/.test(scope)) out.scope = "below";
   else if (/^전체|^전부/.test(scope)) out.scope = "full";
-  else if (/일부|부분|^지하/.test(scope)) out.scope = "partial";
+  else if (/일부|부분/.test(scope)) out.scope = "partial";
   if (out.scope || out.structure) notes.push("계획서 구조형식·해체 범위 반영");
+  if (["above", "below"].includes(d.basement_cap_owner)) {
+    out.basementCapOwner = d.basement_cap_owner;
+    notes.push("경계 슬래브·지붕의 귀속 범위(계획서 데이터)");
+  }
   const method = d.method || "";
   const explicit = Object.hasOwn(equipments, d.equipment) && d.equipment !== "auto";
   if (explicit && (d.equipment !== "mounted" || /탑재/.test(method))) { out.equipment = d.equipment; notes.push("장비 방식(계획서 데이터)"); }

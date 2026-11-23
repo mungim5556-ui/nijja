@@ -72,6 +72,13 @@ test("계획서의 현장·장비 조건: 명시한 값이 우선하고, 없으�
   assert.deepEqual(planConditions({ demolition: { site: "wide", method: "장비 탑재" } }, opts).values, { equipment: "mounted", site: "wide" });
 });
 
+test("계획서가 명시한 경계 슬래브 귀속만 적용한다", async () => {
+  const { planConditions } = await import("../assets/js/plan.js");
+  assert.equal(planConditions({ demolition: { basement_cap_owner: "above" } }).values.basementCapOwner, "above");
+  assert.equal(planConditions({ demolition: { basement_cap_owner: "invalid" } }).values.basementCapOwner, undefined);
+  assert.equal(planConditions(load("kalis/06-office-below.json")).values.basementCapOwner, "below");
+});
+
 test("공개 계획서 7건: IFC 부재 수와 재료별 부피가 예시 목록과 일치한다", () => {
   const { items } = load("kalis/index.json");
   assert.equal(items.length, 7);

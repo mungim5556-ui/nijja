@@ -531,3 +531,28 @@ Revit처럼 부재·자재별로 그리고, 부재마다 정보를 입력하는 
 
 - 결과 위 **계산 조건** 칩이 같으면 결과도 같다.
 - 검증: `scripts/test_ifc_repeat.mjs`, 브라우저에서 다른 상태(예시 모델·옛 지정 키·계획서) 뒤 다시 불러오기 → 같은 값.
+
+## 계산 엔진 통일: Revit은 물량만, 비용은 reclaim-compare 엔진 (2026-11-23)
+
+같은 건물인데 공법 비교 탭(203/208백만원)과 BIM·Revit(508/591백만원) 결과가 2~3배 달랐다. 계산 엔진이 세 벌(reclaim-compare JS, 편집기 cost.js, Revit Python)이었기 때문이다.
+
+결정:
+- 계산 원본 = reclaim-compare.
+- Revit은 물량만 뽑고, **결과 서버가 업로드 순간 계산**한다(2번 방식, 사람이 사이트를 열지 않아도 결과가 생김).
+
+```
+Revit (pyRevit) ── 재료 이름·재료별 부피·면적·레벨 (reclaim-quantities/1) ──▶ Cloudflare Worker POST /results
+                                                                               │ compare/assets/js/pipeline.js
+                                                                               ▼ (공법 비교 탭과 같은 코드)
+Revit RC_* 매개변수·색 뷰 ◀── 부재별 결과(elementRows) ── 결과 저장(KV) ──▶ 사이트 '서버 결과'
+```
+
+- reclaim-compare PR #6: 화면(app.js)의 계산 흐름 `derive()`를 `pipeline.js`로 옮기고, 서버용 입구 `computeModel`·`computeQuantities`를 추가했다(화면 결과 동일 확인).
+- nijja:
+  - `proxy/cost.js` + `worker.js`: 업로드 때 계산, 엔진이 바뀌면 열 때 재계산
+  - `revit/ReClaim.extension/lib/reclaim_quantities.py` + `reclaim_revit.collect_raw`: 물량 묶음
+  - `.github/workflows/deploy-worker.yml`: Worker 자동 배포
+- 무료 Worker의 CPU 한도(10ms)는 큰 모델에서 넘을 수 있다. 예시 모델 362부재 ≈ 5ms. 그래서 물량을 먼저 저장하고 계산한다.
+- 남은 일:
+  - BIM 편집기 엔진 통일
+  - 예전 Python 엔진(`reclaim_engine.py`, `test_engines.mjs`) 정리 (CSV 적용 버튼 전환 후)

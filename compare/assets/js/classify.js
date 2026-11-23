@@ -1,5 +1,5 @@
 // IFC 부재(종류·재료 층·부피·면적) → 폐기물 성상별 톤수. DOM·web-ifc를 쓰지 않는다.
-import { SEPARATED, STREAMS, EXCLUDED, separation, concreteGrades, rebarTons, streamTons } from "./scenario.js";
+import { SEPARATED, STREAMS, EXCLUDED, separation, concreteGrades, pvcFrameRecovery, rebarTons, streamTons } from "./scenario.js?v=service-recovery-20261123";
 
 export const CATEGORY_LABEL = {
   wall: "벽", slab: "슬래브", beam: "보", column: "기둥", footing: "기초", stair: "계단", roof: "지붕",
@@ -178,7 +178,10 @@ export function connectFinishTakeoff(q, raw, rates, params) {
     const hasWeight = inputWeight != null || measured > 0;
     const modeledArea = q.finishAreas[key];
     const unverified = q.finishFallbackDisabled && !hasWeight && modeledArea == null;
-    const area = modeledArea ?? (hasWeight ? measured / tonsPerArea : unverified ? 0 : q.area_m2 * params["int_" + key + "_ratio"]);
+    const estimatedArea = key === "board"
+      ? Math.max(0, q.area_m2 * params.int_board_ratio - (q.finishAreaExclusions?.board ?? 0))
+      : Math.max(0, q.area_m2 - (q.finishAreaExclusions?.floor ?? 0)) * params.int_tile_ratio;
+    const area = modeledArea ?? (hasWeight ? measured / tonsPerArea : unverified ? 0 : estimatedArea);
     const tons = hasWeight ? measured : area * tonsPerArea;
     q.finishAreas[key] = area;
     q.t[key] = tons;
@@ -217,31 +220,77 @@ export function checkAgainstUnits(q, usage, rates, rebarKgPerM3 = rates.params.r
   });
 }
 
-// 부재별 결과 (전면 분별 시나리오 기준) — CSV와 Revit 되쓰기에 쓴다
-// mixedFee: 건물 전체로 판정한 분별 후 혼합건설폐기물 단가 (scenario.js의 mixedWaste().fee)
+// 부재별 결과 — CSV, 보고서, Revit 되쓰기에 쓴다. mode: "selective"(전면 분별) | "crush"(일괄 압쇄)
+// mixedFee: 건물 전체로 판정한 그 공법의 혼합건설폐기물 단가 (scenario.js의 mixedWaste().fee)
+// 단가·성상 배분·회수율은 scenario.js의 건물 전체 계산과 같은 값을 쓴다.
 export function isStructuralSteelPart(el, part) {
   return part.stream === "metal" && (["beam", "column"].includes(el.category) || el.category === "plate" && !el.guessed);
 }
 
-export function elementResults(classified, p, mixedFee = p.fee_mixed_unverified, q = {}) {
+export function elementResults(classified, p, mixedFee = p.fee_mixed_unverified, q = {}, mode = "selective", scenario = null) {
+  const sel = mode === "selective";
   const cost = (net) => Math.max(0, -net), gain = (net) => Math.max(0, net);
-  const split = separation(p);
-  const quotedShare = q.cleanPrice == null ? 0 : (q.cleanSel ?? 0) / 100;
-  const gradeFee = concreteGrades(p, true, q.concreteCase).reduce((sum, grade) => sum + grade.share * grade.fee, 0);
+  // 목재·수지·유리의 기본 분리율은 분별 공법에 적용한다.
+  const split = sel ? separation(p) : { wood: 0, resin: 0, glass: 0, board: 0 };
+  const quotedShare = q.cleanPrice == null ? 0 : ((sel ? q.cleanSel : q.cleanCrush) ?? 0) / 100;
+  const gradeFee = concreteGrades(p, sel, q.concreteCase, q.t ? q : undefined).reduce((sum, grade) => sum + grade.share * grade.fee, 0);
   const concreteFee = (1 - quotedShare) * gradeFee + quotedShare * (q.cleanPrice ?? 0);
+  const finishFee = (key, quote, fallback) => {
+    if (!scenario) return fallback;
+    const route = scenario.finishRoutes?.[key];
+    const total = route?.total ?? q.t?.[key] ?? 0;
+    if (!(total > 0)) return fallback;
+    const separate = route?.separate ?? scenario.split[key];
+    const carryover = route?.concreteCarryover ?? 0;
+    const mixed = total - separate - carryover;
+    return (separate * Math.max(0, quote) + mixed * mixedFee + carryover * p.fee_concrete) / total;
+  };
+  const boardFee = q.boardFee ?? p.fee_board_separate;
   const fee = (s) => s === "concrete" ? concreteFee
     : s === "masonry" ? p.fee_concrete
     : s === "wood" ? split.wood * cost(p.net_wood) + (1 - split.wood) * mixedFee
     : s === "resin" ? split.resin * cost(p.net_resin) + (1 - split.resin) * mixedFee
     : s === "glass" ? split.glass * Math.max(0, p.fee_glass_separate) + (1 - split.glass) * mixedFee
-    : s === "board" ? split.board * Math.max(0, p.fee_board_separate) + (1 - split.board) * mixedFee
+    : s === "board" ? finishFee("board", boardFee, split.board * Math.max(0, boardFee) + (1 - split.board) * mixedFee)
+    : s === "tile" ? finishFee("tile", q.tileFee ?? -1, mixedFee)
     : s === "panel" ? Math.max(0, p.fee_panel)
-    : s === "mixed" || s === "tile" ? mixedFee : 0;
-  const price = (s) => s === "metal" ? p.rec_scrap_sel * p.price_scrap
-    : s === "copper" ? (q.fixedComparison ? 0 : (p.rec_copper_sel ?? p.rec_nonferrous_sel) * p.price_copper)
-    : s === "aluminum" ? p.rec_nonferrous_sel * p.price_aluminum
+    : s === "mixed" ? mixedFee : 0;
+  const scrapRecovery = sel ? p.rec_scrap_sel : p.rec_scrap_crush;
+  const nonferrous = sel ? p.rec_nonferrous_sel : p.rec_nonferrous_crush;
+  const copperRate = (sel ? p.rec_copper_sel : p.rec_copper_crush) ?? nonferrous;
+  const price = (s) => s === "metal" ? scrapRecovery * p.price_scrap
+    : s === "copper" ? (q.fixedComparison ? 0 : copperRate * p.price_copper)
+    : s === "aluminum" ? nonferrous * p.price_aluminum
     : s === "wood" ? split.wood * gain(p.net_wood)
     : s === "resin" ? split.resin * gain(p.net_resin) : 0;
+  const pvcShare = pvcFrameRecovery(q, sel);
+  const pvcPrice = (q.pvcPrice ?? 0) * 1000;
+  const isPvcFrame = (el, part) => q.pvcFrameTons > 0 && part.stream === "resin"
+    && (el.category === "window" || part.windowAssembly);
+  const serviceShare = (item, key) => {
+    const method = item.methods[mode];
+    const total = Math.max(item.model.kg, item.treatmentKg, method.soldKg ?? 0);
+    return total > 0 ? (method[key] ?? 0) / total : 0;
+  };
+  const partFee = (el, part) => {
+    const item = scenario?.services?.[el.serviceKind];
+    if (item) return serviceShare(item, "residueKg") * p.fee_mixed_unverified;
+    if (isPvcFrame(el, part)) return pvcShare * cost(pvcPrice) + (1 - pvcShare) * mixedFee;
+    if (q.windowMode && part.stream === "glass" && (el.category === "window" || el.parts.some(x => x.windowAssembly))) {
+      return p.fee_mixed_unverified;
+    }
+    return fee(part.stream);
+  };
+  const partPrice = (el, part) => {
+    const item = scenario?.services?.[el.serviceKind];
+    if (item) return serviceShare(item, "soldKg") * item.price * 1000;
+    if (isPvcFrame(el, part)) return pvcShare * gain(pvcPrice);
+    if (q.windowMode && part.stream === "aluminum" && (el.category === "window" || part.windowAssembly)) {
+      return q.alPrice == null ? p.price_aluminum : q.alPrice * 1000;
+    }
+    if (q.steelWork && isStructuralSteelPart(el, part)) return (p.rec_structural_steel ?? p.rec_scrap_sel) * p.price_scrap;
+    return price(part.stream);
+  };
   // 구조 콘크리트 안의 철근 추정량은 엔진과 같이 폐콘크리트에서 빼서 고철로 센다
   // 모델 철근이 있으면 엔진과 같이: 콘크리트에서는 철근 전체를 빼고, 고철 수익은 모델에 없는 추정분만 콘크리트 부재에 배분한다
   const total = q.concrete_m3 > 0 ? streamTons({ ...q, t: { concrete: Infinity } }, p) : null;
@@ -251,14 +300,13 @@ export function elementResults(classified, p, mixedFee = p.fee_mixed_unverified,
     ? Math.min(x.tons, scale * rebarTons({ concrete_m3: x.m3, rebarKgPerM3: q.rebarKgPerM3 }, p.rebar_kg_per_m3)) : 0;
   return classified.map((el) => ({
     globalId: el.globalId, tag: el.tag, category: el.category, floor: el.floor, stream: el.stream,
-    method: el.stream === EXCLUDED ? "제외" : SEPARATED.has(el.stream) ? "분별" : "압쇄",
+    // 처리 방식은 실제로 적용한 작업이다. 철근 회수 효과는 아래 금액(공법별 회수율)에 반영한다.
+    method: el.stream === EXCLUDED ? "제외" : sel && (el.serviceKind || SEPARATED.has(el.stream)) ? "분별 해체" : "압쇄 해체",
     tons: el.tons,
-    disposal: el.parts.reduce((s, x) => s + (x.tons - rebarOf(el, x)) * (q.windowMode && x.stream === "glass" && (el.category === "window" || el.parts.some(part => part.windowAssembly)) ? p.fee_mixed_unverified : fee(x.stream))
-      + (q.fixedComparison && x.stream === "metal" && el.category !== "rebar" ? x.tons * (1 - (q.steelWork && isStructuralSteelPart(el, x) ? p.rec_structural_steel ?? p.rec_scrap_sel : p.rec_scrap_sel)) * p.fee_mixed_unverified : 0)
-      + rebarOf(el, x) * (1 - p.rec_scrap_sel) * p.fee_concrete, 0),
-    revenue: el.parts.reduce((s, x) => s + x.tons * ((el.category === "window" || x.windowAssembly) && x.stream === "aluminum" && q.windowMode
-      ? q.alPrice == null ? p.price_aluminum : q.alPrice * 1000
-      : q.steelWork && isStructuralSteelPart(el, x) ? (p.rec_structural_steel ?? p.rec_scrap_sel) * p.price_scrap : price(x.stream)) + rebarOf(el, x) * sold * price("metal"), 0),
+    disposal: el.parts.reduce((s, x) => s + (x.tons - rebarOf(el, x)) * partFee(el, x)
+      + (q.fixedComparison && x.stream === "metal" && el.category !== "rebar" ? x.tons * (1 - (q.steelWork && isStructuralSteelPart(el, x) ? p.rec_structural_steel ?? p.rec_scrap_sel : scrapRecovery)) * p.fee_mixed_unverified : 0)
+      + rebarOf(el, x) * (1 - scrapRecovery) * p.fee_concrete, 0),
+    revenue: el.parts.reduce((s, x) => s + x.tons * partPrice(el, x) + rebarOf(el, x) * sold * price("metal"), 0),
   }));
 }
 
@@ -275,7 +323,7 @@ export function reconcileElementResults(results, appliedTons, scenario) {
   if (weightUnits === 0 && disposal === 0 && revenue === 0) return results;
   return [...results, {
     globalId: "", tag: "", category: "adjustment", floor: "", stream: "",
-    method: "합계 정산", tons: weightUnits / 10000, disposal, revenue,
+    method: "부재 미귀속", tons: weightUnits / 10000, disposal, revenue,
   }];
 }
 

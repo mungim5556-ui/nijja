@@ -130,9 +130,9 @@
     "members": 153
    },
    "inputs": {
-    "scope": "partial"
+    "scope": "below"
    },
-   "comparisonLimit": "지하 4개 층만 집계했습니다. 흙막이·기초 해체와 지하 반출의 작업량과 단가가 필요합니다."
+   "costNote": "지하부 해체와 흙막이·되메우기를 포함하는 범위입니다. 공법별 공정표와 별도 공종 견적을 확인하세요."
   },
   {
    "file": "plans/kalis/07-factory.json",

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""해체 분석 한 번: 물량 읽기 → 2안 계산 → (선택) RC_* 매개변수·색 뷰 → 요약 JSON.
+"""해체 분석 한 번: Revit 물량 읽기 → 결과 서버(공법 비교 엔진)가 계산 → (선택) RC_* 매개변수·색 뷰.
 
-리본의 '해체 분석' 버튼과 무인 일괄 실행(revit/batch/reclaim_batch.py)이 같이 쓴다.
-대화 상자는 띄우지 않는다. 용도·재료 지정은 호출하는 쪽이 넘긴다.
+비용은 Revit 안에서 계산하지 않는다. 공법 비교 화면과 같은 엔진(reclaim-compare pipeline.js)을
+결과 서버(Cloudflare Worker)가 돌린다. 리본의 '해체 분석' 버튼과 무인 일괄 실행이 같이 쓴다.
 """
 from __future__ import division
 import io
@@ -11,8 +11,7 @@ import os
 
 from Autodesk.Revit.DB import Transaction
 
-import reclaim_engine as E
-import reclaim_io as IO
+import reclaim_quantities as Q
 import reclaim_revit as R
 
 MAP_PATH = os.path.join(os.path.expanduser("~"), "reclaim_material_map.json")
@@ -41,44 +40,43 @@ def load_config():
     return load_json(CONFIG_PATH, {})
 
 
-def write_results(doc, app, ext_folder, items, deltas):
-    """부재마다 RC_* 매개변수를 쓰고 'ReClaim 결과' 3D 뷰를 만든다. 뷰를 돌려준다."""
-    t = Transaction(doc, u"ReClaim 분석")
-    t.Start()
-    try:
-        guids = R.ensure_shared_params(doc, app, ext_folder)
-        for it in items:
-            el = doc.GetElement(R.element_id(it["id"]))
-            if el is None:
-                continue
-            waste = E.dominant_waste(it["tons"])
-            method = deltas[it["id"]]["method"]
-            R.write_result(el, E.RATES["waste"].get(waste, {}).get("label", waste), sum(it["tons"].values()),
-                           method, method == "selective", deltas[it["id"]]["delta"] / 1000.0)
-        view = R.result_view(doc, guids)
-        t.Commit()
-        return view
-    except Exception:
-        t.RollBack()
-        raise
+def analyze(doc, app, ext_folder, use, gfa=None, write_params=True, upload=None, inputs=None):
+    """물량만 읽어 결과 서버에 올리고, 서버가 공법 비교 엔진으로 계산한 결과를 받는다.
 
-
-def analyze(doc, app, ext_folder, use, mapping=None, gfa_fallback=None, write_params=True, params=None):
-    items, unknown, gfa = R.collect_items(doc, mapping or {})
-    if gfa <= 0 and gfa_fallback:
-        gfa = float(gfa_fallback)
-    ctx = {"gfa": gfa, "use": use}
-    res = E.compare_items(items, ctx, params or {})
-    deltas = E.item_deltas(items, ctx, params or {})
-    view = write_results(doc, app, ext_folder, items, deltas) if write_params else None
-    summary = IO.summary_json(doc.Title, ctx, items, res, params)
-    summary["source"] = "revit"
-    summary["unknownMaterials"] = dict((k, round(v, 3)) for k, v in unknown.items())
-    summary["fallbackElements"] = len([it for it in items if it.get("fallback")])
-    summary["check"] = E.check_block(items, ctx, res, params)
-    w = E.uncosted_warning(res["general"]["uncostedStructure"])
-    summary["warnings"] = [w] if w else []
-    return {"items": items, "unknown": unknown, "gfa": gfa, "ctx": ctx, "res": res, "deltas": deltas, "view": view, "summary": summary}
+    upload: {"url":..., "token":...}. 토큰이 없으면 물량 묶음만 만든다 (비용 계산 없음).
+    write_params: 결과가 있으면 부재마다 RC_* 매개변수와 'ReClaim 결과' 3D 뷰를 만든다.
+    돌려주는 값: {bundle, record(파일로 저장할 묶음 + 결과), result, entry(서버 목록 항목), error, view, written}"""
+    raw, levels = R.collect_raw(doc)
+    bundle = Q.build_bundle(raw, levels, doc.Title, use, gfa, inputs)
+    entry, result, error = None, None, None
+    up = upload or {}
+    if up.get("token"):
+        try:
+            import reclaim_upload as UP
+            entry = UP.upload(bundle, up.get("url"), up.get("token"))
+            result = entry.get("result")
+            error = entry.get("resultError") or entry.get("error")
+        except Exception as e:
+            error = u"결과 서버 전송 실패: %s" % e
+    else:
+        error = u"결과 서버 토큰이 없어 비용을 계산하지 않았습니다 (~/reclaim_config.json의 upload.token)."
+    view, written = None, 0
+    if write_params and result and result.get("elementRows"):
+        t = Transaction(doc, u"ReClaim 분석")
+        t.Start()
+        try:
+            guids = R.ensure_shared_params(doc, app, ext_folder)
+            written = R.write_rows(doc, Q.param_rows(result))
+            view = R.result_view(doc, guids)
+            t.Commit()
+        except Exception:
+            t.RollBack()
+            raise
+    record = dict(bundle)
+    record["result"] = result
+    record["resultError"] = error
+    record["serverId"] = entry.get("id") if entry else None
+    return {"bundle": bundle, "record": record, "result": result, "entry": entry, "error": error, "view": view, "written": written}
 
 
 def summary_path(doc, folder=None):
@@ -87,11 +85,13 @@ def summary_path(doc, folder=None):
     return os.path.join(folder, u"%s.reclaim.json" % doc.Title)
 
 
-def table_rows(res):
-    g, s = res["general"], res["selective"]
-    m = lambda v: u"{:,.1f}".format(v / 1e6)
-    return [[u"인건비", m(g["laborCost"]), m(s["laborCost"])], [u"장비비", m(g["equipCost"]), m(s["equipCost"])],
-            [u"반출비", m(g["haulCost"]), m(s["haulCost"])], [u"처리비", m(g["disposalCost"]), m(s["disposalCost"])],
-            [u"공기 간접비", m(g["indirect"]), m(s["indirect"])],
-            [u"매각 수익", u"−" + m(g["revenueTotal"]), u"−" + m(s["revenueTotal"])],
-            [u"합계 (백만원)", m(g["total"]), m(s["total"])], [u"공기 (일)", u"%.1f" % g["days"], u"%.1f" % s["days"]]]
+def table_rows(result):
+    """서버 결과 → 보고 표 (백만원)."""
+    c, s_ = result["crush"], result["selective"]
+    m = lambda v: u"{:,.1f}".format((v or 0) / 1e6)
+    rows = [[u"인건비", "labor"], [u"장비비", "equipment"], [u"처리비", "disposal"], [u"운반비", "transport"], [u"간접비", "indirect"]]
+    out = [[label, m(c.get(k)), m(s_.get(k))] for label, k in rows]
+    out.append([u"매각 수익", u"−" + m(c.get("revenue")), u"−" + m(s_.get("revenue"))])
+    out.append([u"순비용 (백만원)", m(c.get("total")), m(s_.get("total"))])
+    out.append([u"공기 (일)", u"%.1f" % (c.get("days") or 0), u"%.1f" % (s_.get("days") or 0)])
+    return out

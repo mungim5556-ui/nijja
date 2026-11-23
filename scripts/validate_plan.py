@@ -38,7 +38,41 @@ def err(model, plan):
     return (model - plan) / plan * 100.0
 
 
+def rows_for_result(summary, plan):
+    """새 형식: 결과 서버(공법 비교 엔진)가 계산한 result. 계획서 scenario general → 일괄 압쇄(crush)."""
+    r = summary.get("result")
+    if not r or not r.get("crush"):
+        raise ValueError(u"%s: 서버 계산 결과가 없습니다 (%s)" % (summary.get("name"), summary.get("resultError") or u"이유 미상"))
+    sc = r["crush"] if plan.get("scenario", "general") in ("general", "crush") else r["selective"]
+    t = dict(r.get("tons") or {})
+    rows = []
+
+    def add(label, model, planv, unit):
+        rows.append({"item": label, "model": model, "plan": planv, "unit": unit, "err": err(model, planv)})
+
+    add(u"연면적", (r.get("inputs") or {}).get("area"), plan.get("gfa"), u"㎡")
+    tons = {}
+    for k, v in (plan.get("tons") or {}).items():
+        key = WASTE_ALIAS.get(k, k)
+        tons[key] = tons.get(key, 0) + v
+    total = sum(v for v in t.values() if isinstance(v, (int, float)))
+    for key in sorted(tons):
+        if key == "total":
+            continue
+        model = t.get("mixed", 0.0) + t.get("board", 0.0) + t.get("tile", 0.0) + t.get("glass", 0.0) if key == "mixed" else \
+            t.get("concrete", 0.0) + t.get("masonry", 0.0) if key == "concrete" else t.get(key, 0.0)
+        add(u"폐기물 %s" % key, round(model, 1), tons[key], "t")
+    if tons:
+        add(u"폐기물 합계", round(total, 1), tons.get("total", sum(v for k, v in tons.items() if k != "total")), "t")
+    if plan.get("concreteM3"):
+        add(u"콘크리트 부피", r.get("concreteM3"), plan["concreteM3"], u"㎥")
+    add(u"공기", round(sc.get("days") or 0, 1), plan.get("days"), u"일")
+    return [x for x in rows if x["plan"] not in (None, "")]
+
+
 def rows_for(summary, plan):
+    if summary.get("schema") == "reclaim-quantities/1":
+        return rows_for_result(summary, plan)
     c = summary.get("check")
     if not c:
         raise ValueError(u"%s: check 항목이 없습니다 (최신 저장소로 다시 분석하세요)" % summary.get("name"))

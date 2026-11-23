@@ -21,6 +21,7 @@
  "demolition": {
   "fromLevel": "B4",
   "scope": "지하층 해체(지하1층 상부 슬래브~지하4층)",
+  "basement_cap_owner": "below",
   "method": "장비 탑재 압쇄(무한궤도 굴착기·토목장비) + 흙막이·되메우기"
  },
  "materials": {

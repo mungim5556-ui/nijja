@@ -1,10 +1,13 @@
-# Cloudflare Worker 설정 (wrangler로 배포할 때). 대시보드에서 코드만 붙여 넣는다면 이 파일은 필요 없다.
-# 배포: npx wrangler deploy --config proxy/wrangler.toml
+# Cloudflare Worker 설정. main에 합쳐지면 GitHub Actions(.github/workflows/deploy-worker.yml)가 배포한다.
+# worker.js가 compare/(공법 비교 엔진)를 import하므로 대시보드에 붙여 넣는 방식으로는 배포할 수 없다.
+# 손으로 배포: npx wrangler deploy --config proxy/wrangler.toml
 name = "nijja-api"
 main = "worker.js"
 compatibility_date = "2026-11-01"
+# 대시보드에서 넣은 일반 변수(vars)를 배포할 때 지우지 않는다. 비밀 변수(secret)는 원래 유지된다.
+keep_vars = true
 
-# 해체 분석 결과 저장소. id는 Cloudflare 대시보드(Storage & Databases → KV)에서 만든 네임스페이스의 ID로 바꾼다.
+# 해체 분석 결과 저장소. id는 자동 배포 때 저장소 Secret RESULTS_KV_ID로 바뀐다 (손으로 배포할 때는 직접 바꾼다).
 [[kv_namespaces]]
 binding = "RESULTS"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"

@@ -1216,12 +1216,34 @@ async function resultsFetch(path = "") {
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return r.json();
 }
+// Revit 물량 묶음을 결과 서버가 공법 비교 엔진으로 계산한 결과 (편집기 엔진과 다르므로 편집기로 불러오지 않고 그대로 보여 준다)
+function serverResultDetail(rec, id) {
+  const r = rec.result;
+  const head = `<div class="dlg-head"><h4 id="results-title">${esc(rec.name || id)}</h4><span><button class="btn btn-ghost btn-sm" type="button" data-dlg="back">목록</button><button class="icon-btn" type="button" data-dlg="close" aria-label="닫기"><svg class="i"><use href="#i-x"/></svg></button></span></div>`;
+  if (!r || !r.crush) return head + `<div class="dlg-body"><div class="callout">계산 결과가 없습니다: ${esc(rec.resultError || r?.comparisonLimit || "이유 미상")}</div></div>`;
+  const items = [["인건비", "labor"], ["장비비", "equipment"], ["처리비", "disposal"], ["운반비", "transport"], ["간접비", "indirect"], ["매각 수익", "revenue"]];
+  const row = (label, k, neg = false) => `<tr><td>${label}</td><td class="r">${neg ? "−" : ""}${mw(r.crush[k] || 0)}</td><td class="r">${neg ? "−" : ""}${mw(r.selective[k] || 0)}</td></tr>`;
+  const d = r.selective.total - r.crush.total;
+  return head + `<div class="dlg-body">
+    <div class="verdict"><strong>${d < 0 ? "전면 분별해체" : "일괄 압쇄"}가 ${mw(Math.abs(d))}백만원 더 경제적입니다</strong>
+      <span>공기 ${r1(r.crush.days)} → ${r1(r.selective.days)}일 · 연면적 ${r1(r.inputs?.area || 0)}㎡ · ${esc(r.inputs?.usage || "")}</span></div>
+    <p class="note">Revit 물량을 결과 서버가 <b>공법 비교 탭과 같은 엔진</b>(reclaim-compare ${esc((r.engine?.commit || "").slice(0, 7))})으로 계산했습니다. 자세한 항목·가정은 공법 비교 탭에서 같은 건물의 IFC로 확인할 수 있습니다.</p>
+    <div class="table-wrap"><table class="tbl compact"><thead><tr><th>항목</th><th class="r">일괄 압쇄</th><th class="r">전면 분별</th></tr></thead><tbody>
+      ${items.map(([l, k]) => row(l, k, k === "revenue")).join("")}
+      <tr><td><b>순비용</b></td><td class="r"><b>${mw(r.crush.total)}</b></td><td class="r"><b>${mw(r.selective.total)}</b></td></tr>
+    </tbody></table></div><p class="sub">단위: 백만원</p>
+    ${(r.review || []).length ? `<div class="callout"><b>확인 필요</b><ul>${r.review.map((x) => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+  </div>`;
+}
+
 async function openServerResult(id) {
   const m = await resultsFetch("/" + encodeURIComponent(id));
+  if (m.schema === "reclaim-quantities/1") { $("#results-dlg").innerHTML = serverResultDetail(m, id); return false; }
   if (!Array.isArray(m.levels) || !Array.isArray(m.elements)) throw new Error("ReClaim 결과가 아닙니다");
   mutate(() => {}); model = { params: {}, use: "주거 공동주택", ...m, serverId: id }; resetUi(); save();
   ui.tab = "compare";
   renderAll();
+  return true;
 }
 async function showServerResults() {
   const dlg = $("#results-dlg");
@@ -1231,9 +1253,9 @@ async function showServerResults() {
   let body;
   try {
     const list = await resultsFetch();
-    body = list.length ? `<p class="note">Revit '해체 분석'이나 무인 일괄 실행이 보낸 결과입니다. 행을 누르면 편집기로 불러와 공법 비교·불확실성 분석을 볼 수 있습니다.</p>
+    body = list.length ? `<p class="note">Revit '해체 분석'이나 무인 일괄 실행이 보낸 결과입니다. '공법 비교 엔진' 결과는 서버가 공법 비교 탭과 같은 엔진으로 계산한 값이고, '예전 Revit 엔진' 결과는 행을 누르면 편집기로 불러옵니다.</p>
       <div class="table-wrap"><table class="tbl compact"><thead><tr><th>모델</th><th>보낸 때</th><th class="r">부재</th><th class="r">일괄</th><th class="r">분별</th><th class="r">차이</th></tr></thead><tbody>
-      ${list.map((e) => `<tr data-result="${esc(e.id)}" tabindex="0"><td>${esc(e.name)}<div class="sub">${esc(e.use)} · ${r1(e.gfa)}㎡</div></td><td>${new Date(e.at).toLocaleString("ko-KR")}</td><td class="r">${e.elements}</td><td class="r">${e.general == null ? "–" : mw(e.general)}</td><td class="r">${e.selective == null ? "–" : mw(e.selective)}</td><td class="r">${e.general == null ? "–" : signed(mw(e.selective - e.general))}</td></tr>`).join("")}
+      ${list.map((e) => `<tr data-result="${esc(e.id)}" tabindex="0"><td>${esc(e.name)}<div class="sub">${esc(e.use)} · ${r1(e.gfa)}㎡${e.schema === "reclaim-quantities/1" ? " · 공법 비교 엔진" : " · 예전 Revit 엔진"}${e.error ? ` · ⚠ ${esc(e.error)}` : ""}</div></td><td>${new Date(e.at).toLocaleString("ko-KR")}</td><td class="r">${e.elements}</td><td class="r">${e.general == null ? "–" : mw(e.general)}</td><td class="r">${e.selective == null ? "–" : mw(e.selective)}</td><td class="r">${e.general == null ? "–" : signed(mw(e.selective - e.general))}</td></tr>`).join("")}
       </tbody></table></div><p class="sub">단위: 백만원</p>` : `<p class="note">아직 올라온 결과가 없습니다. Revit ReClaim 탭의 '해체 분석'(설정에서 upload.auto)이나 revit/batch/run_reclaim.bat으로 보내세요.</p>`;
   } catch (err) {
     body = `<div class="callout">${esc(err.message)}</div>`;
@@ -1246,9 +1268,10 @@ $("#results-dlg").addEventListener("click", async (e) => {
   const b = e.target.closest("[data-dlg]");
   if (b?.dataset.dlg === "close") return dlg.close();
   if (b?.dataset.dlg === "token") { resultsToken(true); return showServerResults(); }
+  if (b?.dataset.dlg === "back") return showServerResults();
   const row = e.target.closest("[data-result]");
   if (!row) return;
-  try { await openServerResult(row.dataset.result); dlg.close(); }
+  try { if (await openServerResult(row.dataset.result)) dlg.close(); }
   catch (err) { alert("결과를 불러오지 못했습니다: " + err.message); }
 });
 

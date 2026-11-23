@@ -221,12 +221,21 @@ flowchart LR
 
 | 입력 | 도구 | 결과 |
 |---|---|---|
-| Revit 모델 | **Revit ReClaim 탭 → 해체 분석** (`revit/ReClaim.extension`) | 부재마다 `RC_*` 매개변수, 'ReClaim 결과' 색 3D 뷰, 비용 표, `.reclaim.json` |
+| Revit 모델 | **Revit ReClaim 탭 → 해체 분석** (`revit/ReClaim.extension`) | Revit은 물량만 뽑아 결과 서버에 올리고, 서버가 **공법 비교 엔진**으로 계산 → 부재마다 `RC_*` 매개변수, 'ReClaim 결과' 색 3D 뷰, 비용 표, `.reclaim.json` |
 | IFC 파일 | **`bim.html` → IFC 불러오기** | 2안 비교·불확실성 분석, **Revit용 CSV** → Revit **CSV 적용** |
 | 해체계획서만 | `bim.html` → 공법 비교 → 해체계획서 간이 계산 | 연면적·용도(·계획서 물량)로 2안 비교 |
 | 여러 IFC | `node scripts/batch_ifc.mjs <폴더>` | 모델별 물량·2안 결과 CSV (검증용) |
 
 설치와 사용법은 [`revit/README.md`](revit/README.md)에 있습니다.
+
+#### 계산 엔진은 하나: reclaim-compare
+
+- 비용 계산의 원본은 [reclaim-compare](https://github.com/mungim5556-ui/reclaim-compare)의 `assets/js/pipeline.js`입니다(공법 비교 탭이 쓰는 것과 같은 코드).
+- **Revit 결과도 이 엔진으로 계산합니다**: Revit 물량 묶음(`reclaim-quantities/1`) → 결과 서버 `POST /results` → `proxy/cost.js`가 `compare/assets/js/pipeline.js`로 계산 → 결과를 저장하고 Revit에 돌려줌.
+- 엔진이 바뀌면(공법 비교 동기화 PR이 합쳐지면) `.github/workflows/deploy-worker.yml`이 Worker를 자동으로 다시 배포하고, 저장된 결과는 열 때 새 엔진으로 다시 계산됩니다.
+  - 필요한 저장소 Secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `RESULTS_KV_ID`
+- 확인: `node scripts/test_worker.mjs`, `node scripts/test_revit_quantities.mjs`
+- BIM 편집기(`assets/js/bim/cost.js`)는 아직 자체 엔진입니다. 다음 단계에서 같은 엔진으로 바꿉니다.
 
 #### 공법 비교 탭 (`compare.html`, 옛 ReClaim Compare)
 

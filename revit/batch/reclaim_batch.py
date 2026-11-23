@@ -81,8 +81,6 @@ def move_to(path, sub):
 use = cfg.get("use") or u"주거 공동주택"
 write_params = bool(cfg.get("write_params", False))
 up = cfg.get("upload") or {}
-mapping = RUN.load_map()
-mapping.update(cfg.get("materials") or {})
 
 done = 0
 for path in models:
@@ -96,17 +94,26 @@ for path in models:
         for key, mc in (cfg.get("models") or {}).items():
             if key in os.path.basename(path):
                 m_use, m_gfa = mc.get("use") or m_use, mc.get("gfa") or m_gfa
-        r = RUN.analyze(doc, app, EXT, m_use, mapping, m_gfa, write_params=write_params, params=cfg.get("params"))
-        res = r["res"]
+        # 물량만 읽어 결과 서버에 올리고, 서버(공법 비교 엔진)가 계산한 결과를 받는다
+        r = RUN.analyze(doc, app, EXT, m_use, m_gfa, write_params=write_params, upload=up)
         sp = RUN.summary_path(doc, out_dir)
-        IO.write_json(sp, r["summary"])
-        log(u"분석: 부재 %d, 연면적 %.0f㎡, 일괄 %.1f / 분별 %.1f 백만원, 공기 %.1f / %.1f일 → %s" % (
-            len(r["items"]), r["gfa"], res["general"]["total"] / 1e6, res["selective"]["total"] / 1e6,
-            res["general"]["days"], res["selective"]["days"], sp))
-        if r["unknown"]:
-            log(u"미분류 재료: %s" % u", ".join(sorted(r["unknown"])))
-        for w in r["summary"].get("warnings") or []:
-            log(u"경고: %s" % w)
+        IO.write_json(sp, r["record"])
+        m = r["bundle"]["model"]
+        res = r["result"]
+        if res and res.get("crush"):
+            log(u"분석: 부재 %d, 연면적 %.0f㎡(%s), 일괄 %.1f / 분별 %.1f 백만원, 공기 %.1f / %.1f일 → %s" % (
+                len(m["elements"]), res["inputs"]["area"] or 0, m["gross"]["basis"], res["crush"]["total"] / 1e6,
+                res["selective"]["total"] / 1e6, res["crush"]["days"], res["selective"]["days"], sp))
+        else:
+            log(u"물량만 저장: 부재 %d, 연면적 %.0f㎡ → %s" % (len(m["elements"]), m["gross"]["area"], sp))
+        if r["error"]:
+            log(u"계산 안내: %s" % r["error"])
+        for w in (res or {}).get("review") or []:
+            log(u"확인 필요: %s" % w)
+        if r["entry"]:
+            log(u"전송: %s (엔진 %s)" % (r["entry"].get("id"), (r["entry"].get("engine") or u"")[:7]))
+        if r["written"]:
+            log(u"RC_* 매개변수: 부재 %d개" % r["written"])
         if write_params:
             from Autodesk.Revit.DB import SaveAsOptions
             opt = SaveAsOptions()
@@ -122,10 +129,6 @@ for path in models:
                     except Exception:
                         pass
             log(u"결과 사본 저장: %s" % copy_path)
-        if up.get("token"):
-            import reclaim_upload as UP
-            entry = UP.upload(r["summary"], up.get("url"), up.get("token"))
-            log(u"전송: %s" % entry.get("id"))
         done += 1
         ok = True
     except Exception:
