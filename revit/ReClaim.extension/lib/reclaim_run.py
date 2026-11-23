@@ -15,7 +15,8 @@ import reclaim_quantities as Q
 import reclaim_revit as R
 
 MAP_PATH = os.path.join(os.path.expanduser("~"), "reclaim_material_map.json")
-CONFIG_PATH = os.path.join(os.path.expanduser("~"), "reclaim_config.json")
+# 환경 변수 RECLAIM_CONFIG로 다른 설정 파일을 쓸 수 있다 (시험용: 로컬 Worker 주소 등). 없으면 ~/reclaim_config.json
+CONFIG_PATH = os.environ.get("RECLAIM_CONFIG") or os.path.join(os.path.expanduser("~"), "reclaim_config.json")
 
 
 def load_json(path, default):
