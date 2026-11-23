@@ -107,7 +107,12 @@ def material_notes(result, top=5):
         lines.append(u"미분류 재료 %d종 (부재 기본 재료로 계산): " % len(items) +
                      u", ".join(u"%s %.1f㎥" % kv for kv in items[:top]) + (u" 외" if len(items) > top else u""))
     empty = (result or {}).get("emptyElements") or []
-    if empty:
-        lines.append(u"부피 0 부재 %d개 (물량 누락): " % len(empty) +
-                     u", ".join(u"%s(%s)" % (e.get("tag"), e.get("category")) for e in empty[:top]) + (u" 외" if len(empty) > top else u""))
+    cut = [e for e in empty if e.get("joinedCut")]
+    lost = [e for e in empty if not e.get("joinedCut")]
+    if cut:
+        lines.append(u"결합으로 부피 0인 부재 %d개 (벽·기둥 부피에 포함된 것으로 보고 그대로 둠): " % len(cut) +
+                     u", ".join(u"%s(%s)" % (e.get("tag"), e.get("category")) for e in cut[:top]) + (u" 외" if len(cut) > top else u""))
+    if lost:
+        lines.append(u"부피 0 부재 %d개 (형상을 읽지 못함, 물량 누락 가능): " % len(lost) +
+                     u", ".join(u"%s(%s)" % (e.get("tag"), e.get("category")) for e in lost[:top]) + (u" 외" if len(lost) > top else u""))
     return lines

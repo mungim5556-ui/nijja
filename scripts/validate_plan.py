@@ -157,7 +157,7 @@ def main(argv):
         empty = (s.get("result") or {}).get("emptyElements")
         if empty:
             detail.append(u"")
-            detail.append(u"부피 0 부재 %d개: " % len(empty) + u", ".join(u"%s %s" % (e.get("tag"), e.get("category")) for e in empty[:10]))
+            detail.append(u"부피 0 부재 %d개: " % len(empty) + u", ".join(u"%s %s%s" % (e.get("tag"), e.get("category"), u"(결합)" if e.get("joinedCut") else u"") for e in empty[:10]))
     text = u"\n".join(lines + overview + detail) + u"\n"
     if out:
         with io.open(out, "w", encoding="utf-8") as f:

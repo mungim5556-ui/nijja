@@ -52,7 +52,7 @@ export function costBundle(bundle) {
     unknownMaterials: unknownMaterials(bundle.model),
     // 부피·면적이 모두 0이라 물량에 들어가지 않은 부재 (Revit 형상을 못 읽은 경우)
     emptyElements: (bundle.model?.elements || []).filter((e) => !(e.volume > 0) && !(e.area > 0) && !["window", "door"].includes(e.category))
-      .map((e) => ({ tag: e.tag, category: e.category, name: e.name })),
+      .map((e) => ({ tag: e.tag, category: e.category, name: e.name, joinedCut: Boolean(e.joinedCut) })),
     elementRows: (out.elementRows || []).map((r) => pick(r, ROW_KEYS)),
   };
 }

@@ -301,6 +301,15 @@ def collect_raw(doc):
                                "thickness": max(vol, 0.0)})
                 total += max(vol, 0.0)
             volume = total if total > 0 else _element_volume(el)
+            joined = False
+            if volume <= 0:
+                # 결합(join)된 벽·기둥에 완전히 깎이면 부피가 0이 된다. 그 콘크리트는 상대 부재 부피에 이미 들어 있으므로
+                # 길이×단면으로 되살리지 않는다 (중복 계상). 안내만 한다.
+                try:
+                    from Autodesk.Revit.DB import JoinGeometryUtils
+                    joined = JoinGeometryUtils.GetJoinedElements(doc, el).Count > 0
+                except Exception:
+                    joined = False
             if cat in ("window", "door"):
                 area = _opening_area(doc, el)
             elif cat in STRUCTURAL:
@@ -311,7 +320,7 @@ def collect_raw(doc):
             raw.append({
                 "globalId": _global_id(el), "tag": eid, "name": el.Name, "category": cat,
                 "level": _level_of(doc, el, levels), "volume": volume, "area": area, "layers": layers,
-                "top": bb.Max.Z * FT if bb else None,
+                "top": bb.Max.Z * FT if bb else None, "joined": joined,
             })
     return raw, levels
 

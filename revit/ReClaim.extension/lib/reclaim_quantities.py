@@ -83,6 +83,7 @@ def build_model(raw, levels, name=u"", usage=None):
             "floor": floor,
             "volume": round(r.get("volume") or 0.0, 6), "volumeSource": "revit",
             "area": round(r.get("area") or 0.0, 4),
+            "joinedCut": bool(r.get("joined")),
             "layers": [{"name": l.get("name") or u"", "category": l.get("category") or u"", "thickness": round(l.get("thickness") or 0.0, 6)}
                        for l in (r.get("layers") or [])],
         }
