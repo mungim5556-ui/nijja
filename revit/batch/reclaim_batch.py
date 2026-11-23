@@ -110,6 +110,8 @@ for path in models:
             log(u"계산 안내: %s" % r["error"])
         for w in (res or {}).get("review") or []:
             log(u"확인 필요: %s" % w)
+        for line in RUN.material_notes(res):
+            log(line)
         if r["entry"]:
             log(u"전송: %s (엔진 %s)" % (r["entry"].get("id"), (r["entry"].get("engine") or u"")[:7]))
         if r["written"]:

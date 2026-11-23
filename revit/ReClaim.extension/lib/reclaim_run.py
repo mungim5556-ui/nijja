@@ -96,3 +96,18 @@ def table_rows(result):
     out.append([u"순비용 (백만원)", m(c.get("total")), m(s_.get("total"))])
     out.append([u"공기 (일)", u"%.1f" % (c.get("days") or 0), u"%.1f" % (s_.get("days") or 0)])
     return out
+
+
+def material_notes(result, top=5):
+    """서버 결과의 미분류 재료·부피 0 부재 → 안내 줄 목록."""
+    lines = []
+    unknown = (result or {}).get("unknownMaterials") or {}
+    if unknown:
+        items = sorted(unknown.items(), key=lambda kv: -kv[1])
+        lines.append(u"미분류 재료 %d종 (부재 기본 재료로 계산): " % len(items) +
+                     u", ".join(u"%s %.1f㎥" % kv for kv in items[:top]) + (u" 외" if len(items) > top else u""))
+    empty = (result or {}).get("emptyElements") or []
+    if empty:
+        lines.append(u"부피 0 부재 %d개 (물량 누락): " % len(empty) +
+                     u", ".join(u"%s(%s)" % (e.get("tag"), e.get("category")) for e in empty[:top]) + (u" 외" if len(empty) > top else u""))
+    return lines

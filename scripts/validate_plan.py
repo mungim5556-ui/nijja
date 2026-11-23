@@ -145,14 +145,19 @@ def main(argv):
         n = len([r for r in rows if r["err"] is not None])
         overview.append(u"| %s | %d | %d | %s |" % (s["name"], n, n - len(bad), u", ".join(bad) or u"–"))
         detail += [u"", u"## %s" % s["name"], u"",
-                   u"계획서 비교 시나리오: %s · 용도 %s" % (plan.get("scenario", "general"), s.get("use")), u"",
+                   u"계획서 비교 시나리오: %s · 용도 %s" % (plan.get("scenario", "general"), s.get("use") or ((s.get("result") or {}).get("inputs") or {}).get("usage")), u"",
                    u"| 항목 | 모델 | 계획서 | 단위 | 오차 |", u"|---|---:|---:|---|---:|"]
         for r in rows:
             e = u"–" if r["err"] is None else (u"%+.1f%%%s" % (r["err"], u" ⚠" if abs(r["err"]) > tol else u""))
             detail.append(u"| %s | %s | %s | %s | %s |" % (r["item"], fmt(r["model"]), fmt(r["plan"]), r["unit"], e))
-        if s.get("unknownMaterials"):
+        unknown = s.get("unknownMaterials") or (s.get("result") or {}).get("unknownMaterials")
+        if unknown:
             detail.append(u"")
-            detail.append(u"미분류 재료: " + u", ".join(u"%s %.1f㎥" % kv for kv in sorted(s["unknownMaterials"].items())))
+            detail.append(u"미분류 재료: " + u", ".join(u"%s %.1f㎥" % kv for kv in sorted(unknown.items())))
+        empty = (s.get("result") or {}).get("emptyElements")
+        if empty:
+            detail.append(u"")
+            detail.append(u"부피 0 부재 %d개: " % len(empty) + u", ".join(u"%s %s" % (e.get("tag"), e.get("category")) for e in empty[:10]))
     text = u"\n".join(lines + overview + detail) + u"\n"
     if out:
         with io.open(out, "w", encoding="utf-8") as f:

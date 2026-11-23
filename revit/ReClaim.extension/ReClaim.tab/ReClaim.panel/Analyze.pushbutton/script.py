@@ -63,6 +63,8 @@ if res and res.get("crush"):
         out.print_md(u"부재 {}개에 RC_* 매개변수를 썼습니다 ('ReClaim 결과' 3D 뷰).".format(r["written"]))
     for w in res.get("review") or []:
         out.print_md(u"- 확인 필요: {}".format(w))
+    for line in RUN.material_notes(res):
+        out.print_md(u"- {}".format(line))
 if r["error"]:
     out.print_md(u"**계산 안내**: {}".format(r["error"]))
 if r["entry"]:

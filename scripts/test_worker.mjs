@@ -67,6 +67,14 @@ check(qe.result && qe.general === direct.cmp.crush.total && qe.selective === dir
 check(Array.isArray(qe.days) && qe.days[0] === direct.cmp.crush.days, "목록 항목에 공기");
 check(qe.result.elementRows.some((row) => row.tag === "101" && row.method), "부재별 결과(ElementId·처리 방식)가 있음");
 check(qe.engine && qe.result.engine.repo === "mungim5556-ui/reclaim-compare", `계산 엔진 기록 (${String(qe.engine).slice(0, 7)})`);
+{ // 미분류 재료·부피 0 부재
+  const odd = { ...bundle, name: "미분류", model: { ...bundle.model, elements: [...elements,
+    { globalId: "X", tag: "900", name: "Odd", category: "wall", floor: 1, volume: 3, area: 10, layers: [layer("Mystery 123", 0.1), layer("Concrete", 0.1)] },
+    { globalId: "Z", tag: "901", name: "Beam", category: "beam", floor: 1, volume: 0, area: 0, layers: [layer("Concrete", 0)] }] } };
+  const oe = await (await call("/results", { method: "POST", body: JSON.stringify(odd), headers: auth })).json();
+  check(oe.result.unknownMaterials["Mystery 123"] === 1.5 && !("Concrete" in oe.result.unknownMaterials), "미분류 재료 이름·부피 기록");
+  check(oe.result.emptyElements.length === 1 && oe.result.emptyElements[0].tag === "901", "부피 0 부재 기록");
+}
 // 엔진이 바뀐 것처럼 만들면 GET할 때 다시 계산한다
 const key = "r:" + qe.id;
 const stored = JSON.parse(kv.get(key));

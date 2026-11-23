@@ -2,6 +2,7 @@
 // Worker 진입 파일(worker.js)에는 일반 함수를 export하지 않는다 (Cloudflare는 진입 파일의 export를 진입점으로 본다).
 import { computeQuantities, QUANTITIES_SCHEMA } from "../compare/assets/js/pipeline.js";
 import { paramValues, streamTons } from "../compare/assets/js/scenario.js";
+import { materialClass } from "../compare/assets/js/classify.js";
 import RATES from "../compare/assets/data/rates.json" with { type: "json" };
 import UPSTREAM from "../compare/UPSTREAM.json" with { type: "json" };
 
@@ -11,6 +12,22 @@ const DEFAULTS = paramValues(RATES);
 const pick = (o, keys) => Object.fromEntries(keys.map((k) => [k, o?.[k] ?? null]));
 const SCENARIO_KEYS = ["total", "labor", "equipment", "disposal", "transport", "indirect", "revenue", "days"];
 const ROW_KEYS = ["globalId", "tag", "category", "floor", "stream", "method", "tons", "disposal", "revenue"];
+
+// 재료 이름·분류로 성상을 알 수 없는 층 → {재료 이름: ㎥}. 엔진은 이런 층을 부재 범주 기본 재료로 셈한다.
+export function unknownMaterials(model) {
+  const out = {};
+  for (const el of model?.elements || []) {
+    const layers = el.layers || [];
+    const thick = layers.reduce((s, l) => s + (l.thickness || 0), 0);
+    if (!(thick > 0) || el.category === "window" || el.category === "door") continue;
+    for (const l of layers) {
+      if (!l.thickness || materialClass(l.name) || materialClass(l.category)) continue;
+      const name = l.name || "(이름 없음)";
+      out[name] = Math.round(((out[name] || 0) + (el.volume || 0) * l.thickness / thick) * 1000) / 1000;
+    }
+  }
+  return out;
+}
 
 // 물량 묶음 → 저장할 계산 결과 (화면 없이 쓰는 값만)
 export function costBundle(bundle) {
@@ -32,6 +49,10 @@ export function costBundle(bundle) {
     deltaDays: cmp ? cmp.deltaDays : null,
     recommended: out.recommended ?? null,
     includedCostResult: out.includedCostResult ?? null,
+    unknownMaterials: unknownMaterials(bundle.model),
+    // 부피·면적이 모두 0이라 물량에 들어가지 않은 부재 (Revit 형상을 못 읽은 경우)
+    emptyElements: (bundle.model?.elements || []).filter((e) => !(e.volume > 0) && !(e.area > 0) && !["window", "door"].includes(e.category))
+      .map((e) => ({ tag: e.tag, category: e.category, name: e.name })),
     elementRows: (out.elementRows || []).map((r) => pick(r, ROW_KEYS)),
   };
 }
