@@ -1,0 +1,78 @@
+/* 보고서 인쇄 · PDF: RC-01(A1 세로), RC-02·RC-03(A1 가로). 화면에는 보이지 않는다. */
+#print-report { display: none; }
+#print-report.rp-measure { display: block; position: absolute; left: -20000px; top: 0; }
+
+@page { size: 841mm 594mm; margin: 0; }
+@page rc-landscape { size: 841mm 594mm; margin: 0; }
+@page rc-portrait { size: 594mm 841mm; margin: 0; }
+
+@media print {
+  body.rp-printing > :not(#print-report) { display: none !important; }
+  body.rp-printing { background: #fff !important; margin: 0; }
+  body.rp-printing #print-report { display: block; }
+}
+
+.rp-sheet {
+  page: rc-landscape;
+  width: 841mm; height: 594mm; box-sizing: border-box; padding: 14mm;
+  overflow: hidden; break-after: page; background: #fff; color: #111;
+  font-family: "Malgun Gothic", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+}
+.rp-sheet:last-child { break-after: auto; }
+.rp-portrait { page: rc-portrait; width: 594mm; height: 841mm; }
+.rp-sheet * { box-sizing: border-box; }
+
+/* 이중 테두리와 하단 표제란 */
+.rp-frame { height: 100%; display: flex; flex-direction: column; border: 0.6mm solid #111; outline: 0.35mm solid #111; outline-offset: 3mm; }
+.rp-body { flex: 1; min-height: 0; padding: 7mm; display: flex; flex-direction: column; gap: 5mm; }
+.rp-band { height: 70mm; flex: none; display: grid; grid-template-columns: 33% 30% 24% 13%; border-top: 0.5mm solid #111; }
+.rp-cell { border-left: 0.3mm solid #111; min-width: 0; }
+.rp-cell:first-child { border-left: 0; }
+.rp-logo { display: flex; flex-direction: column; }
+.rp-logo img { height: 42mm; margin: 6mm auto 0; object-fit: contain; }
+.rp-url { margin-top: auto; border-top: 0.3mm solid #111; padding: 3mm 4mm; font-size: 3.2mm; }
+.rp-project { display: flex; flex-direction: column; padding: 3mm 4mm; }
+.rp-label { font-size: 4mm; }
+.rp-name { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 8mm; }
+.rp-meta { display: grid; grid-template-rows: 22mm 1fr 1fr; }
+.rp-meta > * { padding: 3mm 4mm; border-top: 0.3mm solid #111; display: flex; align-items: flex-start; }
+.rp-meta > :first-child { border-top: 0; }
+.rp-heading { font-size: 7mm; }
+.rp-line { font-size: 4.5mm; }
+.rp-number { display: flex; align-items: center; justify-content: center; font-size: 11mm; font-weight: 700; }
+
+/* RC-01 */
+.rp-01 { gap: 6mm; }
+.rp-box { border: 0.4mm solid #6e849b; padding: 5mm 6mm; }
+.rp-box h2 { margin: -5mm -6mm 5mm; padding: 3mm 6mm; border-bottom: 0.4mm solid #6e849b; font-size: 6mm; }
+.rp-title h1 { margin: 0 0 3mm; font-size: 10mm; }
+.rp-title p { margin: 0; font-size: 4.5mm; }
+.rp-compare { width: 100%; border-collapse: collapse; font-size: 7mm; }
+.rp-compare th, .rp-compare td { border-bottom: 0.3mm solid #6e849b; padding: 2.4mm 2mm; text-align: left; }
+.rp-compare td:last-child, .rp-compare th:last-child { text-align: right; border-left: 0.3mm solid #6e849b; }
+.rp-compare tr:last-child td { font-weight: 700; }
+.rp-amount { font-size: 8mm; font-weight: 700; }
+.rp-note { margin: 3mm 0 0; font-size: 4.5mm; }
+.rp-review { margin: 1.5mm 0 0; padding-left: 6mm; font-size: 4.5mm; overflow-wrap: anywhere; }
+.rp-figure { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.rp-figure img { flex: 1; min-height: 0; width: 100%; object-fit: contain; }
+.rp-legend { margin: 2mm 0 0; font-size: 4.5mm; }
+.rp-legend i { display: inline-block; width: 4mm; height: 4mm; margin: 0 2mm 0 5mm; vertical-align: -0.5mm; }
+.rp-empty { font-size: 5mm; color: #555; }
+
+/* RC-02·RC-03 */
+.rp-grid { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 5.5mm; }
+.rp-grid td { border: 0.3mm solid #111; padding: 1.6mm 3mm; vertical-align: top; }
+.rp-sheet-title { font-size: 10mm; font-weight: 700; }
+.rp-k { font-size: 5mm; font-weight: 700; }
+.rp-big { font-size: 9mm; font-weight: 700; }
+.rp-columns { flex: 1; min-height: 0; overflow: hidden; display: grid; grid-template-columns: repeat(var(--rp-cols), minmax(0, 1fr)); gap: 6mm; align-items: start; }
+.rp-schedule { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: var(--rp-font); line-height: 1; }
+.rp-schedule th, .rp-schedule td { height: var(--rp-row); padding: 0 0.8mm; border: 0.15mm solid #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rp-schedule th { font-weight: 700; text-align: center; }
+.rp-schedule .r { text-align: right; }
+.rp-schedule-title { font-size: calc(var(--rp-font) * 1.15); }
+.rp-total { flex: none; }
+.rp-total td { vertical-align: middle; }
+.rp-hint { font-size: 3.6mm; font-weight: 400; color: #444; }

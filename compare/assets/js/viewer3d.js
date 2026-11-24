@@ -2,8 +2,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
-export function createViewer(container, model, colorOf, onPick) {
-  const w = container.clientWidth || 800, h = 440;
+export function createViewer(container, model, colorOf, onPick, options = {}) {
+  const w = options.width ?? (container.clientWidth || 800), h = options.height ?? 440;
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(w, h);
@@ -24,7 +24,7 @@ export function createViewer(container, model, colorOf, onPick) {
   scene.add(sun);
   const grid = new THREE.GridHelper(Math.ceil(Math.max(W, D) * 2), 20, 0x8a8f99, 0x8a8f99);
   grid.material.transparent = true; grid.material.opacity = 0.25;
-  scene.add(grid);
+  if (options.grid !== false) scene.add(grid);
 
   const meshes = [];
   for (const m of model.meshes) {
@@ -53,7 +53,8 @@ export function createViewer(container, model, colorOf, onPick) {
     onPick(hit ? hit.object.userData.expressID : null);
   });
 
-  let alive = true;
+  let alive = options.animate !== false;
+  controls.update();
   (function tick() {
     if (!alive) return;
     controls.update();
@@ -62,6 +63,11 @@ export function createViewer(container, model, colorOf, onPick) {
   })();
 
   return {
+    // 보고서용 그림: 한 번 그린 직후 캔버스를 PNG로 읽는다.
+    snapshot() {
+      renderer.render(scene, camera);
+      return renderer.domElement.toDataURL("image/png");
+    },
     dispose() {
       alive = false;
       for (const m of meshes) { m.geometry.dispose(); m.material.dispose(); }

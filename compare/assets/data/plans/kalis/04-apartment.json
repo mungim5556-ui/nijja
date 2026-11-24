@@ -36,8 +36,10 @@
   "note": "가정"
  },
  "hazards": {
-  "asbestos": false,
-  "other": false
+  "asbestos": true,
+  "other": false,
+  "source": "석면조사 결과서 인쇄 p.9–12",
+  "affected_m2": { "ceiling": 5502.93, "wall": 309.97, "floor": 1230.34 }
  },
  "sections": {
   "W1": {

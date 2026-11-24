@@ -1,5 +1,5 @@
 // 손익분기, 토네이도(민감도), 몬테카를로. Δ = 분별 총비용 − 압쇄 총비용 (음수면 분별이 유리)
-import { compare } from "./scenario.js?v=ifc-equipment-days-1";
+import { compare } from "./scenario.js?v=service-recovery-20261123";
 
 export const delta = (q, p) => compare(q, p).delta;
 

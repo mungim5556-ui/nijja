@@ -1,8 +1,8 @@
-import { equipmentMode, schedule, SITES } from "./scenario.js";
+import { equipmentMode, schedule, SITES } from "./scenario.js?v=service-recovery-20261123";
 
 export const VALIDATION_SCHEMA = "reclaim-validation/1";
 export const MIN_CASES = 5;
-export const SCOPES = { above: "지상부", full: "기초·지하부 포함", partial: "부분해체", unknown: "미확인" };
+export const SCOPES = { above: "지상부", below: "지하부", full: "기초·지하부 포함", partial: "부분해체", unknown: "미확인" };
 export const PERIOD_UNITS = { calendar_day: "달력일", planned_day: "계획일", week: "주", month: "개월" };
 const optionalNumbers = [
   "height_m", "total_days", "total_days_max", "structure_days", "crew_mean", "concrete_t", "concrete_m3",

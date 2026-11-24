@@ -103,6 +103,14 @@ test("총액은 내역의 합이며 분별 보조 장비는 추가 작업에만 
   assert.ok(Math.abs(selective.equipment - crush.equipment - estimated) < 1e-6);
   const quoted = compare({ ...q, selectiveEquipmentQuote: 1200000 }, p);
   assert.ok(Math.abs(quoted.selective.equipment - quoted.crush.equipment - 1200000) < 1e-6);
+  const confirmed = compare({ ...q, selectiveEquipmentHours: 2.5 }, p);
+  assert.ok(Math.abs(confirmed.selective.equipment - confirmed.crush.equipment - 2.5 * p.selective_equipment_per_h) < 1e-6);
+  assert.equal(confirmed.selective.days, selective.days);
+  assert.equal(confirmed.selective.revenue, selective.revenue);
+  const noExtra = compare({ ...q, selectiveEquipmentHours: 0 }, p);
+  assert.equal(noExtra.selective.equipment, noExtra.crush.equipment);
+  const quotedHours = compare({ ...q, selectiveEquipmentHours: 2.5, selectiveEquipmentQuote: 1200000 }, p);
+  assert.equal(quotedHours.selective.equipment, quoted.selective.equipment);
   const parallel = compare({ ...q, overlap: 1 }, p);
   assert.equal(parallel.selective.equipment, selective.equipment);
   assert.ok(selective.labor > crush.labor && selective.disposal < crush.disposal && selective.days > crush.days);
@@ -374,6 +382,24 @@ test("현장 설치량은 면적이나 용도 대신 입력값을 쓰고 확인�
   assert.equal(confirmed.selective.rows.some(row => row.item === "피복 전선 (현장 설치량 추정)"), false);
 });
 
+test("폐전선 계근값은 입력한 공법만 대체하고 0t도 적용한다", () => {
+  const input = { ...q, fixedComparison: true, t: {}, cableInstalled: 1 };
+  const sale = (result, item) => Math.abs(result.rows.find(row => row.item === item)?.amount ?? 0);
+  const estimated = "피복 전선 (현장 설치량 추정)";
+  const measured = "별도 계근 폐전선";
+  const selectiveOnly = compare({ ...input, cableSel: 0.75 }, p);
+  assert.equal(sale(selectiveOnly.crush, estimated), 1890000);
+  assert.equal(sale(selectiveOnly.selective, estimated), 0);
+  assert.equal(sale(selectiveOnly.selective, measured), 2700000);
+
+  const crushZero = compare({ ...input, cableCrush: 0 }, p);
+  assert.ok(!crushZero.crush.rows.some(row => row.item === estimated || row.item === measured));
+  assert.equal(sale(crushZero.selective, estimated), 3150000);
+  const commonZero = compare({ ...input, cableCommon: 0, cableSel: 0.75 }, p);
+  assert.ok(!commonZero.crush.rows.some(row => row.item === estimated || row.item === measured));
+  assert.equal(sale(commonZero.selective, measured), 2700000);
+});
+
 test("공법별 콘크리트 절단·인양 견적은 해당 구간의 압쇄 작업을 대체한다", () => {
   const input = { ...q, equipment: "large", concrete_m3: 100, masonry_m3: 25 };
   const base = compare(input, p);
@@ -393,4 +419,58 @@ test("공법별 콘크리트 절단·인양 견적은 해당 구간의 압쇄 �
   assert.equal(full.crush.excavatorHours, 0);
   assert.equal(full.crush.equipmentCrewDays, 0);
   assert.equal(full.crush.schedule.structure, 3);
+});
+
+test("확정 절단면적과 참고 가동시간은 기본 압쇄 물량·공기·매각량을 바꾸지 않는다", () => {
+  const input = { ...q, equipment: "mounted", concrete_m3: 100, masonry_m3: 25 };
+  const base = compare(input, p);
+  const cut = { area: 5, hours: 14.25, days: 0, cost: 1645185, costBasis: "reference", liftingRequired: true, liftingCost: 400000 };
+  const result = compare({ ...input, concreteCut: { selective: cut } }, p);
+  assert.equal(result.crush.total, base.crush.total);
+  assert.equal(result.selective.excavatorHours, base.selective.excavatorHours);
+  assert.equal(result.selective.days, base.selective.days);
+  assert.equal(result.selective.disposal, base.selective.disposal);
+  assert.equal(result.selective.revenue, base.selective.revenue);
+  assert.ok(Math.abs(result.selective.equipment - base.selective.equipment - 2045185) < 1e-6);
+  assert.deepEqual(result.unpricedCuts, []);
+  assert.deepEqual(result.unscheduledCuts, []);
+  const priced = item => result.selective.rows.find(row => row.item.includes(item)).amount;
+  assert.equal(priced("공개 참고단가"), 1645185);
+  assert.equal(priced("별도 인양비"), 400000);
+});
+
+test("공통 절단일은 양안에 반영하며 직접 입력한 공기와 장비의 이중 계산을 피한다", () => {
+  const input = { ...q, equipment: "large", concrete_m3: 100, masonry_m3: 25 };
+  const base = compare(input, p);
+  const cut = { area: 5, days: 2, cost: 2500000, liftingIncluded: true, liftingCost: 100000, avoidedHours: 4 };
+  const both = compare({ ...input, concreteCut: { crush: cut, selective: cut } }, p);
+  assert.ok(Math.abs(both.deltaDays - base.deltaDays) < 1e-9);
+  assert.ok(Math.abs(both.crush.days - base.crush.days - 2) < 1e-9);
+  assert.equal(both.crush.excavatorHours, base.crush.excavatorHours - 4);
+  assert.equal(both.crush.cut.avoidedHoursApplied, 4);
+  assert.equal(both.crush.cut.daysApplied, 2);
+  assert.equal(both.crush.cut.cost, 2500000);
+  const entered = compare({ ...input, concreteCut: { selective: cut },
+    workSchedule: { selective: { totalDays: 32, structureDays: 16, excavatorHours: 20, equipmentQuote: 800000 } } }, p);
+  assert.equal(entered.selective.days, 32);
+  assert.equal(entered.selective.schedule.structure, 16);
+  assert.equal(entered.selective.excavatorHours, 20);
+  assert.equal(entered.selective.cut.avoidedHoursApplied, 0);
+  assert.equal(entered.selective.cut.daysApplied, 0);
+  assert.equal(entered.selective.rows.find(row => row.item.startsWith("구조체 기본 장비")).amount, 800000);
+});
+
+test("절단 견적이나 공기가 미확인일 때 확인된 비용은 표시하고 비교 상태를 구분한다", () => {
+  const base = compare(q, p);
+  const result = compare({ ...q, concreteCut: { selective: { area: 3, cost: 1000000, quoteIncomplete: true } } }, p);
+  assert.deepEqual(result.unpricedCuts, ["selective"]);
+  assert.deepEqual(result.unscheduledCuts, ["selective"]);
+  assert.equal(result.selective.equipment - base.selective.equipment, 1000000);
+  assert.equal(result.selective.days, base.selective.days);
+  const noCutQuote = compare({ ...q, concreteCut: { selective: { area: 3, liftingCost: 200000 } },
+    workSchedule: { selective: { totalDays: 30 } } }, p);
+  assert.deepEqual(noCutQuote.unpricedCuts, ["selective"]);
+  assert.deepEqual(noCutQuote.unscheduledCuts, []);
+  assert.equal(noCutQuote.selective.days, 30);
+  assert.equal(noCutQuote.selective.rows.find(row => row.item.endsWith("별도 인양비")).amount, 200000);
 });
